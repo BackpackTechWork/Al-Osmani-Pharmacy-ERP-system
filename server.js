@@ -3,6 +3,9 @@ const express = require("express")
 const session = require("express-session")
 const path = require("path")
 const methodOverride = require("method-override")
+const readline = require("readline")
+const seedData = require("./utils/seeder")
+const { initializeDatabase } = require("./config/database")
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -87,11 +90,56 @@ app.use((err, req, res, next) => {
   })
 })
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Pharmacy Inventory System running at:`)
-  console.log(`Local:http://localhost:${PORT}`)
-  console.log(`Network: http://192.168.0.4:${PORT}`)
-})
+// Function to prompt user for seeding
+const promptForSeeding = () => {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    rl.question("Would you like to seed the database with sample data? (Y/N): ", (answer) => {
+      rl.close();
+      resolve(answer.trim().toLowerCase() === 'y' || answer.trim().toLowerCase() === 'yes');
+    });
+  });
+};
+
+const startServer = async () => {
+  try {
+    console.log("\n===========================================");
+    console.log("  Al-Osmani ERP System - Starting Up");
+    console.log("===========================================\n");
+    console.log("📦 Initializing database...\n");
+    
+    await initializeDatabase();
+    
+    console.log("\n✅ Database initialized successfully!\n");
+    
+    const shouldSeed = await promptForSeeding();
+    
+    if (shouldSeed) {
+      console.log("\n🌱 Initializing database seeding...\n");
+      await seedData();
+    } else {
+      console.log("\n⏭️  Skipping database seeding...\n");
+    }
+
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log("===========================================");
+      console.log(`✅ Al-Osmani ERP System is running!`);
+      console.log("===========================================");
+      console.log(`🏠 Local:   http://localhost:${PORT}`);
+      console.log(`🌐 Network: http://192.168.0.4:${PORT}`);
+      console.log("===========================================\n");
+    });
+  } catch (error) {
+    console.error("\n❌ Error starting server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 
 
