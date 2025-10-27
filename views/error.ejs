@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .error-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .error-content {
+      text-align: center;
+      max-width: 500px;
+    }
+    .error-icon {
+      font-size: 80px;
+      color: var(--error-color);
+      margin-bottom: 24px;
+    }
+    .error-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-color);
+    }
+    .error-message {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 32px;
+    }
+  </style>
+</head>
+<body>
+  <div class="error-container">
+    <div class="error-content fade-in">
+      <i class="fas fa-exclamation-triangle error-icon"></i>
+      <h1 class="error-title"><%= title %></h1>
+      <p class="error-message"><%= message %></p>
+      <a href="/" class="btn btn-primary">
+        <i class="fas fa-home"></i>
+        Go Home
+      </a>
+    </div>
+  </div>
+</body>
+</html>
+
+

@@ -1,0 +1,633 @@
+<style>
+  /* Desktop Navigation */
+  .desktop-navbar {
+    background-color: var(--color-white);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    font-family: var(--font-inter);
+  }
+
+  .navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 24px;
+    font-weight: 700;
+    transition: transform 0.3s ease;
+  }
+
+  .navbar-brand:hover {
+    transform: scale(1.05);
+  }
+
+  .navbar-brand i {
+    color: var(--accent-color);
+    font-size: 32px;
+  }
+
+  .navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .navbar-link {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 16px;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    padding: 8px 0;
+    font-family: var(--font-inter);
+  }
+
+  .navbar-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background-color: var(--accent-color);
+    transition: width 0.3s ease;
+  }
+
+  .navbar-link:hover {
+    color: var(--accent-color);
+  }
+
+  .navbar-link:hover::after {
+    width: 100%;
+  }
+
+  .navbar-link.active::after {
+    width: 100%;
+  }
+
+  .navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .brand-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-color);
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .desktop-only {
+      display: inline;
+    }
+  }
+  
+  .user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background-color: var(--bg-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.user-info:hover {
+  background-color: var(--accent-color);
+  color: var(--color-white);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(85, 164, 78, 0.3);
+}
+
+.user-info:hover .user-avatar {
+  background: var(--color-white) !important;
+  color: var(--accent-color) !important;
+}
+
+.user-info:hover .user-role {
+  color: var(--color-white) !important;
+  opacity: 0.9;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+  color: var(--color-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #666;
+  text-transform: capitalize;
+  transition: all 0.3s ease;
+}
+
+
+  .user-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: inherit;
+  }
+
+  .user-role {
+    font-size: 12px;
+    color: #666;
+    text-transform: capitalize;
+  }
+
+  /* Cart Badge */
+  .cart-link {
+    position: relative;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 24px;
+    transition: all 0.2s ease;
+  }
+
+  .cart-link:hover {
+    color: var(--accent-color);
+    transform: scale(1.1);
+  }
+
+  .cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #e74c3c;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    height: 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: bounceIn 0.5s ease;
+  }
+
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Mobile Bottom Navigation */
+  .mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--color-white);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+    z-index: 1000;
+    border-top: 1px solid var(--border-color);
+    font-family: var(--font-inter);
+  }
+
+  .mobile-nav-items {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-decoration: none;
+    color: #999;
+    padding: 12px;
+    border-radius: 16px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    flex: 1;
+    max-width: 60px;
+  }
+
+  .mobile-nav-item i {
+    font-size: 22px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mobile-nav-item span {
+    display: none;
+  }
+
+  .mobile-nav-item span.cart-badge {
+    display: flex;
+  }
+
+  .mobile-nav-item:hover {
+    color: var(--accent-color);
+    background-color: rgba(85, 164, 78, 0.08);
+  }
+
+  .mobile-nav-item.active {
+    color: var(--accent-color);
+    background-color: rgba(85, 164, 78, 0.12);
+  }
+
+  .mobile-nav-item.active i {
+    transform: scale(1.2);
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.92);
+  }
+
+  /* Add padding to body for mobile nav */
+  body.has-mobile-nav {
+    padding-bottom: 70px;
+  }
+
+  /* Responsive Breakpoints */
+  @media (max-width: 992px) {
+    .navbar-menu {
+      gap: 20px;
+    }
+
+    .user-details {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .desktop-navbar {
+      padding: 12px 0;
+    }
+
+    .navbar-container {
+      padding: 0 16px;
+    }
+
+    .navbar-menu {
+      display: none;
+    }
+
+    .navbar-user .btn {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    .navbar-user {
+      gap: 8px;
+    }
+
+    .mobile-bottom-nav {
+      display: block;
+    }
+
+    .brand-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .navbar-brand i {
+      font-size: 28px;
+    }
+
+    .user-info {
+      padding: 6px 12px;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      font-size: 14px;
+    }
+  }
+
+/* Floating central CTA (Shop button) */
+.mobile-nav-item.shop-cta {
+  position: relative;
+  top: -28px;
+  background: linear-gradient(135deg, var(--accent-color) 0%, #6ab55e 100%);
+  color: #fff;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 8px 24px rgba(85, 164, 78, 0.5),
+              0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 10;
+  border: 4px solid var(--color-white);
+  animation: float 3s ease-in-out infinite;
+  margin: 0 auto;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.mobile-nav-item.shop-cta i {
+  font-size: 26px;
+  color: #fff;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mobile-nav-item.shop-cta:active {
+  transform: scale(0.92) !important;
+}
+
+.mobile-nav-item.shop-cta.active {
+  background: linear-gradient(135deg, #6ab55e 0%, var(--accent-color) 100%);
+  box-shadow: 0 12px 32px rgba(85, 164, 78, 0.6),
+              0 6px 12px rgba(0, 0, 0, 0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.mobile-nav-item.shop-cta.active i {
+  animation: bounce 0.6s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 12px 32px rgba(85, 164, 78, 0.6),
+                0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 16px 40px rgba(85, 164, 78, 0.7),
+                0 8px 16px rgba(0, 0, 0, 0.25);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(0.8) rotate(-10deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  75% {
+    transform: scale(0.9) rotate(-5deg);
+  }
+}
+
+/* Curved notch behind the CTA */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-white);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+  z-index: 1000;
+  font-family: var(--font-inter);
+  overflow: visible;
+}
+
+/* Create smooth curved indentation for the floating button */
+.mobile-bottom-nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: var(--color-white);
+  -webkit-mask-image: radial-gradient(circle 40px at 50% -8px, transparent 0, transparent 40px, black 40px);
+  mask-image: radial-gradient(circle 40px at 50% -8px, transparent 0, transparent 40px, black 40px);
+  z-index: -1;
+}
+
+/* Adjust items layout since CTA sits on top */
+.mobile-nav-items {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 16px;
+  position: relative;
+  gap: 0;
+}
+
+/* Ensure equal spacing for all items */
+.mobile-nav-items > a {
+  justify-self: center;
+}
+
+</style>
+
+<!-- Desktop Navigation -->
+<nav class="desktop-navbar">
+  <div class="navbar-container">
+    <a href="/customer/home" class="navbar-brand">
+      <img src="/favicon.ico" alt="Al-Osmani Pharmacy" style="height: 30px; width: 30px; margin-right: 8px;">
+      <span class="brand-name <%= user ? '' : 'desktop-only' %>">Al-Osmani Pharmacy</span>
+    </a>
+     
+    
+    <ul class="navbar-menu">
+      <li>
+        <a href="/customer/home" class="navbar-link <%= currentPath === '/customer/home' ? 'active' : '' %>">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+      </li>
+      <li>
+        <a href="/customer/shop" class="navbar-link <%= currentPath === '/customer/shop' ? 'active' : '' %>">
+          <i class="fas fa-shopping-bag"></i>
+          <span>Shop</span>
+        </a>
+      </li>
+      <% if (user) { %>
+        <li>
+          <a href="/customer/orders" class="navbar-link <%= currentPath === '/customer/orders' ? 'active' : '' %>">
+            <i class="fas fa-clipboard-list"></i>
+            <span>My Orders</span>
+          </a>
+        </li>
+      <% } %>
+    </ul>
+    
+    <div class="navbar-user">
+      <% if (user) { %>
+        <a href="/customer/cart" class="cart-link" title="Shopping Cart">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-badge" id="cartBadge">0</span>
+        </a>
+        <a href="/auth/profile" class="user-info">
+          <div class="user-avatar">
+            <%= (user.firstName || user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.lastName || user.last_name || '').charAt(0).toUpperCase() %>
+          </div>
+          <div class="user-details">
+            <span class="user-name"><%= user.firstName || user.first_name || 'User' %> <%= user.lastName || user.last_name || '' %></span>
+            <span class="user-role"><%= user.role || 'customer' %></span>
+          </div>
+        </a>
+      <% } else { %>
+        <a href="/auth/login" class="btn btn-sm btn-primary">
+          <i class="fas fa-sign-in-alt"></i>
+          <span>Login</span>
+        </a>
+        <a href="/auth/register" class="btn btn-sm btn-outline">
+          <i class="fas fa-user-plus"></i>
+          <span>Register</span>
+        </a>
+      <% } %>
+    </div>
+  </div>
+</nav>
+
+
+<!-- Mobile Bottom Navigation -->
+<% if (user) { %>
+<nav class="mobile-bottom-nav">
+  <div class="mobile-nav-items">
+    <a href="/customer/home" class="mobile-nav-item <%= currentPath === '/customer/home' ? 'active' : '' %>">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+    
+    <a href="/customer/cart" class="mobile-nav-item <%= currentPath === '/customer/cart' ? 'active' : '' %>" style="position: relative;">
+      <i class="fas fa-shopping-cart"></i>
+      <span>Cart</span>
+      <span class="cart-badge" id="cartBadgeMobile" style="top: 4px; right: 8px;">0</span>
+    </a>
+    
+    <a href="/customer/shop"
+    class="mobile-nav-item shop-cta <%= currentPath === '/customer/shop' || currentPath.startsWith('/customer/product') ? 'active' : '' %>">
+   <i class="fas fa-shopping-bag"></i>
+ </a>
+ 
+    <a href="/customer/orders" class="mobile-nav-item <%= currentPath === '/customer/orders' || currentPath.startsWith('/customer/order') ? 'active' : '' %>">
+      <i class="fas fa-clipboard-list"></i>
+      <span>Orders</span>
+    </a>
+ 
+    <a href="/auth/profile" class="mobile-nav-item <%= currentPath === '/auth/profile' ? 'active' : '' %>">
+      <i class="fas fa-user-circle"></i>
+      <span>Profile</span>
+    </a>
+  </div>
+</nav>
+
+<script>
+
+  if (window.innerWidth <= 768) {
+    document.body.classList.add('has-mobile-nav');
+  }
+  
+  window.addEventListener('resize', () => {
+    if (window.innerWidth <= 768) {
+      document.body.classList.add('has-mobile-nav');
+    } else {
+      document.body.classList.remove('has-mobile-nav');
+    }
+  });
+
+
+  async function loadCartCount() {
+    try {
+      const response = await fetch('/customer/cart/count');
+      const data = await response.json();
+      
+      const cartBadge = document.getElementById('cartBadge');
+      const cartBadgeMobile = document.getElementById('cartBadgeMobile');
+      
+      if (data.count > 0) {
+        if (cartBadge) {
+          cartBadge.textContent = data.count;
+          cartBadge.style.display = 'flex';
+        }
+        if (cartBadgeMobile) {
+          cartBadgeMobile.textContent = data.count;
+          cartBadgeMobile.style.display = 'flex';
+        }
+      } else {
+        if (cartBadge) cartBadge.style.display = 'none';
+        if (cartBadgeMobile) cartBadgeMobile.style.display = 'none';
+      }
+    } catch (error) {
+      console.error('Error loading cart count:', error);
+    }
+  }
+
+
+  document.addEventListener('DOMContentLoaded', loadCartCount);
+</script>
+<% } %>
+

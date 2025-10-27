@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/admin/inventory/restock' }) %>
+  
+  <div class="main-content">
+    <div style="min-height: 100vh; background-color: var(--bg-color); padding: 32px 20px;">
+      <div class="container" style="max-width: 800px;">
+        <a href="/admin/inventory/restock" class="back-link" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent-color); text-decoration: none; font-weight: 600; margin-bottom: 24px;">
+          <i class="fas fa-arrow-left"></i>
+          Back to Restock Management
+        </a>
+        
+        <div class="card fade-in">
+          <div class="card-header">
+            <h1 class="card-title">
+              <i class="fas fa-<%= restock ? 'edit' : 'plus-circle' %>"></i>
+              <%= restock ? 'Edit Restock Entry' : 'Add New Restock' %>
+            </h1>
+          </div>
+          
+          <form action="<%= restock ? `/admin/inventory/restock/edit/${restock.id}` : '/admin/inventory/restock/add' %>" method="POST">
+            <div class="form-group">
+              <label class="form-label" for="branchId">Branch *</label>
+              <div class="searchable-select">
+                <div class="searchable-select-input" onclick="toggleDropdown('branch')">
+                  <input type="text" id="branchSearch" placeholder="Search branches..." onkeyup="filterOptions('branch')" autocomplete="off">
+                  <i class="fas fa-chevron-down searchable-select-arrow"></i>
+                </div>
+                <div class="searchable-select-options" id="branchOptions">
+                  <% branches.forEach(branch => { %>
+                    <div class="searchable-select-option" data-value="<%= branch.id %>" onclick="selectOption('branch', '<%= branch.id %>', '<%= branch.name %>')">
+                      <%= branch.name %>
+                    </div>
+                  <% }) %>
+                </div>
+                <input type="hidden" name="branchId" id="branchId" value="<%= branchId || '' %>" required>
+              </div>
+              <small style="color: #666; font-size: 12px;">
+                <i class="fas fa-info-circle" style="color: var(--accent-color);"></i>
+                You can move this restock to a different branch
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="productId">Product *</label>
+              <div class="searchable-select">
+                <div class="searchable-select-input <%= restock ? 'disabled' : '' %>" onclick="toggleDropdown('product')">
+                  <input type="text" id="productSearch" placeholder="Search products..." onkeyup="filterOptions('product')" autocomplete="off" <%= restock ? 'disabled' : '' %>>
+                  <i class="fas fa-chevron-down searchable-select-arrow"></i>
+                </div>
+                <div class="searchable-select-options" id="productOptions">
+                  <% products.forEach(product => { %>
+                    <div class="searchable-select-option" data-value="<%= product.id %>" onclick="selectOption('product', '<%= product.id %>', '<%= product.name %> (<%= product.sku %>)')">
+                      <%= product.name %> (<%= product.sku %>)
+                    </div>
+                  <% }) %>
+                </div>
+                <input type="hidden" name="productId" id="productId" value="<%= restock ? restock.product_id : '' %>" required>
+              </div>
+              <% if (restock) { %>
+                <small style="color: #666; font-size: 12px;">Product cannot be changed when editing</small>
+              <% } %>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="quantity">Quantity *</label>
+                <input 
+                  type="number" 
+                  id="quantity" 
+                  name="quantity" 
+                  class="form-control" 
+                  min="1"
+                  value="<%= restock ? restock.quantity : '' %>"
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="expiryDate">Expiry Date *</label>
+                <input 
+                  type="date" 
+                  id="expiryDate" 
+                  name="expiryDate" 
+                  class="form-control"
+                  value="<%= restock ? new Date(restock.expiry_date).toISOString().split('T')[0] : '' %>"
+                  required
+                >
+              </div>
+            </div>
+
+            <% if (restock) { %>
+              <div class="form-group">
+                <label class="form-label">Batch Number</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  value="<%= restock.batch_number %>"
+                  disabled
+                  style="background: #f5f5f5; cursor: not-allowed;"
+                >
+                <small style="color: #666; font-size: 12px;">
+                  Batch number cannot be changed
+                </small>
+              </div>
+            <% } else { %>
+              <small style="color: #666; font-size: 13px; display: block; margin-top: 8px;">
+                <i class="fas fa-info-circle" style="color: var(--accent-color);"></i>
+                Batch number will be auto-generated based on today's date
+              </small>
+            <% } %>
+            
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                <%= restock ? 'Update Restock' : 'Add Restock' %>
+              </button>
+              <a href="/admin/inventory/restock" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .searchable-select {
+      position: relative;
+      width: 100%;
+    }
+
+    .searchable-select-input {
+      position: relative;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .searchable-select-input:hover {
+      border-color: var(--accent-color);
+    }
+
+    .searchable-select-input input {
+      width: 100%;
+      padding: 12px 40px 12px 16px;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .searchable-select-input input:disabled {
+      background: transparent;
+      cursor: not-allowed;
+      color: #999 !important;
+    }
+
+    .searchable-select-input.disabled {
+      background: #f5f5f5 !important;
+      cursor: not-allowed;
+    }
+
+    .searchable-select-input.disabled input {
+      color: #999 !important;
+      background: transparent !important;
+    }
+
+    .searchable-select-input.disabled .searchable-select-arrow {
+      color: #999 !important;
+    }
+
+    .searchable-select-arrow {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+      transition: transform 0.3s ease;
+      pointer-events: none;
+    }
+
+    .searchable-select.open .searchable-select-arrow {
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    .searchable-select-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .searchable-select.open .searchable-select-options {
+      display: block;
+    }
+
+    .searchable-select-option {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .searchable-select-option:last-child {
+      border-bottom: none;
+    }
+
+    .searchable-select-option:hover {
+      background-color: #f8f9fa;
+    }
+
+    .searchable-select-option.selected {
+      background-color: var(--accent-color);
+      color: white;
+    }
+
+    .searchable-select-option.hidden {
+      display: none;
+    }
+
+    .searchable-select-options::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .searchable-select-options::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    .searchable-select-options::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+
+    .searchable-select-options::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+      <% if (restock && restock.product_id) { %>
+        <% const selectedProduct = products.find(p => p.id == restock.product_id) %>
+        <% if (selectedProduct) { %>
+          document.getElementById('productSearch').value =
+            '<%= selectedProduct.name %> (<%= selectedProduct.sku %>)';
+        <% } %>
+      <% } %>
+
+
+      <% if (branchId) { %>
+        <% const selectedBranch = branches.find(b => b.id == branchId) %>
+        <% if (selectedBranch) { %>
+          document.getElementById('branchSearch').value = '<%= selectedBranch.name %>';
+        <% } %>
+      <% } %>
+    });
+
+    function toggleDropdown(type) {
+      const select = document.querySelector(`#${type}Options`).parentElement;
+      const isOpen = select.classList.contains('open');
+      const searchInput = document.getElementById(`${type}Search`);
+      if (searchInput.disabled) return;
+
+      document.querySelectorAll('.searchable-select').forEach(s => s.classList.remove('open'));
+      if (!isOpen) {
+        select.classList.add('open');
+        setTimeout(() => searchInput.focus(), 100);
+      }
+    }
+
+    function filterOptions(type) {
+      const searchTerm = document.getElementById(`${type}Search`).value.toLowerCase();
+      const options = document.querySelectorAll(`#${type}Options .searchable-select-option`);
+      options.forEach(option => {
+        const text = option.textContent.toLowerCase();
+        option.classList.toggle('hidden', !text.includes(searchTerm));
+      });
+    }
+
+    function selectOption(type, value, text) {
+      document.getElementById(`${type}Search`).value = text;
+      document.getElementById(`${type}Id`).value = value;
+      document.querySelector(`#${type}Options`).parentElement.classList.remove('open');
+      document.querySelectorAll(`#${type}Options .searchable-select-option`).forEach(o => o.classList.remove('selected'));
+      event.target.classList.add('selected');
+    }
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.searchable-select')) {
+        document.querySelectorAll('.searchable-select').forEach(s => s.classList.remove('open'));
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.searchable-select').forEach(s => s.classList.remove('open'));
+      }
+    });
+
+    document.addEventListener('wheel', e => {
+      if (document.activeElement.type === 'number') {
+        document.activeElement.blur();
+      }
+    });
+  </script>
+
+</body>
+</html>

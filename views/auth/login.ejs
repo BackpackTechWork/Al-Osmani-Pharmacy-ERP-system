@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Animated background elements */
+    .auth-container::before,
+    .auth-container::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      animation: float 20s infinite ease-in-out;
+      will-change: transform;
+    }
+    
+    .auth-container::before {
+      width: 300px;
+      height: 300px;
+      top: -150px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+    
+    .auth-container::after {
+      width: 400px;
+      height: 400px;
+      bottom: -200px;
+      left: -150px;
+      animation-delay: 5s;
+    }
+    
+    /* Additional floating elements */
+    .floating-shape {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+      will-change: transform;
+    }
+    
+    .floating-shape:nth-child(1) {
+      width: 80px;
+      height: 80px;
+      top: 15%;
+      left: 10%;
+      animation: float 15s infinite ease-in-out;
+      animation-delay: 2s;
+    }
+    
+    .floating-shape:nth-child(2) {
+      width: 120px;
+      height: 120px;
+      top: 60%;
+      right: 8%;
+      animation: float 18s infinite ease-in-out;
+      animation-delay: 4s;
+    }
+    
+    .floating-shape:nth-child(3) {
+      width: 60px;
+      height: 60px;
+      bottom: 20%;
+      left: 15%;
+      animation: float 12s infinite ease-in-out;
+      animation-delay: 1s;
+    }
+    
+    .floating-shape:nth-child(4) {
+      width: 90px;
+      height: 90px;
+      top: 40%;
+      left: 5%;
+      animation: float 16s infinite ease-in-out;
+      animation-delay: 6s;
+    }
+    
+    .floating-shape:nth-child(5) {
+      width: 70px;
+      height: 70px;
+      bottom: 35%;
+      right: 12%;
+      animation: float 14s infinite ease-in-out;
+      animation-delay: 3s;
+    }
+    
+    .floating-shape:nth-child(6) {
+      width: 100px;
+      height: 100px;
+      top: 25%;
+      right: 20%;
+      animation: float 17s infinite ease-in-out;
+      animation-delay: 7s;
+      opacity: 0.6;
+    }
+    
+    @keyframes float {
+      0%, 100% { 
+        transform: translate(0, 0) scale(1);
+        opacity: 0.6;
+      }
+      25% { 
+        transform: translate(20px, -25px) scale(1.1);
+        opacity: 0.8;
+      }
+      50% { 
+        transform: translate(-15px, -10px) scale(0.95);
+        opacity: 0.5;
+      }
+      75% { 
+        transform: translate(-25px, 20px) scale(1.05);
+        opacity: 0.7;
+      }
+    }
+    
+    .auth-card {
+      background-color: var(--color-white);
+      border-radius: 20px;
+      padding: 48px;
+      max-width: 450px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.5);
+      animation: slideUp 0.6s ease-out;
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(10px);
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    
+    .auth-logo img {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+      animation: pulse 2s infinite ease-in-out;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .auth-logo h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    
+    .auth-logo p {
+      color: #666;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    
+    .form-group {
+      margin-bottom: 24px;
+      position: relative;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+    
+    .form-label i {
+      margin-right: 6px;
+      color: var(--accent-color);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background-color: #f8f9fa;
+      font-family: inherit;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      background-color: white;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+      transform: translateY(-1px);
+    }
+    
+    .form-control::placeholder {
+      color: #999;
+    }
+    
+    .password-input-wrapper {
+      position: relative;
+    }
+    
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 4px;
+      font-size: 16px;
+      transition: color 0.2s ease;
+    }
+    
+    .password-toggle:hover {
+      color: var(--accent-color);
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+    
+    .btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .btn i {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .btn span {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    .btn-outline {
+      background: white;
+      color: var(--accent-color);
+      border: 2px solid var(--accent-color);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .btn-outline:hover {
+      background: var(--accent-color);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+    
+    .auth-divider {
+      text-align: center;
+      margin: 28px 0;
+      color: #999;
+      font-size: 14px;
+      font-weight: 500;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #e0e0e0, transparent);
+    }
+    
+    .auth-link {
+      text-align: center;
+      margin-top: 24px;
+      color: #666;
+      font-size: 15px;
+    }
+    
+    .auth-link a {
+      color: var(--accent-color);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .auth-link a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent-color);
+      transition: width 0.3s ease;
+    }
+    
+    .auth-link a:hover::after {
+      width: 100%;
+    }
+    
+    .auth-link a:hover {
+      color: var(--accent-light);
+    }
+    
+    .alert {
+      padding: 14px 16px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      animation: slideDown 0.4s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .alert i {
+      font-size: 18px;
+    }
+    
+    .alert-error {
+      background-color: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+    }
+    
+    .alert-success {
+      background-color: #efe;
+      color: #3a3;
+      border: 1px solid #cfc;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 576px) {
+      .auth-container {
+        padding: 16px;
+      }
+      
+      .auth-card {
+        padding: 32px 24px;
+        border-radius: 16px;
+      }
+      
+      .auth-logo img {
+        width: 56px;
+        height: 56px;
+      }
+      
+      .auth-logo h1 {
+        font-size: 26px;
+      }
+      
+      .auth-logo p {
+        font-size: 14px;
+      }
+      
+      .form-control {
+        padding: 12px 14px;
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      .btn {
+        padding: 12px 20px;
+        font-size: 15px;
+      }
+      
+      /* Enhanced mobile background animations */
+      .auth-container::before {
+        width: 180px;
+        height: 180px;
+        top: -90px;
+        right: -60px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+      
+      .auth-container::after {
+        width: 220px;
+        height: 220px;
+        bottom: -110px;
+        left: -70px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+      
+      .floating-shape:nth-child(1) {
+        width: 60px;
+        height: 60px;
+        top: 8%;
+        left: 8%;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      
+      .floating-shape:nth-child(2) {
+        width: 90px;
+        height: 90px;
+        top: 70%;
+        right: 5%;
+        background: rgba(255, 255, 255, 0.11);
+      }
+      
+      .floating-shape:nth-child(3) {
+        width: 50px;
+        height: 50px;
+        bottom: 15%;
+        left: 12%;
+        background: rgba(255, 255, 255, 0.09);
+      }
+      
+      .floating-shape:nth-child(4) {
+        width: 70px;
+        height: 70px;
+        top: 35%;
+        left: 3%;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      
+      .floating-shape:nth-child(5) {
+        width: 55px;
+        height: 55px;
+        bottom: 45%;
+        right: 8%;
+        background: rgba(255, 255, 255, 0.11);
+      }
+      
+      .floating-shape:nth-child(6) {
+        width: 75px;
+        height: 75px;
+        top: 18%;
+        right: 15%;
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+    
+    @media (max-width: 380px) {
+      .auth-card {
+        padding: 28px 20px;
+      }
+      
+      .auth-logo h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="auth-card">
+      <div class="auth-logo">
+        <img src="/favicon.ico" alt="Pharmacy Icon" style="width: 50px; height: 50px; margin-bottom: 10px;">
+        <h1>Al-Osmani Pharmacy</h1>
+        <p>Sign in to your account</p>        
+      </div>
+      
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i>
+          <%= error %>
+        </div>
+      <% } %>
+      
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle"></i>
+          <%= success %>
+        </div>
+      <% } %>
+      
+      <form action="/auth/login" method="POST">
+        <div class="form-group">
+          <label class="form-label" for="username">
+            <i class="fas fa-user"></i> Username
+          </label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            class="form-control" 
+            placeholder="Enter your username"
+            required
+            autofocus
+          >
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="password">
+            <i class="fas fa-lock"></i> Password
+          </label>
+          <div class="password-input-wrapper">
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-control" 
+              placeholder="Enter your password"
+              required
+              style="padding-right: 45px;"
+            >
+            <button type="button" class="password-toggle" onclick="togglePassword()">
+              <i class="fas fa-eye" id="toggleIcon"></i>
+            </button>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-sign-in-alt"></i>
+          <span>Sign In</span>
+        </button>
+      </form>
+      
+      <div class="auth-link">
+        Don't have an account? <a href="/auth/register">Register here</a>
+      </div>
+      
+      <div class="auth-divider">or</div>
+      
+      <a href="/customer/home" class="btn btn-outline">
+        <i class="fas fa-shopping-bag"></i>
+        <span>Continue as Guest</span>
+      </a>
+    </div>
+  </div>
+  
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+  </script>
+</body>
+</html>
+
+

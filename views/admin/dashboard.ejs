@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <script src="/js/chart.min.js"></script>
+  <style>
+    body { overflow-x: hidden; }
+    .dashboard-container {
+      min-height: 100vh;
+      background-color: var(--bg-color);
+      overflow-x: hidden;
+    }
+    .dashboard-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+    .dashboard-header {
+      margin-bottom: 32px;
+    }
+    .dashboard-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 8px;
+    }
+    .dashboard-header p {
+      color: #666;
+      font-size: 16px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      color: var(--color-white) !important;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card:link,
+    .stat-card:visited,
+    .stat-card:hover,
+    .stat-card:active {
+      color: #fff !important;
+      text-decoration: none !important;
+    }
+    .stat-card.secondary {
+      background: linear-gradient(135deg, #2196F3 0%, #64B5F6 100%);
+    }
+    .stat-card.success {
+      background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%);
+    }
+    .stat-card.warning {
+      background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%);
+    }
+    .stat-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+      opacity: 0.9;
+    }
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .chart-container {
+      background-color: var(--color-white);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .chart-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chart-wrapper {
+      position: relative;
+      height: 300px;
+      max-width: 100%;
+    }
+    .chart-container { max-width: 100%; }
+    canvas { max-width: 100% !important; }
+    .dashboard-section {
+      background-color: var(--color-white);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border-color);
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background-color: var(--bg-color);
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+    .item:hover {
+      background-color: #e8f5e9;
+    }
+    .item-info {
+      flex: 1;
+    }
+    .item-title {
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 4px;
+    }
+    .item-subtitle {
+      font-size: 14px;
+      color: #666;
+    }
+    .item-value {
+      font-weight: 700;
+      color: var(--accent-color);
+      font-size: 18px;
+    }
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .dashboard-content {
+        padding: 24px 16px;
+      }
+      .chart-wrapper {
+        height: 240px;
+      }
+      .chart-title {
+        font-size: 16px;
+      }
+      .stat-value {
+        font-size: 30px;
+      }
+      .stat-icon {
+        font-size: 30px;
+      }
+      /* Ensure charts grid does not overflow on mobile, override inline grid */
+      .charts-grid {
+        grid-template-columns: 1fr !important;
+        display: block !important;
+      }
+    }
+
+    /* Tablet adjustments */
+    @media (max-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      /* Override inline grid-template-columns to prevent minmax overflow */
+      .charts-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    /* Very small devices */
+    @media (max-width: 480px) {
+      .dashboard-content {
+        padding: 20px 12px;
+      }
+      .chart-wrapper {
+        height: 200px;
+      }
+      .stat-card {
+        padding: 20px;
+      }
+      .dashboard-header h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/admin/dashboard' }) %>
+  
+  <div class="main-content">
+    <style>
+      .main-content { overflow-x: hidden; }
+    </style>
+    <div class="dashboard-container">
+    <div class="dashboard-content">
+      <div class="dashboard-header fade-in">
+        <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+        <p>Welcome back, <%= user.firstName %>! Here's what's happening today.</p>
+      </div>
+      
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle"></i>
+          <%= success %>
+        </div>
+      <% } %>
+      
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i>
+          <%= error %>
+        </div>
+      <% } %>
+      
+      <div class="stats-grid fade-in">
+
+        <a href="/admin/branches?status=active" class="stat-card" style="text-decoration: none; color: inherit; display: block;">
+          <div class="stat-icon"><i class="fas fa-building"></i></div>
+          <div class="stat-value"><%= stats.branches %></div>
+          <div class="stat-label">Active Branches</div>
+        </a>
+      
+        <a href="/admin/users?page=1&role=customer" class="stat-card secondary" style="text-decoration: none; color: inherit; display: block;">
+          <div class="stat-icon"><i class="fas fa-user-friends"></i></div>
+          <div class="stat-value"><%= stats.customers %></div>
+          <div class="stat-label">Customers</div>
+        </a>
+      
+        <a href="/admin/products" class="stat-card success" style="text-decoration: none; color: inherit; display: block;">
+          <div class="stat-icon"><i class="fas fa-pills"></i></div>
+          <div class="stat-value"><%= stats.products %></div>
+          <div class="stat-label">Products</div>
+        </a>
+      
+        <a href="/admin/inventory/orders" class="stat-card warning" style="text-decoration: none; color: inherit; display: block;">
+          <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+          <div class="stat-value"><%= stats.orders %></div>
+          <div class="stat-label">Active Orders</div>
+        </a>
+      
+      </div>
+      
+      
+      
+      <!-- Charts Section -->
+        <div class="charts-grid fade-in" style="display: flex; flex-direction: column; gap: 24px;">
+
+          <!-- Sales Over Time Chart -->
+          <div class="chart-container" style="width: 100%;">
+            <div class="chart-title">
+              <i class="fas fa-chart-line"></i>
+              Sales and Order Trend (Last 30 Days)
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="salesTrendChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Top Products Chart -->
+          <div class="chart-container" style="width: 100%;">
+            <div class="chart-title">
+              <i class="fas fa-star"></i>
+              Top Products
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="topProductsChart"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="charts-grid fade-in" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-top: 24px;">
+
+          <!-- Inventory Status Chart -->
+          <div class="chart-container">
+            <div class="chart-title">
+              <i class="fas fa-boxes"></i>
+              Inventory Status Overview
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="inventoryStatusChart"></canvas>
+            </div>
+          </div>
+        
+          <!-- Sales by Branch Chart -->
+          <div class="chart-container">
+            <div class="chart-title">
+              <i class="fas fa-building"></i>
+              Sales & Orders by Branch (Top 10)
+            </div>          
+            <div class="chart-wrapper">
+              <canvas id="salesByBranchChart"></canvas>
+            </div>
+          </div>
+        
+        </div>
+      
+      <div class="dashboard-grid">
+        <div class="dashboard-section fade-in">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i class="fas fa-chart-line"></i>
+              Sales by Branch (Last 30 Days)
+            </h2>
+          </div>
+          <div class="item-list">
+            <% if (salesByBranch.length > 0) { %>
+              <% salesByBranch.forEach(branch => { %>
+                <div class="item">
+                  <div class="item-info">
+                    <div class="item-title"><%= branch.name %></div>
+                    <div class="item-subtitle"><%= branch.sale_count %> transactions</div>
+                  </div>
+                  <div class="item-value">$<%= parseFloat(branch.total_sales || 0).toFixed(2) %></div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <p style="text-align: center; color: #666; padding: 20px;">No sales data available</p>
+            <% } %>
+          </div>
+        </div>
+        
+        <div class="dashboard-section fade-in">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i class="fas fa-exclamation-triangle"></i>
+              Low Stock Alerts
+            </h2>
+          </div>
+          <div class="item-list">
+            <% if (lowStock.length > 0) { %>
+              <% lowStock.forEach(item => { %>
+                <div class="item">
+                  <div class="item-info">
+                    <div class="item-title"><%= item.product_name %></div>
+                    <div class="item-subtitle">
+                      <%= item.branch_name %> - SKU: <%= item.sku %> | 
+                      Remaining: <%= item.total_stock %> units
+                    </div>
+                  </div>
+          
+                  <% 
+                    const isCritical = Math.abs(item.total_stock - item.floor_level) === 20;
+                    const isReorder = item.total_stock < item.floor_level;
+                    const badgeClass = isCritical ? 'badge badge-warning' : (isReorder ? 'badge badge-danger' : 'badge badge-success');
+                    const badgeLabel = isCritical ? 'Critical' : (isReorder ? 'Reorder' : 'In Stock');
+                  %>
+          
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="<%= badgeClass %>"><%= badgeLabel %></span>
+                    <a 
+                      href="/admin/inventory/restock/add?branch=<%= item.branch_id %>&product=<%= item.product_id %>" 
+                      class="btn btn-sm btn-outline"
+                      style="padding: 6px 10px; font-size: 13px;"
+                    >
+                      <i class="fas fa-plus-circle"></i> Restock
+                    </a>
+                  </div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <p style="text-align: center; color: #666; padding: 20px;">All stock levels are healthy</p>
+            <% } %>
+          </div>
+          
+        </div>
+      </div>
+      
+        
+        <div class="dashboard-section fade-in">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i class="fas fa-receipt"></i>
+              Recent Sales
+            </h2>
+            <a href="/admin/sales" class="btn btn-sm btn-outline">View All</a>
+          </div>
+          <div class="item-list">
+            <% if (recentSales.length > 0) { %>
+              <% recentSales.forEach(sale => { %>
+                <div class="item">
+                  <div class="item-info">
+                    <div class="item-title">#<%= sale.id %> - <%= sale.branch_name %></div>
+                    <div class="item-subtitle">
+                      By <%= sale.first_name %> <%= sale.last_name %> - 
+                      <%= new Date(sale.created_at).toLocaleString() %>
+                    </div>
+                  </div>
+                  <div class="item-value">$<%= parseFloat(sale.total).toFixed(2) %></div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <p style="text-align: center; color: #666; padding: 20px;">No recent sales</p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <script>
+
+    Chart.defaults.font.family = 'Inter, sans-serif';
+    Chart.defaults.color = '#666';
+    Chart.defaults.borderColor = '#e0e0e0';
+
+
+    const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
+    const trendData = <%- JSON.stringify(salesOverTime) %>;
+
+    new Chart(salesTrendCtx, {
+      type: 'line',
+      data: {
+        labels: trendData.map(item => new Date(item.date).toLocaleDateString()),
+        datasets: [
+          {
+            label: 'Sales ($)',
+            data: trendData.map(item => parseFloat(item.sales_total || 0)),
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'Orders ($)',
+            data: trendData.map(item => parseFloat(item.orders_total || 0)),
+            borderColor: '#2196F3',
+            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top' }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: value => '$' + value.toFixed(2)
+            }
+          }
+        }
+      }
+    });
+
+
+
+    const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+    const topProductsData = <%- JSON.stringify(topProducts) %>;
+    
+    new Chart(topProductsCtx, {
+      type: 'bar',
+      data: {
+        labels: topProductsData.map(item => item.name.length > 20 ? item.name.substring(0, 20) + '...' : item.name),
+        datasets: [{
+          label: 'Quantity Sold',
+          data: topProductsData.map(item => parseInt(item.total_quantity_sold)),
+          backgroundColor: 'rgba(33, 150, 243, 0.8)',
+          borderColor: '#2196F3',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+
+    const inventoryStatusCtx = document.getElementById('inventoryStatusChart').getContext('2d');
+const inventoryStatusData = <%- JSON.stringify(inventoryStatus) %>;
+
+const colorMap = {
+  'Critical': '#ffc107', 
+  'Reorder': '#dc3545',  
+  'In Stock': '#28a745'  
+};
+
+new Chart(inventoryStatusCtx, {
+  type: 'doughnut',
+  data: {
+    labels: inventoryStatusData.map(item => item.status),
+    datasets: [{
+      data: inventoryStatusData.map(item => parseInt(item.count)),
+      backgroundColor: inventoryStatusData.map(item => colorMap[item.status] || '#ccc'),
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: 20,
+          usePointStyle: true
+        }
+      }
+    }
+  }
+});
+
+
+const salesByBranchCtx = document.getElementById('salesByBranchChart').getContext('2d');
+const salesByBranchData = <%- JSON.stringify(salesByBranchChart) %>;
+
+
+function generateColors(count) {
+  const colors = [];
+  for (let i = 0; i < count; i++) {
+    const hue = (i * 360 / count) % 360;
+    colors.push(`hsl(${hue}, 70%, 55%)`);
+  }
+  return colors;
+}
+
+const colors = generateColors(salesByBranchData.length);
+
+new Chart(salesByBranchCtx, {
+  type: 'pie',
+  data: {
+    labels: salesByBranchData.map(item => item.name),
+    datasets: [{
+      label: 'Revenue ($)',
+      data: salesByBranchData.map(item => parseFloat(item.total_revenue)),
+      backgroundColor: colors,
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          usePointStyle: true,
+          padding: 20
+        },
+
+        onClick: (evt, legendItem, legend) => {
+          const index = legendItem.index;
+          const ci = legend.chart;
+          const meta = ci.getDatasetMeta(0);
+          meta.data[index].hidden = !meta.data[index].hidden;
+          ci.update();
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.raw || 0;
+            return `${label}: $${value.toFixed(2)}`;
+          }
+        }
+      }
+    }
+  }
+});
+
+  </script>
+</body>
+</html>
+
+

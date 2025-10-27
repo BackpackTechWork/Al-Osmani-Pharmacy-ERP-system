@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .bulk-actions {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .bulk-actions.active {
+      display: block;
+    }
+    
+    .bulk-actions-content {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .bulk-actions-content > * {
+      flex-shrink: 0;
+    }
+
+    .bulk-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .bulk-actions-row {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      margin-top: 8px;
+    }
+    
+    .search-filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+    
+    .search-box input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+    
+    .search-box i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+    }
+    
+    .filter-box {
+      position: relative;
+    }
+    
+    .filter-box select {
+      padding: 12px 40px 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+      appearance: none;
+      transition: all 0.2s;
+      min-width: 160px;
+    }
+    
+    .filter-box select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+    
+    .filter-box i {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      pointer-events: none;
+    }
+    
+    .clear-filters {
+      padding: 12px 20px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .clear-filters:hover {
+      background: #e0e0e0;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #eee;
+    }
+    
+    .pagination a,
+    .pagination span {
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #666;
+      transition: all 0.2s;
+    }
+    
+    .pagination a {
+      background: white;
+      border: 1px solid #ddd;
+    }
+    
+    .pagination a:hover {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+    
+    .pagination .current {
+      background: var(--accent-color);
+      color: white;
+      font-weight: 600;
+      border: 1px solid var(--accent-color);
+    }
+    
+    .pagination .disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    
+    .pagination-info {
+      color: #666;
+      font-size: 14px;
+      margin-left: 16px;
+    }
+
+    .incoming-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #ff9800;
+      color: white;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    /* Custom Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-box {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s ease;
+    }
+
+    .modal-header {
+      margin-bottom: 20px;
+    }
+
+    .modal-header h3 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #333;
+      margin: 0 0 8px 0;
+    }
+
+    .modal-message {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #666;
+      white-space: pre-line;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      justify-content: flex-end;
+    }
+
+    /* Alert Modal specific styles */
+    .alert-modal-header h3 {
+      color: #ff9800;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { 
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to { 
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .flex-between {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 16px;
+      }
+      
+      .search-filter-bar {
+        flex-direction: column;
+      }
+      
+      .search-box,
+      .filter-box select {
+        width: 100%;
+        min-width: 100%;
+      }
+      
+      .pagination {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      
+      .pagination-info {
+        width: 100%;
+        text-align: center;
+        margin-left: 0;
+        margin-top: 8px;
+      }
+
+      .bulk-actions-content {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .bulk-actions-content > * {
+        width: 100%;
+      }
+
+      .bulk-actions-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bulk-actions-row {
+        flex-direction: column;
+      }
+
+      table {
+        font-size: 13px;
+      }
+
+      table th,
+      table td {
+        padding: 8px 6px;
+      }
+
+      .incoming-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/employee/inventory/incoming-orders' }) %>
+  
+  <div class="main-content">
+    <div style="min-height: 100vh; background-color: var(--bg-color); padding: 32px 20px;">
+    <div class="container">
+      <div class="flex-between mb-3">
+        <div>
+          <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">
+            <i class="fas fa-inbox"></i> Incoming Orders
+          </h1>
+          <p style="color: #666;">Manage customer orders awaiting branch assignment</p>
+        </div>
+      </div>
+      
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle"></i>
+          <%= success %>
+        </div>
+      <% } %>
+      
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i>
+          <%= error %>
+        </div>
+      <% } %>
+      
+      <!-- Bulk Actions -->
+      <div id="bulkActions" class="bulk-actions">
+        <div class="bulk-actions-content">
+          <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span id="selectedCount" style="font-weight: 600; color: var(--accent-color);">0 orders selected</span>
+            <button class="btn btn-sm btn-outline" onclick="clearSelection()">
+              <i class="fas fa-times"></i> Clear
+            </button>
+          </div>
+
+          <div class="bulk-actions-grid">
+            <div>
+              <label style="display: block; font-size: 12px; color: #666; margin-bottom: 4px; font-weight: 600;">Branch *</label>
+              <select id="bulkBranch" class="form-control">
+                <option value="">Select Branch</option>
+                <% branches.forEach(branch => { %>
+                  <option value="<%= branch.id %>"><%= branch.name %></option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 12px; color: #666; margin-bottom: 4px; font-weight: 600;">Discount</label>
+              <input type="number" id="bulkDiscount" class="form-control" placeholder="0.00" step="0.01" min="0" value="0">
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 12px; color: #666; margin-bottom: 4px; font-weight: 600;">Discount Type</label>
+              <select id="bulkDiscountType" class="form-control">
+                <option value="fixed">Fixed ($)</option>
+                <option value="percentage">Percentage (%)</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 12px; color: #666; margin-bottom: 4px; font-weight: 600;">Delivery Fee</label>
+              <input type="number" id="bulkDeliveryFee" class="form-control" placeholder="0.00" step="0.01" min="0" value="0">
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 12px; color: #666; margin-bottom: 4px; font-weight: 600;">Status</label>
+              <select id="bulkStatus" class="form-control">
+                <option value="pending" selected>Pending (Default)</option>
+                <option value="processing">Processing</option>
+                <option value="ready">Ready</option>
+                <option value="completed">Completed</option>
+                <option value="shipped">Shipped</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="bulk-actions-row">
+            <button id="bulkAssignBtn" class="btn btn-primary" onclick="bulkAssignOrders()">
+              <i class="fas fa-check"></i> Assign to Branch
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search and Filter Bar -->
+      <div class="search-filter-bar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search by customer name or order ID..." 
+            value="<%= search %>"
+          >
+        </div>
+        
+          <div class="filter-box">
+            <select id="orderTypeFilter">
+              <option value="">All Order Types</option>
+              <option value="pickup" <%= orderType === 'pickup' ? 'selected' : '' %>>Pick Up</option>
+              <option value="delivery" <%= orderType === 'delivery' ? 'selected' : '' %>>Delivery</option>
+            </select>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+        
+        <% if (search || orderType) { %>
+          <button class="clear-filters" onclick="clearFilters()">
+            <i class="fas fa-times"></i>
+            Clear Filters
+          </button>
+        <% } %>
+      </div>
+
+      <!-- Table View -->
+      <div class="table-container fade-in">
+        <% if (orders.length === 0) { %>
+          <div style="text-align: center; padding: 60px 20px; color: #999;">
+            <i class="fas fa-inbox" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+            <h3 style="font-size: 24px; font-weight: 600; color: #666; margin-bottom: 12px;">No Incoming Orders</h3>
+            <p style="font-size: 16px;">All customer orders have been assigned to branches.</p>
+          </div>
+        <% } else { %>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 40px;">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+              </th>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Type</th>
+              <th>Items</th>
+              <th>Subtotal</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orders.forEach(order => { %>
+              <tr>
+                <td>
+                  <input type="checkbox" class="order-checkbox" value="<%= order.id %>" onchange="updateBulkActions()">
+                </td>
+                <td>
+                  <strong>#<%= order.id %></strong><br>
+                  <span class="incoming-badge">Unassigned</span>
+                </td>
+                <td>
+                  <strong><%= order.customer_name %></strong><br>
+                  <small style="color: #666;"><%= order.customer_email %></small>
+                </td>
+                <td>
+                  <% if (order.order_type === 'pickup') { %>
+                    <span class="badge badge-info">
+                      <i class="fas fa-shopping-bag"></i> Pick Up
+                    </span>
+                  <% } else { %>
+                    <span class="badge badge-primary">
+                      <i class="fas fa-truck"></i> Delivery
+                    </span>
+                  <% } %>
+                </td>
+                <td><%= order.total_items || 0 %> items</td>
+                <td>
+                  <strong style="color: var(--accent-color);">$<%= parseFloat(order.subtotal).toFixed(2) %></strong><br>
+                  <small style="color: #999;">No discount/fees</small>
+                </td>
+                <td>
+                  <span class="badge badge-<%= order.status === 'completed' ? 'success' : order.status === 'requested' ? 'warning' : order.status === 'pending' ? 'info' : order.status === 'cancelled' ? 'danger' : 'info' %>">
+                    <%= order.status.toUpperCase() %>
+                  </span>
+                </td>
+                <td>
+                  <%= new Date(order.created_at).toLocaleString() %>
+                </td>
+                <td>
+                  <a href="/employee/inventory/orders/view/<%= order.id %>" class="btn btn-sm btn-outline" title="View Order Details">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <% } %>
+      </div>
+      
+      <!-- Pagination -->
+      <% 
+        const buildPaginationUrl = (page) => {
+          const params = new URLSearchParams();
+          params.set('page', page);
+          if (search) params.set('search', search);
+          if (orderType) params.set('type', orderType);
+          if (statusFilter) params.set('status', statusFilter);
+          return '?' + params.toString();
+        };
+      %>
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <% if (currentPage > 1) { %>
+            <a href="<%= buildPaginationUrl(currentPage - 1) %>">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          <% } else { %>
+            <span class="disabled">
+              <i class="fas fa-chevron-left"></i>
+            </span>
+          <% } %>
+          
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === currentPage) { %>
+              <span class="current"><%= i %></span>
+            <% } else if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
+              <a href="<%= buildPaginationUrl(i) %>"><%= i %></a>
+            <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
+              <span>...</span>
+            <% } %>
+          <% } %>
+          
+          <% if (currentPage < totalPages) { %>
+            <a href="<%= buildPaginationUrl(currentPage + 1) %>">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          <% } else { %>
+            <span class="disabled">
+              <i class="fas fa-chevron-right"></i>
+            </span>
+          <% } %>
+          
+          <span class="pagination-info">
+            Showing <%= orders.length %> of <%= totalOrders %> orders
+          </span>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  </div>
+  
+  <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const alerts = document.querySelectorAll('.alert');
+      if (alerts.length > 0) {
+        setTimeout(() => {
+          alerts.forEach(alert => {
+            alert.style.transition = 'opacity 0.5s ease';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+          });
+        }, 3000);
+      }
+    });
+
+
+    function toggleSelectAll() {
+      const checkbox = document.getElementById('selectAll');
+      const checkboxes = document.querySelectorAll('.order-checkbox');
+      checkboxes.forEach(cb => cb.checked = checkbox.checked);
+      updateBulkActions();
+    }
+
+    function updateBulkActions() {
+      const orderCheckboxes = document.querySelectorAll('.order-checkbox:checked');
+      const count = orderCheckboxes.length;
+      const bulkActions = document.getElementById('bulkActions');
+      const selectedCount = document.getElementById('selectedCount');
+      
+      if (count > 0) {
+        bulkActions.classList.add('active');
+        selectedCount.textContent = `${count} order(s) selected`;
+      } else {
+        bulkActions.classList.remove('active');
+        document.getElementById('selectAll').checked = false;
+      }
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = false);
+      document.getElementById('selectAll').checked = false;
+      updateBulkActions();
+    }
+
+    function getSelectedOrderIds() {
+      const orderCheckboxes = document.querySelectorAll('.order-checkbox:checked');
+      return Array.from(orderCheckboxes).map(cb => cb.value);
+    }
+
+    function bulkAssignOrders() {
+      const orderIds = getSelectedOrderIds();
+      const branchId = document.getElementById('bulkBranch').value;
+      const discount = document.getElementById('bulkDiscount').value || 0;
+      const discountType = document.getElementById('bulkDiscountType').value;
+      const deliveryFee = document.getElementById('bulkDeliveryFee').value || 0;
+      const status = document.getElementById('bulkStatus').value || 'pending';
+      
+      if (orderIds.length === 0) {
+        showAlertModal('Please select at least one order.');
+        return;
+      }
+      
+      if (!branchId) {
+        showAlertModal('Please select a branch to assign orders.');
+        return;
+      }
+      
+      const confirmMsg = `Assign ${orderIds.length} order(s) to branch?\n\n` +
+        `Discount: ${discount > 0 ? (discountType === 'percentage' ? discount + '%' : '$' + discount) : 'None'}\n` +
+        `Delivery Fee: ${deliveryFee > 0 ? '$' + deliveryFee : 'None'}\n` +
+        `New Status: ${status.toUpperCase()}`;
+      
+      showConfirmModal(confirmMsg, function(confirmed) {
+        if (!confirmed) return;
+        submitAssignment();
+      });
+    }
+
+    function submitAssignment() {
+      const orderIds = getSelectedOrderIds();
+      const branchId = document.getElementById('bulkBranch').value;
+      const discount = document.getElementById('bulkDiscount').value || 0;
+      const discountType = document.getElementById('bulkDiscountType').value;
+      const deliveryFee = document.getElementById('bulkDeliveryFee').value || 0;
+      const status = document.getElementById('bulkStatus').value || 'pending';
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/employee/inventory/incoming-orders/assign';
+      
+      const orderIdsInput = document.createElement('input');
+      orderIdsInput.type = 'hidden';
+      orderIdsInput.name = 'orderIds';
+      orderIdsInput.value = JSON.stringify(orderIds);
+      form.appendChild(orderIdsInput);
+      
+      const branchInput = document.createElement('input');
+      branchInput.type = 'hidden';
+      branchInput.name = 'branchId';
+      branchInput.value = branchId;
+      form.appendChild(branchInput);
+      
+      const discountInput = document.createElement('input');
+      discountInput.type = 'hidden';
+      discountInput.name = 'discount';
+      discountInput.value = discount;
+      form.appendChild(discountInput);
+      
+      const discountTypeInput = document.createElement('input');
+      discountTypeInput.type = 'hidden';
+      discountTypeInput.name = 'discountType';
+      discountTypeInput.value = discountType;
+      form.appendChild(discountTypeInput);
+      
+      const deliveryFeeInput = document.createElement('input');
+      deliveryFeeInput.type = 'hidden';
+      deliveryFeeInput.name = 'deliveryFee';
+      deliveryFeeInput.value = deliveryFee;
+      form.appendChild(deliveryFeeInput);
+      
+      const statusInput = document.createElement('input');
+      statusInput.type = 'hidden';
+      statusInput.name = 'status';
+      statusInput.value = status;
+      form.appendChild(statusInput);
+      
+      document.body.appendChild(form);
+      form.submit();
+    }
+
+
+    function showConfirmModal(message, callback) {
+      const modal = document.getElementById('confirmModal');
+      const messageEl = document.getElementById('confirmMessage');
+      const confirmBtn = document.getElementById('confirmBtn');
+      const cancelBtn = document.getElementById('cancelBtn');
+      
+      messageEl.textContent = message;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      
+      confirmBtn.onclick = function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        callback(true);
+      };
+      
+      cancelBtn.onclick = function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        callback(false);
+      };
+      
+
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto';
+          callback(false);
+        }
+      };
+    }
+
+
+    function showAlertModal(message) {
+      const modal = document.getElementById('alertModal');
+      const messageEl = document.getElementById('alertMessage');
+      const okBtn = document.getElementById('alertOkBtn');
+      
+      messageEl.textContent = message;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      
+      okBtn.onclick = function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      };
+      
+
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto';
+        }
+      };
+    }
+    
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+    
+    function applyFilters() {
+      const searchValue = document.getElementById('searchInput').value;
+      const orderTypeValue = document.getElementById('orderTypeFilter').value;
+      
+      const params = new URLSearchParams();
+      params.set('page', '1');
+      if (searchValue) params.set('search', searchValue);
+      if (orderTypeValue) params.set('type', orderTypeValue);
+
+      window.location.href = '/employee/inventory/incoming-orders?' + params.toString();
+    }
+    
+
+    function clearFilters() {
+      window.location.href = '/employee/inventory/incoming-orders';
+    }
+    
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('searchInput');
+      const orderTypeFilter = document.getElementById('orderTypeFilter');
+      
+      const debouncedSearch = debounce(() => {
+        applyFilters();
+      }, 300);
+      
+      searchInput.addEventListener('input', debouncedSearch);
+      
+      const debouncedFilter = debounce(() => {
+        applyFilters();
+      }, 300);
+      
+      orderTypeFilter.addEventListener('change', debouncedFilter);
+    });
+  </script>
+
+  <!-- Custom Confirmation Modal -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fas fa-check-circle" style="color: var(--accent-color);"></i> Confirm Assignment</h3>
+      </div>
+      <div class="modal-message" id="confirmMessage"></div>
+      <div class="modal-actions">
+        <button id="cancelBtn" class="btn btn-outline">Cancel</button>
+        <button id="confirmBtn" class="btn btn-primary">Confirm & Assign</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Alert Modal -->
+  <div id="alertModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header alert-modal-header">
+        <h3><i class="fas fa-exclamation-triangle"></i> Alert</h3>
+      </div>
+      <div class="modal-message" id="alertMessage"></div>
+      <div class="modal-actions">
+        <button id="alertOkBtn" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

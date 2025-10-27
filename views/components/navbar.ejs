@@ -1,0 +1,190 @@
+<style>
+  .navbar {
+    background-color: var(--color-white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .navbar-brand i {
+    color: var(--accent-color);
+    font-size: 32px;
+  }
+  .navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    list-style: none;
+  }
+  .navbar-link {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .navbar-link:hover {
+    color: var(--accent-color);
+  }
+  .navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+  }
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: var(--accent-color);
+    color: var(--color-white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  .user-details {
+    display: flex;
+    flex-direction: column;
+  }
+  .user-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-color);
+  }
+  .user-role {
+    font-size: 12px;
+    color: #666;
+    text-transform: capitalize;
+  }
+  .mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-color);
+    cursor: pointer;
+  }
+  
+  @media (max-width: 768px) {
+    .navbar-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: var(--color-white);
+      flex-direction: column;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-menu.active {
+      display: flex;
+    }
+    .mobile-menu-toggle {
+      display: block;
+    }
+    .user-details {
+      display: none;
+    }
+  }
+</style>
+
+<nav class="navbar">
+  <div class="navbar-container">
+    <a href="/customer/home" class="navbar-brand">
+      <img src="/favicon.ico" alt="Al-Osmani Pharmacy" style="height: 30px; width: 30px; margin-right: 8px;">
+      <span>Al-Osmani Pharmacy</span>
+    </a>    
+    
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    
+    <ul class="navbar-menu" id="navbarMenu">
+      <% if (user) { %>
+        <% if (user.role === 'admin') { %>
+          <li><a href="/admin/dashboard" class="navbar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="/admin/branches" class="navbar-link"><i class="fas fa-building"></i> Branches</a></li>
+          <li><a href="/admin/users" class="navbar-link"><i class="fas fa-users"></i> Users</a></li>
+          <li><a href="/admin/products" class="navbar-link"><i class="fas fa-pills"></i> Products</a></li>
+        <% } else if (user.role === 'employee') { %>
+          <li><a href="/employee/dashboard" class="navbar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="/pos" class="navbar-link"><i class="fas fa-cash-register"></i> POS</a></li>
+          <li><a href="/employee/inventory" class="navbar-link"><i class="fas fa-boxes"></i> Inventory</a></li>
+        <% } else if (user.role === 'customer') { %>
+          <li><a href="/customer/shop" class="navbar-link"><i class="fas fa-shopping-bag"></i> Shop</a></li>
+          <li><a href="/customer/orders" class="navbar-link"><i class="fas fa-receipt"></i> My Orders</a></li>
+        <% } %>
+      <% } else { %>
+        <li><a href="/customer/home" class="navbar-link"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="/customer/shop" class="navbar-link"><i class="fas fa-shopping-bag"></i> Shop</a></li>
+      <% } %>
+    </ul>
+    
+    <div class="navbar-user">
+      <% if (user) { %>
+        <div class="user-info">
+          <div class="user-avatar">
+            <%= (user.firstName || user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.lastName || user.last_name || 'U').charAt(0).toUpperCase() %>
+          </div>
+          <div class="user-details">
+            <span class="user-name"><%= user.firstName || user.first_name || 'User' %> <%= user.lastName || user.last_name || '' %></span>
+            <span class="user-role"><%= user.role || 'user' %></span>
+          </div>
+        </div>
+        <a href="/auth/profile" class="btn btn-sm btn-outline">
+          <i class="fas fa-user-circle"></i>
+          Profile
+        </a>
+        <a href="/auth/logout" class="btn btn-sm btn-secondary">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </a>
+      <% } else { %>
+        <a href="/auth/login" class="btn btn-sm btn-primary">
+          <i class="fas fa-sign-in-alt"></i>
+          Login
+        </a>
+        <a href="/auth/register" class="btn btn-sm btn-outline">
+          <i class="fas fa-user-plus"></i>
+          Register
+        </a>
+      <% } %>
+    </div>
+  </div>
+</nav>
+
+<script>
+  function toggleMobileMenu() {
+    const menu = document.getElementById('navbarMenu');
+    menu.classList.toggle('active');
+  }
+</script>

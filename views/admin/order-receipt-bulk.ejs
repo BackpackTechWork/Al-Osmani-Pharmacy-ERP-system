@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #000;
+      background: #fff;
+      padding: 20px;
+    }
+    
+    .bulk-header {
+      text-align: center;
+      border-bottom: 2px solid #000;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .bulk-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .bulk-info {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .receipt {
+      max-width: 300px;
+      margin: 0 auto 30px auto;
+      border: 1px solid #000;
+      padding: 15px;
+      page-break-inside: avoid;
+    }
+    
+    .receipt:last-child {
+      margin-bottom: 0;
+    }
+    
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #000;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .company-name {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .order-info {
+      margin-bottom: 15px;
+    }
+    
+    .order-info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+    
+    .order-info-label {
+      font-weight: bold;
+    }
+    
+    .customer-info {
+      margin-bottom: 15px;
+      padding: 8px;
+      border: 1px solid #000;
+    }
+    
+    .customer-info h3 {
+      font-size: 12px;
+      margin-bottom: 5px;
+      text-decoration: underline;
+    }
+    
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+    
+    .items-table th,
+    .items-table td {
+      border: 1px solid #000;
+      padding: 3px;
+      text-align: left;
+    }
+    
+    .items-table th {
+      background: #f0f0f0;
+      font-weight: bold;
+      font-size: 10px;
+    }
+    
+    .items-table td {
+      font-size: 10px;
+    }
+    
+    .items-table .qty {
+      text-align: center;
+      width: 30px;
+    }
+    
+    .items-table .price {
+      text-align: right;
+      width: 50px;
+    }
+    
+    .items-table .total {
+      text-align: right;
+      width: 50px;
+    }
+    
+    .summary {
+      border-top: 2px solid #000;
+      padding-top: 10px;
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    
+    .summary-row.total {
+      border-top: 1px solid #000;
+      padding-top: 5px;
+      margin-top: 5px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 10px;
+    }
+    
+    .dashed-line {
+      border-top: 1px dashed #000;
+      margin: 10px 0;
+    }
+    
+    .receipt-separator {
+      border-top: 3px solid #000;
+      margin: 20px 0;
+      text-align: center;
+      padding: 10px 0;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    
+    .receipt-separator:first-child {
+      display: none;
+    }
+    
+    @media print {
+      body {
+        padding: 0;
+      }
+      
+      .receipt {
+        border: none;
+        max-width: none;
+        margin: 0 auto 20px auto;
+      }
+      
+      .receipt-separator {
+        page-break-before: always;
+        border-top: none;
+        margin-top: 0;
+      }
+      
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <% orders.forEach((order, index) => { %>
+    <% if (index > 0) { %>
+      <div class="receipt-separator">--- NEXT RECEIPT ---</div>
+    <% } %>
+    
+    <div class="receipt">
+      <!-- Header -->
+      <div class="header">
+        <div class="company-name">AL-OSMANI ERP</div>
+        <div>Order Receipt</div>
+      </div>
+      
+      <!-- Order Information -->
+      <div class="order-info">
+        <div class="order-info-row">
+          <span class="order-info-label">Order #:</span>
+          <span><%= order.id %></span>
+        </div>
+        <div class="order-info-row">
+          <span class="order-info-label">Date:</span>
+          <span><%= new Date(order.created_at).toLocaleDateString() %></span>
+        </div>
+        <div class="order-info-row">
+          <span class="order-info-label">Time:</span>
+          <span><%= new Date(order.created_at).toLocaleTimeString() %></span>
+        </div>
+        <div class="order-info-row">
+          <span class="order-info-label">Branch:</span>
+          <span><%= order.branch_name %></span>
+        </div>
+        <div class="order-info-row">
+          <span class="order-info-label">Type:</span>
+          <span><%= order.order_type.toUpperCase() %></span>
+        </div>
+        <div class="order-info-row">
+          <span class="order-info-label">Status:</span>
+          <span><%= order.status.toUpperCase() %></span>
+        </div>
+      </div>
+      
+      <!-- Customer Information -->
+      <div class="customer-info">
+        <h3>CUSTOMER</h3>
+        <div><strong><%= order.customer_name %></strong></div>
+        <div><%= order.customer_email %></div>
+        <% if (order.customer_phone) { %>
+          <div><%= order.customer_phone %></div>
+        <% } %>
+      </div>
+      
+      <!-- Delivery Information (if applicable) -->
+      <% if (order.order_type === 'delivery' && order.delivery_address) { %>
+        <div class="customer-info">
+          <h3>DELIVERY ADDRESS</h3>
+          <div><%= order.delivery_address %></div>
+          <% if (order.delivery_city) { %>
+            <div><%= order.delivery_city %>, <%= order.delivery_state || '' %> <%= order.delivery_zip || '' %></div>
+          <% } %>
+        </div>
+      <% } %>
+      
+      <!-- Items -->
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="qty">Qty</th>
+            <th class="price">Price</th>
+            <th class="total">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.items.forEach(item => { %>
+            <tr>
+              <td><%= item.product_name %></td>
+              <td class="qty"><%= item.quantity %></td>
+              <td class="price">$<%= parseFloat(item.unit_price).toFixed(2) %></td>
+              <td class="total">$<%= parseFloat(item.subtotal).toFixed(2) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      
+      <!-- Summary -->
+      <div class="summary">
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span>$<%= parseFloat(order.subtotal).toFixed(2) %></span>
+        </div>
+        <div class="summary-row">
+          <span>Tax:</span>
+          <span>$<%= parseFloat(order.tax).toFixed(2) %></span>
+        </div>
+        <% if (order.discount > 0) { %>
+          <div class="summary-row">
+            <span>Discount:</span>
+            <span>-$<%= parseFloat(order.discount).toFixed(2) %></span>
+          </div>
+        <% } %>
+        <% if (order.order_type === 'delivery' && order.delivery_fee > 0) { %>
+          <div class="summary-row">
+            <span>Delivery Fee:</span>
+            <span>$<%= parseFloat(order.delivery_fee).toFixed(2) %></span>
+          </div>
+        <% } %>
+        <div class="summary-row total">
+          <span>TOTAL:</span>
+          <span>$<%= parseFloat(order.total).toFixed(2) %></span>
+        </div>
+      </div>
+      
+      <!-- Notes -->
+      <% if (order.notes) { %>
+        <div class="dashed-line"></div>
+        <div style="margin-top: 10px;">
+          <strong>Notes:</strong><br>
+          <%= order.notes %>
+        </div>
+      <% } %>
+      
+      <!-- Footer -->
+      <div class="footer">
+        <div class="dashed-line"></div>
+        <div>Thank you for your business!</div>
+        <div>Created by: <%= order.created_by_name %></div>
+        <div><%= new Date(order.created_at).toLocaleString() %></div>
+      </div>
+    </div>
+  <% }) %>
+  
+  <div class="no-print" style="text-align: center; margin-top: 20px;">
+    <button onclick="window.print()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+      Print All Receipts
+    </button>
+    <button onclick="window.history.back()" style="padding: 10px 20px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Go Back
+    </button>
+  </div>  
+</body>
+</html>

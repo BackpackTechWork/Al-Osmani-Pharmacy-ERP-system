@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e9 100%);
+      min-height: 100vh;
+    }
+
+    .orders-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .orders-header {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .orders-header h1 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent-color), #45a049);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .orders-header p {
+      font-size: 16px;
+      color: #666;
+    }
+
+    .order-card {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .order-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-color), #45a049);
+    }
+
+    .order-card:hover {
+      box-shadow: 0 8px 32px rgba(76, 175, 80, 0.2);
+      transform: translateY(-4px);
+      border-color: var(--accent-color);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .order-id {
+      font-size: 24px;
+      font-weight: 800;
+      color: #333;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .order-id i {
+      color: var(--accent-color);
+      font-size: 20px;
+    }
+
+    .order-date {
+      color: #666;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .order-date i {
+      color: var(--accent-color);
+    }
+
+    .status-badge {
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .status-requested {
+      background: linear-gradient(135deg, #e7f3ff, #c2e0ff);
+      color: #084298;
+    }
+
+    .status-pending {
+      background: linear-gradient(135deg, #fff3cd, #ffe5a3);
+      color: #856404;
+    }
+
+    .status-processing {
+      background: linear-gradient(135deg, #cce5ff, #99ccff);
+      color: #004085;
+    }
+
+    .status-ready {
+      background: linear-gradient(135deg, #d4edda, #aee4b8);
+      color: #155724;
+    }
+
+    .status-completed {
+      background: linear-gradient(135deg, #d4edda, #aee4b8);
+      color: #155724;
+    }
+
+    .status-cancelled {
+      background: linear-gradient(135deg, #f8d7da, #f5c2c7);
+      color: #721c24;
+    }
+
+    .order-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      background: linear-gradient(135deg, #f8f9fa, #f0f4f0);
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .detail-item:hover {
+      background: linear-gradient(135deg, #e8f5e9, #dcedc8);
+      transform: translateY(-2px);
+    }
+
+    .detail-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+      font-size: 18px;
+      color: #333;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-value i {
+      color: var(--accent-color);
+      font-size: 16px;
+    }
+
+    .delivery-info {
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border-left: 4px solid #2196f3;
+    }
+
+    .delivery-info-title {
+      font-size: 13px;
+      color: #1565c0;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .delivery-info-content {
+      font-size: 14px;
+      color: #0d47a1;
+      font-weight: 600;
+    }
+
+    .order-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+
+    .empty-orders {
+      text-align: center;
+      padding: 100px 40px;
+      background: linear-gradient(135deg, #ffffff, #f9fdf9);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+      border: 2px dashed var(--accent-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .empty-orders::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: -100px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle at center, rgba(76,175,80,0.08), transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    .empty-orders i {
+      font-size: 90px;
+      color: var(--accent-color);
+      margin-bottom: 28px;
+      opacity: 0.25;
+      z-index: 1;
+      position: relative;
+      transition: transform 0.4s ease;
+    }
+
+    .empty-orders:hover i {
+      transform: scale(1.05) rotate(5deg);
+    }
+
+    .empty-orders h2 {
+      font-size: 30px;
+      margin-bottom: 16px;
+      color: #2e7d32;
+      font-weight: 800;
+      position: relative;
+      z-index: 1;
+    }
+
+    .empty-orders p {
+      color: #666;
+      font-size: 17px;
+      margin-bottom: 36px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .search-filter-section {
+      background-color: var(--color-white);
+      padding: 32px;
+      border-radius: 20px;
+      margin-bottom: 32px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .search-filter-section:hover {
+      border-color: rgba(85, 164, 78, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    .search-box {
+      margin-bottom: 24px;
+    }
+
+    .search-input-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background-color: var(--bg-color);
+      padding: 18px 24px;
+      border-radius: 14px;
+      border: 2px solid var(--border-color);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .search-input-group:focus-within {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 4px rgba(85, 164, 78, 0.12);
+      background-color: var(--color-white);
+    }
+
+    .search-input-group i.fa-search {
+      color: var(--accent-color);
+      font-size: 20px;
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      outline: none;
+      color: var(--text-color);
+      font-weight: 500;
+    }
+
+    .search-input::placeholder {
+      color: #999;
+    }
+
+    .search-clear {
+      display: none;
+      color: #999;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 4px;
+      position: absolute;
+      right: 20px;
+    }
+
+    .search-clear.active {
+      display: block;
+    }
+
+    .search-clear:hover {
+      color: var(--error-color);
+      transform: scale(1.2);
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-item {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-item label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      color: var(--text-color);
+      font-size: 14px;
+    }
+
+    .filter-item label i {
+      color: var(--accent-color);
+    }
+
+    .filter-trigger {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-color);
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .filter-trigger:hover {
+      border-color: var(--accent-color);
+      box-shadow: 0 4px 12px rgba(85, 164, 78, 0.15);
+      background: white;
+    }
+
+    .filter-trigger i {
+      color: var(--accent-color);
+      transition: transform 0.3s ease;
+    }
+
+    .filter-badge {
+      background: var(--accent-color);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+
+    /* Filter Modal Styles */
+    .filter-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .filter-modal.active {
+      display: flex;
+    }
+
+    .filter-modal-content {
+      background: white;
+      width: 90%;
+      max-width: 450px;
+      max-height: 70vh;
+      border-radius: 20px;
+      padding: 24px;
+      animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .filter-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .filter-modal-header h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-modal-header h3 i {
+      color: var(--accent-color);
+    }
+
+    .filter-modal-close {
+      background: rgba(0, 0, 0, 0.05);
+      border: none;
+      font-size: 24px;
+      color: var(--text-color);
+      cursor: pointer;
+      padding: 6px;
+      line-height: 1;
+      transition: all 0.2s ease;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .filter-modal-close:hover {
+      color: var(--color-white);
+      background: var(--accent-color);
+      transform: rotate(90deg);
+    }
+
+    .filter-modal-option {
+      padding: 16px 18px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 600;
+      font-size: 15px;
+      border: 2px solid transparent;
+    }
+
+    .filter-modal-option:hover {
+      background: rgba(85, 164, 78, 0.05);
+      border-color: var(--border-color);
+    }
+
+    .filter-modal-option.selected {
+      background: linear-gradient(90deg, var(--accent-color) 0%, #6bcd5f 100%);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    .filter-modal-option i {
+      font-size: 18px;
+    }
+
+    /* Pagination Styles */
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .pagination-info {
+      font-size: 15px;
+      color: #666;
+      font-weight: 600;
+    }
+
+    .pagination-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #pageNumbers {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pagination-btn {
+      padding: 8px 16px;
+      border: 2px solid var(--border-color);
+      background: white;
+      color: var(--text-color);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      border-color: var(--accent-color);
+      background: var(--accent-color);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .page-number {
+      padding: 8px 14px;
+      border: 2px solid var(--border-color);
+      background: white;
+      color: var(--text-color);
+      border-radius: 8px;
+      font-weight: 700;
+      min-width: 44px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .page-number.active {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    .page-number:hover:not(.active) {
+      border-color: var(--accent-color);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+      .orders-header h1 {
+        font-size: 28px;
+      }
+
+      .search-filter-section {
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+
+      .search-input-group {
+        padding: 14px 18px;
+      }
+
+      .filter-controls {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .filter-item {
+        min-width: 100%;
+      }
+
+      .pagination-container {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .pagination-controls {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .pagination-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+
+      .filter-modal {
+        align-items: flex-end;
+      }
+
+      .filter-modal-content {
+        width: 100%;
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 24px 24px 0 0;
+        animation: slideUpMobile 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes slideUpMobile {
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+
+      .order-card {
+        padding: 20px;
+      }
+
+      .order-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      .order-id {
+        font-size: 20px;
+      }
+
+      .order-details {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .order-actions {
+        flex-direction: column;
+      }
+
+      .empty-orders {
+        padding: 60px 20px;
+      }
+
+      .empty-orders i {
+        font-size: 60px;
+      }
+
+      .empty-orders h2 {
+        font-size: 22px;
+      }
+    }
+
+    /* Custom Modal Styles */
+    .custom-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .custom-modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 0;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      animation: slideUp 0.3s ease;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 24px;
+      border-bottom: 2px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-header.warning {
+      background: linear-gradient(135deg, #fff3cd, #ffe5a3);
+      border-bottom-color: #ffc107;
+    }
+
+    .modal-header.error {
+      background: linear-gradient(135deg, #f8d7da, #f5c2c7);
+      border-bottom-color: #dc3545;
+    }
+
+    .modal-header i {
+      font-size: 28px;
+    }
+
+    .modal-header.warning i {
+      color: #856404;
+    }
+
+    .modal-header.error i {
+      color: #721c24;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+      text-align: left;
+      flex: 1;
+    }
+
+    .modal-body {
+      padding: 24px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .modal-body p {
+      margin: 0 0 16px 0;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .modal-body ul {
+      margin: 12px 0;
+      padding-left: 20px;
+    }
+
+    .modal-body li {
+      margin-bottom: 8px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .modal-info-box {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-left: 4px solid var(--accent-color);
+    }
+
+    .modal-info-box strong {
+      color: #333;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .modal-footer {
+      padding: 20px 24px;
+      background: #f8f9fa;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-btn-primary {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .modal-btn-primary:hover {
+      background: #45a049;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .modal-btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .modal-btn-secondary:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Skeleton Loading Styles */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .skeleton-header {
+      height: 120px;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      background: white;
+    }
+
+    .skeleton-order-card {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .skeleton-text {
+      height: 20px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .skeleton-text.small {
+      width: 40%;
+      height: 16px;
+    }
+
+    .skeleton-text.medium {
+      width: 60%;
+    }
+
+    .skeleton-text.large {
+      width: 80%;
+      height: 24px;
+    }
+
+    .loading-state {
+      display: none;
+    }
+
+    body.loading .loading-state {
+      display: block;
+    }
+
+    body.loading .content-state {
+      display: none;
+    }
+  </style>
+</head>
+<body class="loading">
+  <%- include('../components/customer-navbar', { user }) %>
+
+  <!-- Custom Modal -->
+  <div id="customModal" class="custom-modal">
+    <div class="modal-content">
+      <div id="modalHeader" class="modal-header">
+        <i id="modalIcon" class="fas fa-info-circle"></i>
+        <h3 id="modalTitle">Information</h3>
+      </div>
+      <div id="modalBody" class="modal-body">
+        <p id="modalMessage"></p>
+      </div>
+      <div id="modalFooter" class="modal-footer">
+        <button id="modalCancelBtn" class="modal-btn modal-btn-secondary" style="display: none;">Cancel</button>
+        <button id="modalConfirmBtn" class="modal-btn modal-btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    function showModal(options) {
+      const modal = document.getElementById('customModal');
+      const header = document.getElementById('modalHeader');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+      const message = document.getElementById('modalMessage');
+      const footer = document.getElementById('modalFooter');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+
+
+      header.className = 'modal-header';
+      
+
+      if (options.type === 'warning') {
+        header.classList.add('warning');
+        icon.className = 'fas fa-exclamation-triangle';
+      } else if (options.type === 'error') {
+        header.classList.add('error');
+        icon.className = 'fas fa-times-circle';
+      } else {
+        icon.className = 'fas fa-info-circle';
+      }
+
+
+      title.textContent = options.title || 'Information';
+      
+      if (options.html) {
+        message.innerHTML = options.html;
+      } else {
+        message.textContent = options.message || '';
+      }
+
+
+      if (options.showCancel) {
+        cancelBtn.style.display = 'inline-block';
+        cancelBtn.textContent = options.cancelText || 'Cancel';
+      } else {
+        cancelBtn.style.display = 'none';
+      }
+
+      confirmBtn.textContent = options.confirmText || 'OK';
+
+
+      modal.classList.add('active');
+
+
+      return new Promise((resolve) => {
+        const handleConfirm = () => {
+          modal.classList.remove('active');
+          confirmBtn.removeEventListener('click', handleConfirm);
+          cancelBtn.removeEventListener('click', handleCancel);
+          resolve(true);
+        };
+
+        const handleCancel = () => {
+          modal.classList.remove('active');
+          confirmBtn.removeEventListener('click', handleConfirm);
+          cancelBtn.removeEventListener('click', handleCancel);
+          resolve(false);
+        };
+
+        confirmBtn.addEventListener('click', handleConfirm);
+        cancelBtn.addEventListener('click', handleCancel);
+      });
+    }
+
+    async function orderAgain(orderId) {
+      const button = event.target.closest('button');
+      const originalContent = button.innerHTML;
+      
+
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+      try {
+        const response = await fetch(`/customer/order/${orderId}/again`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+
+          if (data.warnings && data.warnings.length > 0) {
+            const warningList = data.warnings.map(w => `<li>${w}</li>`).join('');
+            const proceed = await showModal({
+              type: 'warning',
+              title: 'Important Information',
+              html: `
+                <p><strong>Please review the following:</strong></p>
+                <ul>${warningList}</ul>
+                <div class="modal-info-box">
+                  <strong>Available items: ${data.availableCount} of ${data.totalCount}</strong>
+                  <p style="margin-top: 8px;">Do you want to proceed with available items?</p>
+                </div>
+              `,
+              showCancel: true,
+              confirmText: 'Proceed to Checkout',
+              cancelText: 'Cancel'
+            });
+            
+            if (!proceed) {
+              button.disabled = false;
+              button.innerHTML = originalContent;
+              return;
+            }
+          }
+          
+
+          window.location.href = '/customer/checkout';
+        } else {
+          await showModal({
+            type: 'error',
+            title: 'Unable to Reorder',
+            message: data.message || 'Unable to reorder this order. Please try again.',
+            confirmText: 'OK'
+          });
+          button.disabled = false;
+          button.innerHTML = originalContent;
+        }
+      } catch (error) {
+        console.error('Order again error:', error);
+        await showModal({
+          type: 'error',
+          title: 'Error',
+          message: 'Error processing reorder. Please try again.',
+          confirmText: 'OK'
+        });
+        button.disabled = false;
+        button.innerHTML = originalContent;
+      }
+    }
+  </script>
+
+  <div class="orders-container">
+    <!-- Skeleton Loading State -->
+    <div class="loading-state">
+      <div class="skeleton skeleton-header"></div>
+      <div class="skeleton-order-card">
+        <div class="skeleton-text large"></div>
+        <div class="skeleton-text small"></div>
+        <div style="height: 20px;"></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+          <div class="skeleton-text medium"></div>
+          <div class="skeleton-text medium"></div>
+          <div class="skeleton-text medium"></div>
+        </div>
+      </div>
+      <div class="skeleton-order-card">
+        <div class="skeleton-text large"></div>
+        <div class="skeleton-text small"></div>
+        <div style="height: 20px;"></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+          <div class="skeleton-text medium"></div>
+          <div class="skeleton-text medium"></div>
+          <div class="skeleton-text medium"></div>
+        </div>
+      </div>
+      <div class="skeleton-order-card">
+        <div class="skeleton-text large"></div>
+        <div class="skeleton-text small"></div>
+        <div style="height: 20px;"></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+          <div class="skeleton-text medium"></div>
+          <div class="skeleton-text medium"></div>
+          <div class="skeleton-text medium"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actual Content -->
+    <div class="content-state">
+    <div class="orders-header">
+      <h1><i class="fas fa-clipboard-list"></i> My Orders</h1>
+      <p style="color: #666;">View and track all your orders</p>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section">
+      <div class="search-box">
+        <div class="search-input-group">
+          <i class="fas fa-search"></i>
+          <input 
+            type="text" 
+            id="searchInput"
+            placeholder="Search by order ID or product name..." 
+            class="search-input"
+            autocomplete="off"
+            value="<%= filters.search %>"
+          >
+          <i class="fas fa-times-circle search-clear" id="searchClear" title="Clear search"></i>
+        </div>
+      </div>
+
+      <div class="filter-controls">
+        <div class="filter-item">
+          <label>
+            <i class="fas fa-filter"></i>
+            Order Type:
+          </label>
+          <div class="filter-trigger" onclick="openFilterModal('orderType')">
+            <span id="orderTypeTriggerText">All Types</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+        </div>
+
+        <div class="filter-item">
+          <label>
+            <i class="fas fa-tag"></i>
+            Status:
+          </label>
+          <div class="filter-trigger" onclick="openFilterModal('status')">
+            <span id="statusTriggerText">All Statuses</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+        </div>
+
+        <div class="filter-item" style="display: flex; align-items: flex-end;">
+          <button class="btn btn-secondary" onclick="clearAllFilters()" style="width: 100%; padding: 14px 18px; font-size: 15px;">
+            <i class="fas fa-times"></i> Clear All Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" id="paginationTop" style="<%= pagination.total <= pagination.limit ? 'display: none;' : '' %>">
+      <div class="pagination-info">
+        Showing <span id="showingStart"><%= (pagination.currentPage - 1) * pagination.limit + 1 %></span>-<span id="showingEnd"><%= Math.min(pagination.currentPage * pagination.limit, pagination.total) %></span> of <span id="totalOrders"><%= pagination.total %></span> orders
+      </div>
+      <div class="pagination-controls">
+        <button class="pagination-btn" id="prevBtn" onclick="changePage(<%= pagination.currentPage - 1 %>)" <%= pagination.currentPage === 1 ? 'disabled' : '' %>>
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <div id="pageNumbers">
+          <% 
+            const startPage = Math.max(1, pagination.currentPage - 2);
+            const endPage = Math.min(pagination.totalPages, startPage + 4);
+            for (let i = startPage; i <= endPage; i++) { 
+          %>
+            <div class="page-number <%= i === pagination.currentPage ? 'active' : '' %>" onclick="goToPage(<%= i %>)"><%= i %></div>
+          <% } %>
+        </div>
+        <button class="pagination-btn" id="nextBtn" onclick="changePage(<%= pagination.currentPage + 1 %>)" <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>>
+           <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="ordersContainer">
+    <% if (orders.length === 0) { %>
+      <div class="empty-orders">
+        <i class="fas fa-box-open"></i>
+        <h2>It’s Empty Here</h2>
+        <p>Looks like you haven’t placed any orders yet. Start exploring our products and find something you love.</p>
+          <a href="/customer/shop" class="btn btn-primary">Start Shopping</a>
+      </div>          
+    <% } else { %>
+      <% orders.forEach(order => { %>
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <div class="order-id">
+                <i class="fas fa-receipt"></i>
+                Order ID: <%= order.id %>
+              </div>
+              <div class="order-date">
+                <i class="fas fa-calendar"></i> <%= new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+              </div>
+            </div>
+            <span class="status-badge status-<%= order.status %>">
+              <%= order.status %>
+            </span>
+          </div>
+
+          <div class="order-details">
+            <div class="detail-item">
+              <span class="detail-label">Order Type</span>
+              <span class="detail-value">
+                <% if (order.order_type === 'pickup') { %>
+                  <i class="fas fa-shopping-bag"></i> Pickup
+                <% } else { %>
+                  <i class="fas fa-truck"></i> Delivery
+                <% } %>
+              </span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-label">Items</span>
+              <span class="detail-value">
+                <i class="fas fa-box"></i>
+                <%= order.item_count || 0 %> items
+              </span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-label">Total Amount</span>
+              <span class="detail-value" style="color: var(--accent-color);">
+                <i class="fas fa-dollar-sign"></i>
+                <%= parseFloat(order.total).toFixed(2) %>
+              </span>
+            </div>
+
+            <% if (order.branch_name) { %>
+              <div class="detail-item">
+                <span class="detail-label">Branch</span>
+                <span class="detail-value">
+                  <i class="fas fa-map-marker-alt"></i> <%= order.branch_name %>
+                </span>
+              </div>
+            <% } else { %>
+              <div class="detail-item">
+                <span class="detail-label">Branch</span>
+                <span class="detail-value" style="color: #999;">
+                  <i class="fas fa-clock"></i> Pending
+                </span>
+              </div>
+            <% } %>
+          </div>
+
+          <% if (order.order_type === 'delivery' && order.delivery_address) { %>
+            <div class="delivery-info">
+              <div class="delivery-info-title">
+                <i class="fas fa-map-marker-alt"></i> Delivery Address
+              </div>
+              <div class="delivery-info-content">
+                <%= order.delivery_address %>, <%= order.delivery_city %>, <%= order.delivery_state %> <%= order.delivery_zip %>
+              </div>
+            </div>
+          <% } %>
+
+          <div class="order-actions">
+            <a href="/customer/order/<%= order.id %>" class="btn btn-primary">
+              <i class="fas fa-eye"></i> View Details
+            </a>
+            <% if (order.status === 'completed') { %>
+              <button class="btn btn-outline" onclick="orderAgain(<%= order.id %>)">
+                <i class="fas fa-redo"></i> Order Again
+              </button>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+    </div><!-- End ordersContainer -->
+
+    <!-- Filter Modals -->
+    <!-- Order Type Modal -->
+    <div class="filter-modal" id="orderTypeModal">
+      <div class="filter-modal-content">
+        <div class="filter-modal-header">
+          <h3><i class="fas fa-filter"></i> Order Type</h3>
+          <button class="filter-modal-close" onclick="closeFilterModal('orderType')">&times;</button>
+        </div>
+        <div class="filter-modal-option" onclick="selectOrderType('')">
+          <span>All Types</span>
+          <i class="fas fa-check" style="display: none;"></i>
+        </div>
+        <div class="filter-modal-option" onclick="selectOrderType('pickup')">
+          <span><i class="fas fa-shopping-bag"></i> Pickup</span>
+          <i class="fas fa-check" style="display: none;"></i>
+        </div>
+        <div class="filter-modal-option" onclick="selectOrderType('delivery')">
+          <span><i class="fas fa-truck"></i> Delivery</span>
+          <i class="fas fa-check" style="display: none;"></i>
+        </div>
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border-color);">
+          <button class="btn btn-secondary" onclick="clearOrderTypeFilter()" style="width: 100%;">
+            <i class="fas fa-times"></i> Clear Filter
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Modal -->
+    <div class="filter-modal" id="statusModal">
+      <div class="filter-modal-content">
+        <div class="filter-modal-header">
+          <h3><i class="fas fa-tag"></i> Order Status</h3>
+          <button class="filter-modal-close" onclick="closeFilterModal('status')">&times;</button>
+        </div>
+        <div class="filter-modal-option" onclick="selectStatus('')">
+          <span>All Statuses</span>
+          <i class="fas fa-check" style="display: none;"></i>
+        </div>
+        <div class="filter-modal-option" onclick="selectStatus('requested')">
+          <span>Requested</span>
+          <i class="fas fa-check" style="display: none;"></i>
+        </div>
+        <div class="filter-modal-option" onclick="selectStatus('pending')">
+          <span>Pending</span>
+          <i class="fas fa-check" style="display: none;"></i>
+        </div>
+        <div class="filter-modal-option" onclick="selectStatus('processing')">
+          <span>Processing</span>
+          <i class="fas fa-check" style="display: none;"></i>
+        </div>
+        <div class="filter-modal-option" onclick="selectStatus('ready')">
+          <span>Ready</span>
+          <i class="fas fa-check" style="display: none;"></i>
+        </div>
+        <div class="filter-modal-option" onclick="selectStatus('completed')">
+          <span>Completed</span>
+          <i class="fas fa-check" style="display: none;"></i>
+        </div>
+        <div class="filter-modal-option" onclick="selectStatus('cancelled')">
+          <span>Cancelled</span>
+          <i class="fas fa-check" style="display: none;"></i>
+        </div>
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border-color);">
+          <button class="btn btn-secondary" onclick="clearStatusFilter()" style="width: 100%;">
+            <i class="fas fa-times"></i> Clear Filter
+          </button>
+        </div>
+      </div>
+    </div>
+
+    </div><!-- End content-state -->
+  </div>
+
+  <script>
+
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.body.classList.remove('loading');
+      }, 300);
+    });
+
+
+    let currentOrderType = '<%= filters.orderType %>';
+    let currentStatus = '<%= filters.status %>';
+    let currentSearch = '<%= filters.search %>';
+    let currentPage = <%= pagination.currentPage %>;
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+      toggleClearButton();
+      
+
+      updateFilterTriggers();
+      updateFilterSelections();
+    });
+
+
+    const searchInput = document.getElementById('searchInput');
+    const searchClear = document.getElementById('searchClear');
+
+    function toggleClearButton() {
+      if (searchInput && searchClear) {
+        if (searchInput.value.length > 0) {
+          searchClear.classList.add('active');
+        } else {
+          searchClear.classList.remove('active');
+        }
+      }
+    }
+
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        toggleClearButton();
+      });
+
+      searchInput.addEventListener('input', debounce(function(e) {
+        currentSearch = e.target.value.trim();
+        currentPage = 1;
+        loadOrders();
+      }, 500));
+    }
+
+    if (searchClear) {
+      searchClear.addEventListener('click', function() {
+        if (searchInput) {
+          searchInput.value = '';
+          currentSearch = '';
+          currentPage = 1;
+          searchInput.focus();
+          toggleClearButton();
+          loadOrders();
+        }
+      });
+    }
+
+
+    async function loadOrders() {
+      try {
+
+        const params = new URLSearchParams();
+        params.append('page', currentPage);
+        if (currentSearch) params.append('search', currentSearch);
+        if (currentOrderType) params.append('orderType', currentOrderType);
+        if (currentStatus) params.append('status', currentStatus);
+
+
+        const ordersContainer = document.getElementById('ordersContainer');
+        ordersContainer.style.opacity = '0.5';
+
+        const response = await fetch(`/customer/orders?${params.toString()}`, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load orders');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+
+          renderOrders(data.orders);
+          
+
+          updatePaginationUI(data.pagination);
+          
+
+          const newUrl = `/customer/orders?${params.toString()}`;
+          window.history.pushState({}, '', newUrl);
+        }
+
+        ordersContainer.style.opacity = '1';
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        alert('Error loading orders. Please try again.');
+      }
+    }
+
+
+    function renderOrders(orders) {
+      const ordersContainer = document.getElementById('ordersContainer');
+      
+      if (orders.length === 0) {
+        ordersContainer.innerHTML = `
+          <div class="empty-orders">
+            <i class="fas fa-${currentSearch || currentOrderType || currentStatus ? 'search' : 'box-open'}"></i>
+            <h2>${currentSearch || currentOrderType || currentStatus ? 'No Orders Found' : "It's Empty Here"}</h2>
+            <p>${currentSearch || currentOrderType || currentStatus ? 'No orders match your search or filter criteria. Try adjusting your filters.' : "Looks like you haven't placed any orders yet. Start exploring our products and find something you love."}</p>
+            ${currentSearch || currentOrderType || currentStatus ? 
+              '<button class="btn btn-secondary" onclick="clearAllFilters()"><i class="fas fa-times"></i> Clear Filters</button>' :
+              '<a href="/customer/shop" class="btn btn-primary">Start Shopping</a>'
+            }
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      orders.forEach(order => {
+        html += `
+          <div class="order-card">
+            <div class="order-header">
+              <div>
+                <div class="order-id">
+                  <i class="fas fa-receipt"></i>
+                  Order ID: ${order.id}
+                </div>
+                <div class="order-date">
+                  <i class="fas fa-calendar"></i> ${new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+              </div>
+              <span class="status-badge status-${order.status}">
+                ${order.status}
+              </span>
+            </div>
+
+            <div class="order-details">
+              <div class="detail-item">
+                <span class="detail-label">Order Type</span>
+                <span class="detail-value">
+                  ${order.order_type === 'pickup' ? 
+                    '<i class="fas fa-shopping-bag"></i> Pickup' : 
+                    '<i class="fas fa-truck"></i> Delivery'
+                  }
+                </span>
+              </div>
+
+              <div class="detail-item">
+                <span class="detail-label">Items</span>
+                <span class="detail-value">
+                  <i class="fas fa-box"></i>
+                  ${order.item_count || 0} items
+                </span>
+              </div>
+
+              <div class="detail-item">
+                <span class="detail-label">Total Amount</span>
+                <span class="detail-value" style="color: var(--accent-color);">
+                  <i class="fas fa-dollar-sign"></i>
+                  ${parseFloat(order.total).toFixed(2)}
+                </span>
+              </div>
+
+              <div class="detail-item">
+                <span class="detail-label">Branch</span>
+                <span class="detail-value" style="${!order.branch_name ? 'color: #999;' : ''}">
+                  ${order.branch_name ? 
+                    `<i class="fas fa-map-marker-alt"></i> ${order.branch_name}` : 
+                    '<i class="fas fa-clock"></i> Pending'
+                  }
+                </span>
+              </div>
+            </div>
+
+            ${order.order_type === 'delivery' && order.delivery_address ? `
+              <div class="delivery-info">
+                <div class="delivery-info-title">
+                  <i class="fas fa-map-marker-alt"></i> Delivery Address
+                </div>
+                <div class="delivery-info-content">
+                  ${order.delivery_address}, ${order.delivery_city}, ${order.delivery_state} ${order.delivery_zip}
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="order-actions">
+              <a href="/customer/order/${order.id}" class="btn btn-primary">
+                <i class="fas fa-eye"></i> View Details
+              </a>
+              ${order.status === 'completed' ? `
+                <button class="btn btn-outline" onclick="orderAgain(${order.id})">
+                  <i class="fas fa-redo"></i> Order Again
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      ordersContainer.innerHTML = html;
+    }
+
+
+    function updatePaginationUI(pagination) {
+      const paginationContainer = document.getElementById('paginationTop');
+      
+      if (pagination.total === 0 || pagination.totalPages <= 1) {
+        paginationContainer.style.display = 'none';
+        return;
+      }
+
+      paginationContainer.style.display = 'flex';
+
+
+      const start = (pagination.currentPage - 1) * pagination.limit + 1;
+      const end = Math.min(pagination.currentPage * pagination.limit, pagination.total);
+      document.getElementById('showingStart').textContent = start;
+      document.getElementById('showingEnd').textContent = end;
+      document.getElementById('totalOrders').textContent = pagination.total;
+
+
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      prevBtn.disabled = !pagination.hasPrev;
+      prevBtn.onclick = () => changePage(pagination.currentPage - 1);
+      nextBtn.disabled = !pagination.hasNext;
+      nextBtn.onclick = () => changePage(pagination.currentPage + 1);
+
+
+      const pageNumbersContainer = document.getElementById('pageNumbers');
+      pageNumbersContainer.innerHTML = '';
+
+      const startPage = Math.max(1, pagination.currentPage - 2);
+      const endPage = Math.min(pagination.totalPages, startPage + 4);
+
+      for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('div');
+        pageBtn.className = 'page-number' + (i === pagination.currentPage ? ' active' : '');
+        pageBtn.textContent = i;
+        pageBtn.onclick = () => goToPage(i);
+        pageNumbersContainer.appendChild(pageBtn);
+      }
+    }
+
+
+    function changePage(page) {
+      currentPage = page;
+      loadOrders();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+
+    function goToPage(page) {
+      currentPage = page;
+      loadOrders();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+
+    function clearAllFilters() {
+      currentOrderType = '';
+      currentStatus = '';
+      currentSearch = '';
+      currentPage = 1;
+      if (searchInput) searchInput.value = '';
+      toggleClearButton();
+      updateFilterTriggers();
+      updateFilterSelections();
+      loadOrders();
+    }
+
+
+    function clearOrderTypeFilter() {
+      currentOrderType = '';
+      currentPage = 1;
+      updateFilterTriggers();
+      updateFilterSelections();
+      loadOrders();
+      closeFilterModal('orderType');
+    }
+
+
+    function clearStatusFilter() {
+      currentStatus = '';
+      currentPage = 1;
+      updateFilterTriggers();
+      updateFilterSelections();
+      loadOrders();
+      closeFilterModal('status');
+    }
+
+
+    function openFilterModal(type) {
+      const modal = document.getElementById(type + 'Modal');
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeFilterModal(type) {
+      const modal = document.getElementById(type + 'Modal');
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('filter-modal')) {
+        e.target.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.filter-modal.active').forEach(modal => {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+        });
+      }
+    });
+
+
+    function selectOrderType(type) {
+      currentOrderType = type;
+      currentPage = 1;
+      updateFilterTriggers();
+      updateFilterSelections();
+      loadOrders();
+      closeFilterModal('orderType');
+    }
+
+
+    function selectStatus(status) {
+      currentStatus = status;
+      currentPage = 1;
+      updateFilterTriggers();
+      updateFilterSelections();
+      loadOrders();
+      closeFilterModal('status');
+    }
+
+
+    function updateFilterSelections() {
+
+      const orderTypeModal = document.getElementById('orderTypeModal');
+      orderTypeModal.querySelectorAll('.filter-modal-option').forEach(option => {
+        option.classList.remove('selected');
+        const checkIcon = option.querySelector('.fa-check');
+        if (checkIcon) checkIcon.style.display = 'none';
+      });
+      
+      const selectedOrderType = orderTypeModal.querySelector(`[onclick="selectOrderType('${currentOrderType}')"]`);
+      if (selectedOrderType) {
+        selectedOrderType.classList.add('selected');
+        const checkIcon = selectedOrderType.querySelector('.fa-check');
+        if (checkIcon) checkIcon.style.display = 'block';
+      }
+      
+
+      const statusModal = document.getElementById('statusModal');
+      statusModal.querySelectorAll('.filter-modal-option').forEach(option => {
+        option.classList.remove('selected');
+        const checkIcon = option.querySelector('.fa-check');
+        if (checkIcon) checkIcon.style.display = 'none';
+      });
+      
+      const selectedStatus = statusModal.querySelector(`[onclick="selectStatus('${currentStatus}')"]`);
+      if (selectedStatus) {
+        selectedStatus.classList.add('selected');
+        const checkIcon = selectedStatus.querySelector('.fa-check');
+        if (checkIcon) checkIcon.style.display = 'block';
+      }
+    }
+
+
+    function updateFilterTriggers() {
+      const orderTypeText = document.getElementById('orderTypeTriggerText');
+      const statusText = document.getElementById('statusTriggerText');
+
+      if (orderTypeText) {
+        let label = 'All Types';
+        if (currentOrderType === 'pickup') label = 'Pickup';
+        else if (currentOrderType === 'delivery') label = 'Delivery';
+        
+        if (currentOrderType) {
+          orderTypeText.innerHTML = label + ' <span class="filter-badge">1</span>';
+        } else {
+          orderTypeText.textContent = label;
+        }
+      }
+
+      if (statusText) {
+        let label = 'All Statuses';
+        if (currentStatus) {
+          label = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
+          statusText.innerHTML = label + ' <span class="filter-badge">1</span>';
+        } else {
+          statusText.textContent = label;
+        }
+      }
+    }
+
+  </script>
+</body>
+</html>
+

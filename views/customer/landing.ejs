@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+      overflow: hidden;
+    }
+
+    .loading-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* Pharmacy Animation Background */
+    .pharmacy-animation {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      opacity: 0.12;
+    }
+
+    .floating-icon {
+      position: absolute;
+      font-size: 40px;
+      color: white;
+      animation: float 8s ease-in-out infinite;
+      opacity: 0.6;
+    }
+
+    .floating-icon:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+    .floating-icon:nth-child(2) { left: 80%; top: 30%; animation-delay: 1.2s; }
+    .floating-icon:nth-child(3) { left: 15%; top: 70%; animation-delay: 2.4s; }
+    .floating-icon:nth-child(4) { left: 85%; top: 60%; animation-delay: 3.6s; }
+    .floating-icon:nth-child(5) { left: 50%; top: 15%; animation-delay: 1.8s; }
+    .floating-icon:nth-child(6) { left: 30%; top: 80%; animation-delay: 3s; }
+    .floating-icon:nth-child(7) { left: 65%; top: 85%; animation-delay: 4.2s; }
+    .floating-icon:nth-child(8) { left: 5%; top: 50%; animation-delay: 2.8s; }
+    .floating-icon:nth-child(9) { left: 90%; top: 10%; animation-delay: 1.5s; }
+    .floating-icon:nth-child(10) { left: 40%; top: 40%; animation-delay: 3.3s; }
+
+    @keyframes float {
+      0%, 100% { 
+        transform: translateY(0px) rotate(0deg) scale(1); 
+        opacity: 0.4;
+      }
+      25% { 
+        transform: translateY(-25px) rotate(8deg) scale(1.1); 
+        opacity: 0.6;
+      }
+      50% { 
+        transform: translateY(-50px) rotate(-8deg) scale(0.9); 
+        opacity: 0.5;
+      }
+      75% { 
+        transform: translateY(-25px) rotate(5deg) scale(1.05); 
+        opacity: 0.6;
+      }
+    }
+
+    .loading-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 50px 30px;
+    }
+
+    .loading-logo {
+      width: 140px;
+      height: 140px;
+      margin-bottom: 40px;
+      animation: logoFloat 3s ease-in-out infinite;
+      border-radius: 25px;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+      background-color: white;
+      padding: 5px;
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { 
+        transform: translateY(0px) scale(1); 
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+      }
+      50% { 
+        transform: translateY(-15px) scale(1.05); 
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    .loading-greeting {
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-shadow: 0 4px 25px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .greeting-line {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .greeting-main {
+      font-size: 36px;
+      margin-bottom: 5px;
+    }
+
+    .greeting-sub {
+      font-size: 20px;
+      font-weight: 400;
+      opacity: 0.9;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .loading-spinner-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .pill-spinner {
+      width: 14px;
+      height: 22px;
+      background: white;
+      border-radius: 12px;
+      animation: pillBounce 1.4s ease-in-out infinite;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .pill-spinner:nth-child(1) { animation-delay: 0s; }
+    .pill-spinner:nth-child(2) { animation-delay: 0.15s; }
+    .pill-spinner:nth-child(3) { animation-delay: 0.3s; }
+    .pill-spinner:nth-child(4) { animation-delay: 0.45s; }
+    .pill-spinner:nth-child(5) { animation-delay: 0.6s; }
+
+    @keyframes pillBounce {
+      0%, 100% { 
+        transform: scaleY(1) translateY(0); 
+        opacity: 0.7; 
+      }
+      50% { 
+        transform: scaleY(1.8) translateY(-5px); 
+        opacity: 1; 
+      }
+    }
+
+    .loading-progress {
+      width: 200px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 0 auto;
+      margin-top: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .loading-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, white, rgba(255, 255, 255, 0.8), white);
+      background-size: 200% 100%;
+      border-radius: 10px;
+      animation: progress 3.5s ease-in-out forwards, shimmer 1.5s linear infinite;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+
+    @keyframes progress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .hero-section {
+      color: var(--color-white);
+      padding: 80px 0 100px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-carousel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .carousel-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+    }
+
+    .carousel-slide.active {
+      opacity: 1;
+    }
+
+    .carousel-slide:nth-child(1) {
+      background-image: url('/Pic 1.jpg');
+    }
+
+    .carousel-slide:nth-child(2) {
+      background-image: url('/Pic 2.jpg');
+    }
+
+    .carousel-slide:nth-child(3) {
+      background-image: url('/Pic 3.jpg');
+    }
+
+
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(85, 164, 78, 0.7) 50%, rgba(0, 0, 0, 0.6) 100%);
+      z-index: 1;
+    }
+
+    .hero-section::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+      opacity: 0.3;
+      z-index: 2;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 3;
+    }
+
+    .hero-title {
+      font-size: 56px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      animation: slideInUp 1s ease-out;
+      line-height: 1.2;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+      background: linear-gradient(45deg, #ffffff, #f0f8f0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 22px;
+      margin-bottom: 40px;
+      opacity: 0.95;
+      animation: slideInUp 1s ease-out 0.3s backwards;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      text-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: slideInUp 1s ease-out 0.6s backwards;
+    }
+
+    .hero-actions .btn {
+      position: relative;
+      overflow: hidden;
+      border-radius: 50px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-actions .btn-primary {
+      background: linear-gradient(45deg, var(--accent-color), var(--accent-light));
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    .hero-actions .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(85, 164, 78, 0.4);
+      background: linear-gradient(45deg, var(--accent-light), var(--accent-color));
+    }
+
+    .hero-actions .btn-outline {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      color: white;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-actions .btn-outline:hover {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 15px 35px rgba(255, 255, 255, 0.2);
+      border-color: white;
+    }
+
+    .hero-actions .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .hero-actions .btn:hover::before {
+      left: 100%;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Features Section */
+    .features-section {
+      padding: 80px 0;
+      background-color: var(--bg-color);
+      position: relative;
+    }
+
+    .feature-card {
+      text-align: center;
+      padding: 40px;
+      border-radius: 20px;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: linear-gradient(145deg, #ffffff, #f8f9fa);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(85, 164, 78, 0.1), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .feature-card:hover::before {
+      left: 100%;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-12px) scale(1.02);
+      box-shadow: 0 20px 60px rgba(85, 164, 78, 0.2);
+      border-color: var(--accent-color);
+    }
+
+    .feature-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 24px;
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 45px;
+      color: var(--color-white);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-icon::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transition: all 0.4s ease;
+      transform: translate(-50%, -50%);
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: scale(1.15) rotate(10deg);
+      box-shadow: 0 15px 40px rgba(85, 164, 78, 0.4);
+    }
+
+    .feature-card:hover .feature-icon::before {
+      width: 100%;
+      height: 100%;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .feature-card h3 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-color);
+    }
+
+    .feature-card p {
+      color: #666;
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+
+    .categories-section {
+      padding: 80px 0;
+      background-color: var(--color-white);
+      position: relative;
+    }
+
+    .section-title {
+      font-size: 40px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 16px;
+      color: var(--text-color);
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 18px;
+      margin-bottom: 48px;
+    }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 28px;
+    }
+
+    .category-card {
+      background: linear-gradient(135deg, var(--color-white) 0%, var(--bg-color) 100%);
+      padding: 36px;
+      border-radius: 16px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      border: 2px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .category-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .category-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 40px rgba(85, 164, 78, 0.2);
+      border-color: var(--accent-color);
+    }
+
+    .category-card:hover::before {
+      opacity: 0.1;
+    }
+
+    .category-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: var(--color-white);
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .category-card:hover .category-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .category-card h3 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .category-card p {
+      color: #666;
+      font-size: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Empty State Styles */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+
+    .empty-state-icon {
+      font-size: 80px;
+      color: var(--accent-color);
+      margin-bottom: 20px;
+      animation: emptyFloat 3s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    @keyframes emptyFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .empty-state-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 12px;
+    }
+
+    .empty-state-description {
+      font-size: 16px;
+      color: #666;
+      max-width: 500px;
+      margin: 0 auto 30px;
+      line-height: 1.6;
+    }
+
+    .empty-state-animation {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .empty-pill {
+      width: 40px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+      border-radius: 20px;
+      animation: emptyPillBounce 2s ease-in-out infinite;
+      opacity: 0.7;
+    }
+
+    .empty-pill:nth-child(1) { animation-delay: 0s; }
+    .empty-pill:nth-child(2) { animation-delay: 0.2s; }
+    .empty-pill:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes emptyPillBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(10deg); }
+    }
+
+    .featured-section {
+      padding: 80px 0;
+      background-color: var(--bg-color);
+      position: relative;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 32px;
+    }
+
+    .product-card {
+      background-color: var(--color-white);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+      border-color: var(--accent-color);
+    }
+
+    .product-card.sold-out {
+      opacity: 0.7;
+    }
+
+    .product-card.sold-out .product-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(108, 117, 125, 0.3);
+      pointer-events: none;
+    }
+
+    .product-card.sold-out .product-name,
+    .product-card.sold-out .product-manufacturer,
+    .product-card.sold-out .product-price {
+      color: #6c757d;
+    }
+
+    .product-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .product-image {
+      position: relative;
+      height: 260px;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--bg-color) 0%, #e8f5e9 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image img {
+      transform: scale(1.1);
+    }
+
+    .placeholder-image {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      color: var(--color-gray);
+    }
+
+    .prescription-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background-color: var(--warning-color);
+      color: var(--color-white);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stock-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stock-badge.available {
+      background-color: var(--success-color);
+      color: var(--color-white);
+    }
+
+    .stock-badge.sold-out {
+      background-color: #6c757d;
+      color: var(--color-white);
+    }
+
+    .stock-badge.limited {
+      background-color: #ffc107;
+      color: #000000;
+    }
+
+    .product-info {
+      padding: 24px;
+    }
+
+    .product-category {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      color: var(--color-white);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .product-name {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-color);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.4;
+      min-height: 52px;
+    }
+
+    .product-manufacturer {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .product-manufacturer i {
+      color: var(--accent-color);
+      font-size: 12px;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 2px solid var(--border-color);
+    }
+
+    .product-price {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent-color);
+    }
+
+    .view-details {
+      color: var(--accent-color);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      font-size: 15px;
+    }
+
+    .product-card:hover .view-details {
+      gap: 16px;
+    }
+
+
+    .cta-section {
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      color: var(--color-white);
+      padding: 100px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: var(--color-white);
+      padding: 60px 0 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.05)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .footer-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .footer-grid.user-logged-in {
+      grid-template-columns: 2fr 1fr 1fr;
+    }
+
+    @media (max-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
+
+    .footer-logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(85, 164, 78, 0.3);
+    }
+
+    .footer-brand h3 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: var(--accent-color);
+    }
+
+    .footer-brand p {
+      color: #ccc;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .footer-address {
+      color: #ccc;
+      line-height: 1.8;
+    }
+
+    .footer-address i {
+      color: var(--accent-color);
+      margin-right: 10px;
+      width: 20px;
+    }
+
+    .footer-section h4 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--color-white);
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: #ccc;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent-color);
+      transform: translateX(5px);
+    }
+
+    .footer-links a i {
+      margin-right: 8px;
+      width: 16px;
+    }
+
+    .social-media {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .social-icon {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(85, 164, 78, 0.3);
+    }
+
+    .social-icon:hover {
+      transform: translateY(-3px) scale(1.1);
+      box-shadow: 0 8px 25px rgba(85, 164, 78, 0.5);
+    }
+
+    .footer-signin {
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(85, 164, 78, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .footer-signin h4 {
+      margin-bottom: 15px;
+      color: white;
+    }
+
+    .footer-signin p {
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .footer-signin .btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 12px 25px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-block;
+      backdrop-filter: blur(10px);
+    }
+
+    .footer-signin .btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .footer-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-shop {
+      background: rgba(255, 255, 255, 0.9) !important;
+      color: var(--accent-color) !important;
+      border: 2px solid rgba(255, 255, 255, 0.5) !important;
+      font-weight: 700 !important;
+    }
+
+    .btn-shop:hover {
+      background: white !important;
+      color: var(--accent-color) !important;
+      border-color: white !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 30px;
+      text-align: center;
+      color: #999;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: pulse 20s linear infinite;
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-content h2 {
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta-content p {
+      font-size: 20px;
+      margin-bottom: 40px;
+      opacity: 0.95;
+    }
+
+    .cta-actions {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .wave {
+      position: relative;
+      width: 100%;
+      height: 100px;
+      overflow: hidden;
+      line-height: 0;
+      z-index: 11;
+      pointer-events: none;
+    }
+
+    .wave svg {
+      position: relative;
+      display: block;
+      width: calc(100% + 1.3px);
+      height: 100px;
+      z-index: 11;
+    }
+
+    .wave-down {
+      margin-top: -1px;
+      background: var(--accent-color);
+    }
+
+    .wave-up {
+      margin-bottom: -1px;
+      background: var(--accent-color);
+    }
+
+    .wave-down svg {
+      transform: rotate(0deg);
+    }
+
+    .wave-up svg {
+      transform: rotate(180deg);
+    }
+
+    .footer-wave {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    }
+
+    .footer-wave svg {
+      transform: rotate(180deg);
+    }
+
+    /* Shimmer effect for bottom waves - unified flow */
+    .wave-shimmer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0.2) 80%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      animation: waveShimmer 4.5s ease-in-out infinite;
+      z-index: 12;
+      pointer-events: none;
+    }
+
+    /* Cascade effect for the two bottom waves */
+    .wave-shimmer:nth-of-type(4)::before {
+      animation-delay: 0s;
+    }
+    
+    .wave-shimmer:nth-of-type(5)::before {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes waveShimmer {
+      0% {
+        left: -100%;
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.6;
+      }
+      20% {
+        opacity: 1;
+      }
+      80% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 0.6;
+      }
+      100% {
+        left: 100%;
+        opacity: 0;
+      }
+    }
+
+
+    @media (max-width: 768px) {
+      .wave {
+        height: 60px;
+      }
+      
+      .wave svg {
+        height: 60px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .wave {
+        height: 40px;
+      }
+      
+      .wave svg {
+        height: 40px;
+      }
+    }
+
+
+    @media (max-width: 992px) {
+      .hero-title {
+        font-size: 48px;
+      }
+
+      .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+
+
+      .loading-logo {
+        width: 120px;
+        height: 120px;
+      }
+
+      .loading-greeting {
+        font-size: 28px;
+      }
+
+      .greeting-main {
+        font-size: 32px;
+      }
+
+      .greeting-sub {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero-section {
+        padding: 60px 0 80px;
+        min-height: 80vh;
+      }
+
+      .hero-title {
+        font-size: 36px;
+      }
+
+      .hero-subtitle {
+        font-size: 18px;
+      }
+
+      .section-title {
+        font-size: 32px;
+      }
+
+      .cta-content h2 {
+        font-size: 32px;
+      }
+
+      .products-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .categories-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 20px;
+      }
+
+      .feature-card {
+        padding: 32px 24px;
+      }
+
+
+      .loading-logo {
+        width: 100px;
+        height: 100px;
+      }
+
+      .loading-content {
+        padding: 40px 25px;
+      }
+
+      .loading-greeting {
+        font-size: 24px;
+        min-height: 70px;
+        margin-bottom: 25px;
+      }
+
+      .greeting-main {
+        font-size: 28px;
+      }
+
+      .greeting-sub {
+        font-size: 16px;
+      }
+
+      .pill-spinner {
+        width: 12px;
+        height: 18px;
+      }
+
+      .loading-spinner-container {
+        gap: 8px;
+      }
+
+      .loading-progress {
+        width: 180px;
+      }
+
+      .floating-icon {
+        font-size: 32px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        text-align: center;
+      }
+
+      .footer-brand {
+        align-items: center;
+      }
+
+      .social-media {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-section {
+        min-height: 70vh;
+      }
+
+      .hero-title {
+        font-size: 28px;
+      }
+
+      .hero-subtitle {
+        font-size: 16px;
+      }
+
+      .section-title {
+        font-size: 26px;
+      }
+
+      .categories-grid {
+        grid-template-columns: 1fr;
+      }
+
+
+      .loading-logo {
+        width: 80px;
+        height: 80px;
+      }
+
+      .loading-content {
+        padding: 35px 20px;
+      }
+
+      .loading-greeting {
+        font-size: 20px;
+        min-height: 60px;
+        margin-bottom: 20px;
+      }
+
+      .greeting-main {
+        font-size: 24px;
+      }
+
+      .greeting-sub {
+        font-size: 14px;
+      }
+
+      .pill-spinner {
+        width: 10px;
+        height: 16px;
+      }
+
+      .loading-spinner-container {
+        gap: 6px;
+        margin-bottom: 15px;
+      }
+
+      .loading-progress {
+        width: 150px;
+        height: 4px;
+      }
+
+      .floating-icon {
+        font-size: 28px;
+      }
+
+      .empty-state-icon {
+        font-size: 60px;
+      }
+
+      .empty-state-title {
+        font-size: 22px;
+      }
+
+      .empty-pill {
+        width: 30px;
+        height: 50px;
+      }
+    }
+
+    .categories-carousel-container {
+  position: relative;
+  overflow: hidden;
+  padding: 60px 0;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.categories-carousel {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  align-items: stretch;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 10px;
+  scroll-snap-type: x mandatory;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.category-card {
+  flex: 0 0 auto;
+  width: 240px;
+  scroll-snap-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  z-index: 1;
+  will-change: transform;
+}
+
+.category-card.active {
+  transform: scale(1.08);
+  box-shadow: 0 12px 35px rgba(85, 164, 78, 0.25);
+  border-color: var(--accent-color);
+  z-index: 2;
+}
+
+.categories-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+
+/* Arrows */
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(85, 164, 78, 0.95);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
+  display: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 18px;
+}
+
+.carousel-btn:hover {
+  background: var(--accent-light);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.left-btn { left: 10px; }
+.right-btn { right: 10px; }
+
+@media (min-width: 768px) {
+  .carousel-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .categories-carousel {
+    padding: 0 80px;
+  }
+  
+  .carousel-track {
+    gap: 32px;
+  }
+  
+  .category-card {
+    width: 260px;
+  }
+}
+
+@media (max-width: 767px) {
+  .categories-carousel-container {
+    padding: 40px 0;
+  }
+  
+  .carousel-track {
+    gap: 16px;
+    padding: 20px 5px;
+  }
+  
+  .category-card {
+    width: 200px;
+  }
+  
+  .category-card.active {
+    transform: scale(1.05);
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-track {
+    gap: 12px;
+  }
+  
+  .category-card {
+    width: 180px;
+    padding: 28px;
+  }
+  
+  .category-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+  
+  .category-card h3 {
+    font-size: 18px;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <!-- Pharmacy Floating Icons Background -->
+    <div class="pharmacy-animation">
+      <div class="floating-icon"><i class="fas fa-pills"></i></div>
+      <div class="floating-icon"><i class="fas fa-capsules"></i></div>
+      <div class="floating-icon"><i class="fas fa-prescription-bottle"></i></div>
+      <div class="floating-icon"><i class="fas fa-syringe"></i></div>
+      <div class="floating-icon"><i class="fas fa-heartbeat"></i></div>
+      <div class="floating-icon"><i class="fas fa-stethoscope"></i></div>
+      <div class="floating-icon"><i class="fas fa-briefcase-medical"></i></div>
+      <div class="floating-icon"><i class="fas fa-prescription-bottle-alt"></i></div>
+      <div class="floating-icon"><i class="fas fa-tablets"></i></div>
+      <div class="floating-icon"><i class="fas fa-mortar-pestle"></i></div>
+    </div>
+
+    <!-- Loading Content -->
+    <div class="loading-content">
+      <img src="/Al-osmani logo.png" alt="Al-Osmani Pharmacy" class="loading-logo">
+      
+      <!-- Dynamic Greeting -->
+      <div class="loading-greeting" id="loadingGreeting">
+      </div>
+
+      <!-- Pill Spinner -->
+      <div class="loading-spinner-container">
+        <div class="pill-spinner"></div>
+        <div class="pill-spinner"></div>
+        <div class="pill-spinner"></div>
+        <div class="pill-spinner"></div>
+        <div class="pill-spinner"></div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="loading-progress">
+        <div class="loading-progress-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../components/customer-navbar', { currentPath: '/customer/home' }) %>
+  
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <!-- Image Carousel Background -->
+    <div class="hero-carousel">
+      <div class="carousel-slide active"></div>
+      <div class="carousel-slide"></div>
+      <div class="carousel-slide"></div>
+    </div>
+    
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Welcome to Al-Osmani Pharmacy</h1>
+        <p class="hero-subtitle">Your trusted partner in healthcare and wellness</p>
+        <div class="hero-actions">
+          <a href="/customer/shop" class="btn btn-primary btn-lg">
+            <i class="fas fa-shopping-bag"></i>
+            Shop Now
+          </a>
+          <% if (!user) { %>
+            <a href="/auth/register" class="btn btn-outline btn-lg">
+              <i class="fas fa-user-plus"></i>
+              Register
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wave wave-down">
+    <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path fill="#f3f7f4" fill-opacity="1" d="M0,224L60,213.3C120,203,240,181,360,170.7C480,160,600,160,720,186.7C840,213,960,267,1080,261.3C1200,256,1320,192,1380,160L1440,128V320H0Z"></path>
+    </svg>
+  </div>
+
+
+  <!-- Features Section -->
+  <div class="features-section">
+    <div class="container">
+      <h2 class="section-title">Our Qualities</h2>
+      <p class="section-subtitle">What makes Al-Osmani Pharmacy a trusted name in healthcare.</p>
+      <div class="grid grid-3">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-pills"></i>
+          </div>
+          <h3>Quality Products</h3>
+          <p>We offer only the highest quality medications and health products from trusted manufacturers.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <h3>Fast Service</h3>
+          <p>Quick processing and convenient pickup or delivery options for your prescriptions.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-user-md"></i>
+          </div>
+          <h3>Expert Advice</h3>
+          <p>Our experienced pharmacists are always ready to help with your healthcare questions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wave wave-up">
+    <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path fill="#f3f7f4" fill-opacity="1" d="M0,224L60,213.3C120,203,240,181,360,170.7C480,160,600,160,720,186.7C840,213,960,267,1080,261.3C1200,256,1320,192,1380,160L1440,128V320H0Z"></path>
+    </svg>
+  </div>
+  <div class="wave wave-down">
+    <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path fill="#ffffff" fill-opacity="1" d="M0,224L60,213.3C120,203,240,181,360,170.7C480,160,600,160,720,186.7C840,213,960,267,1080,261.3C1200,256,1320,192,1380,160L1440,128V320H0Z"></path>
+    </svg>
+  </div>
+
+  <!-- Categories Section -->
+  <div class="categories-section">
+      
+      <div class="categories-carousel-container">
+        <h2 class="section-title">Shop by Category</h2>
+        <p class="section-subtitle">Explore our wide range of healthcare products</p>
+      
+        <% if (categories && categories.length > 0) { %>
+          <% if (categories.length > 4) { %>
+            <!-- Carousel mode -->
+            <button class="carousel-btn left-btn"><i class="fas fa-chevron-left"></i></button>
+            <div class="categories-carousel" id="categoriesCarousel">
+              <div class="carousel-track">
+                <% categories.forEach(category => { %>
+                  <a href="/customer/shop?category=<%= category.id %>" class="category-card">
+                    <div class="category-icon">
+                      <i class="fas fa-capsules"></i>
+                    </div>
+                    <h3><%= category.name %></h3>
+                    <p><%= category.product_count %> products</p>
+                  </a>
+                <% }) %>
+              </div>
+            </div>
+            <button class="carousel-btn right-btn"><i class="fas fa-chevron-right"></i></button>
+          <% } else { %>
+            <!-- Centered static grid for 1–4 categories -->
+            <div class="categories-grid" style="justify-items: center; text-align: center;">
+              <% categories.forEach(category => { %>
+                <a href="/customer/shop?category=<%= category.id %>" class="category-card" style="max-width: 260px;">
+                  <div class="category-icon">
+                    <i class="fas fa-capsules"></i>
+                  </div>
+                  <h3><%= category.name %></h3>
+                  <p><%= category.product_count %> products</p>
+                </a>
+              <% }) %>
+            </div>
+          <% } %>
+        <% } else { %>        
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-box-open"></i></div>
+            <h3 class="empty-state-title">No Categories Available</h3>
+            <p class="empty-state-description">We're organizing our product categories. Check back soon!</p>
+          </div>
+        <% } %>
+      </div>
+      
+  </div>
+
+  <div class="wave wave-up wave-shimmer">
+    <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path fill="#ffffff" fill-opacity="1" d="M0,224L60,213.3C120,203,240,181,360,170.7C480,160,600,160,720,186.7C840,213,960,267,1080,261.3C1200,256,1320,192,1380,160L1440,128V320H0Z"></path>
+    </svg>
+  </div>
+  <div class="wave wave-down wave-shimmer">
+    <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path fill="#f3f4f7" fill-opacity="1" d="M0,224L60,213.3C120,203,240,181,360,170.7C480,160,600,160,720,186.7C840,213,960,267,1080,261.3C1200,256,1320,192,1380,160L1440,128V320H0Z"></path>
+    </svg>
+  </div>
+
+
+  <!-- Featured Products Section -->
+  <div class="featured-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Featured Products</h2>
+        <a href="/customer/shop" class="btn btn-secondary">View All Products</a>
+      </div>
+      
+      <% if (featuredProducts && featuredProducts.length > 0) { %>
+        <div class="products-grid">
+          <% featuredProducts.forEach(product => { %>
+            <div class="product-card <%= product.stock_status.key === 'sold_out' ? 'sold-out' : '' %>">
+              <a href="/customer/product/<%= product.id %>" class="product-link">
+                <div class="product-image">
+                  <% if (product.image_url) { %>
+                    <img src="<%= product.image_url %>" alt="<%= product.name %>">
+                  <% } else { %>
+                    <div class="placeholder-image">
+                      <i class="fas fa-capsules"></i>
+                    </div>
+                  <% } %>
+                  <% if (product.requires_prescription) { %>
+                    <span class="prescription-badge">
+                      <i class="fas fa-file-prescription"></i>
+                      Prescription Required
+                    </span>
+                  <% } %>
+                  <span class="stock-badge <%= product.stock_status.key %>" style="background-color: <%= product.stock_status.color %>; color: <%= product.stock_status.textColor %>;">
+                    <% if (product.stock_status.key === 'available') { %>
+                      <i class="fas fa-check-circle"></i>
+                    <% } else if (product.stock_status.key === 'sold_out') { %>
+                      <i class="fas fa-times-circle"></i>
+                    <% } else if (product.stock_status.key === 'limited') { %>
+                      <i class="fas fa-exclamation-triangle"></i>
+                    <% } %>
+                    <%= product.stock_status.label %>
+                  </span>
+                </div>
+                <div class="product-info">
+                  <% if (product.category_name) { %>
+                    <span class="product-category"><%= product.category_name %></span>
+                  <% } %>
+                  <h3 class="product-name"><%= product.name %></h3>
+                  <% if (product.manufacturer) { %>
+                    <p class="product-manufacturer">
+                      <i class="fas fa-building"></i>
+                      <%= product.manufacturer %>
+                    </p>
+                  <% } %>
+                  <div class="product-footer">
+                    <span class="product-price">$<%= parseFloat(product.unit_price).toFixed(2) %></span>
+                    <span class="view-details">
+                      View Details
+                      <i class="fas fa-arrow-right"></i>
+                    </span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <i class="fas fa-pills"></i>
+          </div>
+          <h3 class="empty-state-title">No Featured Products Yet</h3>
+          <p class="empty-state-description">
+            We're carefully selecting the best products to feature. In the meantime, explore our full catalog!
+          </p>
+          <div class="empty-state-animation">
+            <div class="empty-pill"></div>
+            <div class="empty-pill"></div>
+            <div class="empty-pill"></div>
+          </div>
+          <a href="/customer/shop" class="btn btn-primary" style="margin-top: 20px;">
+            <i class="fas fa-shopping-bag"></i> Browse All Products
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="wave footer-wave wave-up">
+    <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path fill="#f3f7f4" fill-opacity="1" d="M0,224L60,213.3C120,203,240,181,360,170.7C480,160,600,160,720,186.7C840,213,960,267,1080,261.3C1200,256,1320,192,1380,160L1440,128V320H0Z"></path>
+    </svg>
+  </div>
+
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-grid<% if (user) { %> user-logged-in<% } %>">
+          <!-- Brand Section -->
+          <div class="footer-brand">
+            <img src="/Al-osmani logo.png" alt="Al-Osmani Pharmacy" class="footer-logo">
+            <h3>Al-Osmani Pharmacy</h3>
+            <p>Your trusted partner in healthcare and wellness. We provide quality medications and health products with expert pharmaceutical care.</p>
+            <div class="footer-address">
+              <div><i class="fas fa-map-marker-alt"></i> 123 Health Street, Medical District</div>
+              <div><i class="fas fa-phone"></i> +1 (555) 123-4567</div>
+              <div><i class="fas fa-envelope"></i> info@alosmanipharmacy.com</div>
+              <div><i class="fas fa-clock"></i> Mon-Sat: 8AM-10PM, Sun: 9AM-8PM</div>
+            </div>
+            <div class="social-media">
+              <a href="#" class="social-icon" title="Facebook">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="#" class="social-icon" title="Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a href="#" class="social-icon" title="Twitter">
+                <i class="fab fa-x-twitter"></i>
+              </a>
+              <a href="#" class="social-icon" title="LinkedIn">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+              <a href="#" class="social-icon" title="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+              </a>
+            </div>
+          </div>
+        
+          <!-- Quick Links -->
+          <div class="footer-section">
+            <h4>Quick Links</h4>
+            <ul class="footer-links">
+              <li><a href="/customer/shop"><i class="fas fa-shopping-bag"></i> Shop Now</a></li>
+              <% if (topCategories && topCategories.length > 0) { %>
+                <% topCategories.forEach(category => { %>
+                  <li><a href="/customer/shop?category=<%= category.id %>"><i class="fas fa-capsules"></i> <%= category.name %></a></li>
+                <% }) %>
+              <% } %>
+            </ul>
+          </div>
+        
+          <!-- Services -->
+          <div class="footer-section">
+            <h4>Services</h4>
+            <ul class="footer-links">
+              <li><a><i class="fas fa-user-md"></i> Pharmacy Consultation</a></li>
+              <li><a><i class="fas fa-truck"></i> Home Delivery</a></li>
+              <li><a><i class="fas fa-calendar-alt"></i> Prescription Assistance</a></li>
+            </ul>
+          </div>
+          
+        
+          <!-- Sign In Section - Only show when user is NOT logged in -->
+          <% if (!user) { %>
+            <div class="footer-section">
+              <div class="footer-signin">
+                <h4>Join Our Community</h4>
+                <p>Get exclusive offers and health tips</p>
+                <div class="footer-buttons">
+                  <a href="/customer/shop" class="btn btn-shop">
+                    <i class="fas fa-shopping-bag"></i> Shop Now
+                  </a>
+                  <a href="/auth/login" class="btn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                  </a>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+          <p>
+            &copy; <span id="year"></span> Al-Osmani Pharmacy. All rights reserved. | 
+            Privacy Policy | Terms of Service
+          </p>
+        </div>        
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const greetings = [
+      { main: 'مرحباً بكم', sub: 'صيدلية العثماني' },
+      { main: 'Welcome', sub: 'Al-Osmani Pharmacy' },
+      { main: '欢迎光临', sub: '奥斯曼尼药房' },
+    ];
+    
+    const loadingScreen = document.getElementById('loadingScreen');
+    const greetingContainer = document.getElementById('loadingGreeting');
+    let currentGreeting = 0;
+
+
+    const today = new Date().toISOString().split('T')[0];
+    const lastVisit = localStorage.getItem('lastVisitDate');
+
+    if (lastVisit === today) {
+
+      loadingScreen.style.display = 'none';
+    } else {
+
+      localStorage.setItem('lastVisitDate', today);
+      showLoadingSequence();
+    }
+
+    function showLoadingSequence() {
+      function updateGreeting() {
+        if (currentGreeting >= greetings.length) {
+          setTimeout(() => {
+            loadingScreen.classList.add('hidden');
+            setTimeout(() => loadingScreen.remove(), 500);
+          }, 600);
+          return;
+        }
+
+        const greeting = greetings[currentGreeting];
+        greetingContainer.innerHTML = `
+          <div class="greeting-line greeting-main">${greeting.main}</div>
+          <div class="greeting-line greeting-sub">${greeting.sub}</div>
+        `;
+        
+        currentGreeting++;
+        setTimeout(updateGreeting, 1000);
+      }
+
+      setTimeout(updateGreeting, 400);
+    }
+
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+
+    const slides = document.querySelectorAll('.carousel-slide');
+    let currentSlide = 0;
+    function showSlide(index) {
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+    }
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length;
+      showSlide(currentSlide);
+    }
+    showSlide(0);
+    setInterval(nextSlide, 5000);
+
+
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.style.animationPlayState = 'running';
+      });
+    }, observerOptions);
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.style.animationPlayState = 'paused';
+      observer.observe(card);
+    });
+
+
+    window.addEventListener('scroll', () => {
+      const scrolled = window.pageYOffset;
+      const heroCarousel = document.querySelector('.hero-carousel');
+      if (heroCarousel) heroCarousel.style.transform = `translateY(${scrolled * 0.5}px)`;
+    });
+  });
+  </script>
+
+  <script>
+
+(function() {
+  const carousel = document.getElementById('categoriesCarousel');
+  if (!carousel) return;
+
+  const track = carousel.querySelector('.carousel-track');
+  const leftBtn = document.querySelector('.left-btn');
+  const rightBtn = document.querySelector('.right-btn');
+  
+  if (!track) return;
+  
+  const originalCards = Array.from(track.children);
+  if (originalCards.length === 0) return;
+
+  let allCards = [];
+  let autoScrollInterval;
+  let isScrolling = false;
+  let scrollTimeout;
+  let isTransitioning = false;
+
+
+  function setupInfiniteScroll() {
+
+    if (originalCards.length < 3) {
+      allCards = originalCards;
+      return;
+    }
+
+
+    const cloneCount = Math.min(3, originalCards.length);
+    const startClones = originalCards.slice(-cloneCount).map(card => {
+      const clone = card.cloneNode(true);
+      clone.classList.add('clone');
+      return clone;
+    });
+    const endClones = originalCards.slice(0, cloneCount).map(card => {
+      const clone = card.cloneNode(true);
+      clone.classList.add('clone');
+      return clone;
+    });
+
+
+    startClones.forEach(clone => track.insertBefore(clone, track.firstChild));
+    endClones.forEach(clone => track.appendChild(clone));
+
+    allCards = Array.from(track.children);
+    
+
+    const firstRealIndex = cloneCount;
+    const cardWidth = getCardWidth();
+    track.scrollLeft = cardWidth * firstRealIndex;
+  }
+
+
+  function getCardWidth() {
+    const firstCard = track.querySelector('.category-card');
+    if (!firstCard) return 0;
+    
+    const cardWidth = firstCard.offsetWidth;
+    const gap = window.innerWidth >= 768 ? 32 : window.innerWidth >= 480 ? 16 : 12;
+    return cardWidth + gap;
+  }
+
+
+  function updateActiveCard() {
+    if (isScrolling || isTransitioning) return;
+    
+    const containerRect = track.getBoundingClientRect();
+    const containerCenter = containerRect.left + containerRect.width / 2;
+    
+    let closestCard = null;
+    let closestDistance = Infinity;
+
+    allCards.forEach(card => {
+      const cardRect = card.getBoundingClientRect();
+      const cardCenter = cardRect.left + cardRect.width / 2;
+      const distance = Math.abs(containerCenter - cardCenter);
+      
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestCard = card;
+      }
+    });
+
+    allCards.forEach(card => card.classList.remove('active'));
+    if (closestCard) {
+      closestCard.classList.add('active');
+    }
+  }
+
+
+  function handleInfiniteScroll() {
+    if (originalCards.length < 3 || isTransitioning) return;
+
+    const cardWidth = getCardWidth();
+    const cloneCount = Math.min(3, originalCards.length);
+    const threshold = cardWidth * 0.5;
+
+
+    if (track.scrollLeft < threshold) {
+      isTransitioning = true;
+      const jumpTo = cardWidth * (originalCards.length + cloneCount) - (threshold - track.scrollLeft);
+      track.scrollLeft = jumpTo;
+      setTimeout(() => {
+        isTransitioning = false;
+        updateActiveCard();
+      }, 50);
+    }
+
+    else if (track.scrollLeft > cardWidth * (allCards.length - cloneCount) - threshold) {
+      isTransitioning = true;
+      const jumpTo = cardWidth * cloneCount + (track.scrollLeft - cardWidth * (allCards.length - cloneCount));
+      track.scrollLeft = jumpTo;
+      setTimeout(() => {
+        isTransitioning = false;
+        updateActiveCard();
+      }, 50);
+    }
+  }
+
+
+  function scrollByCard(direction) {
+    const cardWidth = getCardWidth();
+    track.scrollBy({ left: cardWidth * direction, behavior: 'smooth' });
+  }
+
+
+  function startAutoScroll() {
+    stopAutoScroll();
+    if (originalCards.length > 1) {
+      autoScrollInterval = setInterval(() => {
+        scrollByCard(1);
+      }, 4000);
+    }
+  }
+
+  function stopAutoScroll() {
+    if (autoScrollInterval) {
+      clearInterval(autoScrollInterval);
+      autoScrollInterval = null;
+    }
+  }
+
+
+  if (leftBtn) {
+    leftBtn.addEventListener('click', () => {
+      stopAutoScroll();
+      scrollByCard(-1);
+      setTimeout(startAutoScroll, 5000);
+    });
+  }
+  
+  if (rightBtn) {
+    rightBtn.addEventListener('click', () => {
+      stopAutoScroll();
+      scrollByCard(1);
+      setTimeout(startAutoScroll, 5000);
+    });
+  }
+
+
+  track.addEventListener('scroll', () => {
+    isScrolling = true;
+    
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      isScrolling = false;
+      handleInfiniteScroll();
+      updateActiveCard();
+    }, 150);
+  });
+
+
+  if (window.innerWidth >= 768) {
+    carousel.addEventListener('mouseenter', stopAutoScroll);
+    carousel.addEventListener('mouseleave', startAutoScroll);
+  }
+
+
+  track.addEventListener('touchstart', stopAutoScroll);
+  track.addEventListener('touchend', () => {
+    setTimeout(startAutoScroll, 3000);
+  });
+
+
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      stopAutoScroll();
+
+      track.innerHTML = '';
+      originalCards.forEach(card => track.appendChild(card));
+      allCards = [];
+      setupInfiniteScroll();
+      updateActiveCard();
+      startAutoScroll();
+    }, 300);
+  });
+
+
+  setupInfiniteScroll();
+  updateActiveCard();
+  
+
+  setTimeout(() => {
+    startAutoScroll();
+  }, 2000);
+})();
+  </script>
+</body>
+</html>

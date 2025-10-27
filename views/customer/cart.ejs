@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    .cart-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    .cart-header {
+      margin-bottom: 32px;
+    }
+
+    .cart-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .cart-content {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 32px;
+      align-items: start;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    .cart-items {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow-x: hidden;
+    }
+
+    .cart-item {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      transition: background 0.2s;
+      overflow-x: hidden;
+      align-items: center;
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .cart-item:hover {
+      background: #f8f9fa;
+    }
+
+    .item-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #f5f5f5;
+    }
+
+    .item-details {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+    }
+
+    .item-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .item-sku {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .item-price {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent-color);
+    }
+
+    .item-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .quantity-control button {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .quantity-control button:hover {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .quantity-control input {
+      width: 50px;
+      text-align: center;
+      border: none;
+      background: transparent;
+      font-weight: 600;
+    }
+
+    .remove-btn {
+      color: #dc3545;
+      cursor: pointer;
+      padding: 8px;
+      transition: all 0.2s;
+    }
+
+    .remove-btn:hover {
+      color: #c82333;
+    }
+
+    .cart-summary {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 100px;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    .summary-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+
+    .summary-row.total {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent-color);
+      padding-top: 16px;
+      border-top: 2px solid #eee;
+      margin-top: 16px;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.2s;
+    }
+
+    .checkout-btn:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .continue-shopping {
+      width: 100%;
+      padding: 12px;
+      background: white;
+      color: var(--accent-color);
+      border: 2px solid var(--accent-color);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.2s;
+      text-align: center;
+      display: block;
+      text-decoration: none;
+    }
+
+    .continue-shopping:hover {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 100px 40px;
+      background: linear-gradient(135deg, #ffffff, #f9fdf9);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+      border: 2px dashed var(--accent-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .empty-cart::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: -100px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle at center, rgba(76,175,80,0.08), transparent 70%);
+      border-radius: 50%;
+    }
+
+    .empty-cart i {
+      font-size: 90px;
+      color: var(--accent-color);
+      margin-bottom: 28px;
+      opacity: 0.25;
+      position: relative;
+      transition: transform 0.4s ease;
+    }
+
+    .empty-cart:hover i {
+      transform: scale(1.05) rotate(5deg);
+    }
+
+    .empty-cart h2 {
+      font-size: 28px;
+      color: #2e7d32;
+      font-weight: 800;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .empty-cart p {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .empty-cart .btn-primary {
+      background: linear-gradient(135deg, var(--accent-color), #45a049);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .empty-cart .btn-primary:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #45a049, var(--accent-color));
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .item-checkbox-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .item-checkbox {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: var(--accent-color);
+    }
+
+    .select-all-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 2px solid var(--border-color);
+    }
+
+    .select-all-container input {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: var(--accent-color);
+    }
+
+    .select-all-container label {
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkout-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background: #bdbdbd !important;
+      color: #757575 !important;
+      box-shadow: none !important;
+    }
+
+    .checkout-btn:disabled:hover {
+      transform: none !important;
+      box-shadow: none !important;
+      background: #bdbdbd !important;
+    }
+
+    .checkout-btn i {
+      margin-right: 6px;
+    }
+
+    .selected-count {
+      color: var(--accent-color);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .selection-notice {
+      background: #fff8e1;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      color: #f57f17;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .selection-notice.show {
+      display: flex;
+    }
+
+    .selection-notice i {
+      font-size: 18px;
+    }
+
+    @media (max-width: 968px) {
+      .cart-content {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-summary {
+        position: static;
+        order: -1;
+      }
+
+      .cart-container {
+        padding: 0 16px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .cart-header h1 {
+        font-size: 24px;
+      }
+
+      .cart-items {
+        padding: 16px;
+      }
+
+      .select-all-container {
+        flex-direction: row;
+        padding: 14px 16px;
+        flex-wrap: wrap;
+      }
+
+      .select-all-container label {
+        font-size: 14px;
+      }
+
+      .selected-count {
+        font-size: 13px;
+        width: 100%;
+        margin-top: 8px;
+        margin-left: 34px;
+      }
+
+      .cart-item {
+        flex-direction: column;
+        padding: 16px;
+        gap: 16px;
+        position: relative;
+      }
+
+      .item-checkbox-container {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        z-index: 1;
+      }
+
+      .item-image {
+        width: 100%;
+        height: 180px;
+        object-fit: contain;
+      }
+
+      .item-details {
+        width: 100%;
+      }
+
+      .item-name {
+        font-size: 16px;
+      }
+
+      .item-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .quantity-control {
+        justify-content: center;
+        padding: 8px;
+      }
+
+      .quantity-control button {
+        width: 40px;
+        height: 40px;
+      }
+
+      .quantity-control input {
+        width: 60px;
+        font-size: 16px;
+      }
+
+      .cart-summary {
+        padding: 20px;
+      }
+
+      .summary-title {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cart-container {
+        margin: 20px auto;
+        padding: 0 12px;
+      }
+
+      .cart-header {
+        margin-bottom: 20px;
+      }
+
+      .cart-header h1 {
+        font-size: 22px;
+      }
+
+      .cart-items {
+        padding: 12px;
+      }
+
+      .select-all-container {
+        padding: 12px;
+      }
+
+      .select-all-container input,
+      .item-checkbox {
+        width: 20px;
+        height: 20px;
+      }
+
+      .select-all-container label {
+        font-size: 13px;
+      }
+
+      .selected-count {
+        font-size: 12px;
+        margin-left: 30px;
+      }
+
+      .cart-item {
+        padding: 12px;
+        padding-top: 40px;
+        gap: 12px;
+      }
+
+      .item-checkbox-container {
+        top: 12px;
+        left: 12px;
+      }
+
+      .item-image {
+        height: 150px;
+      }
+
+      .item-name {
+        font-size: 15px;
+      }
+
+      .item-sku {
+        font-size: 13px;
+      }
+
+      .item-price {
+        font-size: 15px;
+      }
+
+      .badge {
+        font-size: 11px;
+        padding: 3px 8px;
+      }
+
+      .quantity-control button {
+        width: 36px;
+        height: 36px;
+      }
+
+      .remove-btn {
+        text-align: center;
+        padding: 12px;
+        background: #fff0f0;
+        border-radius: 8px;
+      }
+
+      .cart-summary {
+        padding: 16px;
+      }
+
+      .summary-row {
+        font-size: 14px;
+      }
+
+      .summary-row.total {
+        font-size: 18px;
+      }
+
+      .checkout-btn {
+        padding: 14px;
+        font-size: 14px;
+      }
+
+      .continue-shopping {
+        padding: 10px;
+        font-size: 13px;
+      }
+
+      .empty-cart {
+        padding: 60px 20px;
+      }
+
+      .empty-cart i {
+        font-size: 60px;
+      }
+
+      .empty-cart h2 {
+        font-size: 22px;
+      }
+
+      .empty-cart p {
+        font-size: 14px;
+      }
+    }
+
+    /* Custom Modal Styles */
+    .custom-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .custom-modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 0;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      animation: slideUp 0.3s ease;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 24px;
+      border-bottom: 2px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-header.warning {
+      background: linear-gradient(135deg, #fff3cd, #ffe5a3);
+      border-bottom-color: #ffc107;
+    }
+
+    .modal-header.error {
+      background: linear-gradient(135deg, #f8d7da, #f5c2c7);
+      border-bottom-color: #dc3545;
+    }
+
+    .modal-header.confirm {
+      background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+      border-bottom-color: #17a2b8;
+    }
+
+    .modal-header i {
+      font-size: 28px;
+    }
+
+    .modal-header.warning i {
+      color: #856404;
+    }
+
+    .modal-header.error i {
+      color: #721c24;
+    }
+
+    .modal-header.confirm i {
+      color: #0c5460;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+      text-align: left;
+      flex: 1;
+    }
+
+    .modal-body {
+      padding: 24px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .modal-body p {
+      margin: 0 0 16px 0;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .modal-footer {
+      padding: 20px 24px;
+      background: #f8f9fa;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-btn-primary {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .modal-btn-primary:hover {
+      background: #45a049;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .modal-btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .modal-btn-secondary:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Skeleton Loading Styles */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .skeleton-header {
+      height: 80px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+    }
+
+    .skeleton-controls {
+      height: 60px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .skeleton-card {
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .skeleton-item {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .skeleton-image {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .skeleton-text {
+      height: 20px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .skeleton-text.small {
+      width: 60%;
+      height: 16px;
+    }
+
+    .skeleton-text.medium {
+      width: 40%;
+    }
+
+    .skeleton-text.large {
+      width: 80%;
+    }
+
+    .loading-state {
+      display: none;
+    }
+
+    body.loading .loading-state {
+      display: block;
+    }
+
+    body.loading .content-state {
+      display: none;
+    }
+  </style>
+</head>
+<body class="loading">
+  <%- include('../components/customer-navbar', { user }) %>
+
+  <!-- Custom Modal -->
+  <div id="customModal" class="custom-modal">
+    <div class="modal-content">
+      <div id="modalHeader" class="modal-header">
+        <i id="modalIcon" class="fas fa-info-circle"></i>
+        <h3 id="modalTitle">Information</h3>
+      </div>
+      <div id="modalBody" class="modal-body">
+        <p id="modalMessage"></p>
+      </div>
+      <div id="modalFooter" class="modal-footer">
+        <button id="modalCancelBtn" class="modal-btn modal-btn-secondary" style="display: none;">Cancel</button>
+        <button id="modalConfirmBtn" class="modal-btn modal-btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-container">
+    <!-- Skeleton Loading State -->
+    <div class="loading-state">
+      <div class="skeleton skeleton-header"></div>
+      <div class="cart-content">
+        <div class="cart-items">
+          <div class="skeleton skeleton-controls"></div>
+          <div class="skeleton-item">
+            <div class="skeleton-image"></div>
+            <div style="flex: 1;">
+              <div class="skeleton-text"></div>
+              <div class="skeleton-text small"></div>
+              <div class="skeleton-text medium"></div>
+            </div>
+          </div>
+          <div class="skeleton-item">
+            <div class="skeleton-image"></div>
+            <div style="flex: 1;">
+              <div class="skeleton-text"></div>
+              <div class="skeleton-text small"></div>
+              <div class="skeleton-text medium"></div>
+            </div>
+          </div>
+          <div class="skeleton-item">
+            <div class="skeleton-image"></div>
+            <div style="flex: 1;">
+              <div class="skeleton-text"></div>
+              <div class="skeleton-text small"></div>
+              <div class="skeleton-text medium"></div>
+            </div>
+          </div>
+        </div>
+        <div class="cart-summary">
+          <div class="skeleton-text large"></div>
+          <div class="skeleton-text"></div>
+          <div class="skeleton-text"></div>
+          <div class="skeleton-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actual Content -->
+    <div class="content-state">
+    <div class="cart-header">
+      <h1><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
+      <p style="color: #666;">Review your items before checkout</p>
+    </div>
+
+    <% if (cartItems.length === 0) { %>
+      <div class="empty-cart">
+        <i class="fas fa-shopping-cart"></i>
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven’t added anything yet. Browse our products and start shopping.</p>
+        <a href="/customer/shop" class="btn btn-primary">Browse All Products</a>
+      </div>      
+    <% } else { %>
+      <div class="cart-content">
+        <div class="cart-items">
+          <div class="select-all-container">
+            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" checked>
+            <label for="selectAll">Select All</label>
+            <span class="selected-count" id="selectedCount">(<%= cartItems.length %> of <%= cartItems.length %> selected)</span>
+          </div>
+
+          <% cartItems.forEach(item => { %>
+            <div class="cart-item" data-cart-id="<%= item.id %>" data-item-total="<%= item.item_total %>">
+              <div class="item-checkbox-container">
+                <input type="checkbox" class="item-checkbox" data-cart-id="<%= item.id %>" onchange="updateSelection()" checked>
+              </div>
+              <img src="<%= item.image_url || '/images/placeholder.png' %>" alt="<%= item.name %>" class="item-image">
+              
+              <div class="item-details">
+                <h3 class="item-name"><%= item.name %></h3>
+                <p class="item-sku">SKU: <%= item.sku %></p>
+                <p class="item-price">$<%= parseFloat(item.unit_price).toFixed(2) %> each</p>
+                
+                <% if (item.stock_status) { %>
+                  <span class="badge" style="background: <%= item.stock_status.color %>; color: <%= item.stock_status.textColor %>;">
+                    <%= item.stock_status.label %>
+                  </span>
+                <% } %>
+              </div>
+
+              <div class="item-actions">
+                <div class="quantity-control">
+                  <button onclick="updateQuantity(<%= item.id %>, <%= item.quantity - 1 %>)">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <input type="number" value="<%= item.quantity %>" min="1" max="<%= item.total_stock %>" readonly>
+                  <button onclick="updateQuantity(<%= item.id %>, <%= item.quantity + 1 %>)" <%= item.quantity >= item.total_stock ? 'disabled' : '' %>>
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+
+                <div style="font-weight: 600; font-size: 18px;">
+                  $<%= parseFloat(item.item_total).toFixed(2) %>
+                </div>
+
+                <div class="remove-btn" onclick="removeItem(<%= item.id %>)">
+                  <i class="fas fa-trash"></i> Remove
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+        <div class="cart-summary">
+          <h2 class="summary-title">Order Summary</h2>
+          
+          <div class="selection-notice" id="selectionNotice">
+            <i class="fas fa-info-circle"></i>
+            <span>Please select at least one item to checkout</span>
+          </div>
+          
+          <div class="summary-row">
+            <span>Subtotal (<span id="summaryItemCount"><%= cartItems.length %></span> items)</span>
+            <span id="summarySubtotal">$<%= parseFloat(subtotal).toFixed(2) %></span>
+          </div>
+
+          <div class="summary-row total">
+            <span>Total</span>
+            <span id="summaryTotal">$<%= parseFloat(subtotal).toFixed(2) %></span>
+          </div>
+
+          <button class="checkout-btn" onclick="proceedToCheckout()" id="checkoutBtn">
+            <i class="fas fa-lock"></i> Proceed to Checkout (<%= cartItems.length %> <%= cartItems.length === 1 ? 'item' : 'items' %>)
+          </button>
+
+          <a href="/customer/shop" class="continue-shopping">
+            <i class="fas fa-arrow-left"></i> Continue Shopping
+          </a>
+        </div>
+      </div>
+    <% } %>
+    </div><!-- End content-state -->
+  </div>
+
+  <script>
+
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.body.classList.remove('loading');
+      }, 300);
+    });
+
+    const totalItems = <%= cartItems.length %>;
+
+
+    function showModal(options) {
+      const modal = document.getElementById('customModal');
+      const header = document.getElementById('modalHeader');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const message = document.getElementById('modalMessage');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+
+
+      header.className = 'modal-header';
+      
+
+      if (options.type === 'warning') {
+        header.classList.add('warning');
+        icon.className = 'fas fa-exclamation-triangle';
+      } else if (options.type === 'error') {
+        header.classList.add('error');
+        icon.className = 'fas fa-times-circle';
+      } else if (options.type === 'confirm') {
+        header.classList.add('confirm');
+        icon.className = 'fas fa-question-circle';
+      } else {
+        icon.className = 'fas fa-info-circle';
+      }
+
+
+      title.textContent = options.title || 'Information';
+      message.textContent = options.message || '';
+
+
+      if (options.showCancel) {
+        cancelBtn.style.display = 'inline-block';
+        cancelBtn.textContent = options.cancelText || 'Cancel';
+      } else {
+        cancelBtn.style.display = 'none';
+      }
+
+      confirmBtn.textContent = options.confirmText || 'OK';
+
+
+      modal.classList.add('active');
+
+
+      return new Promise((resolve) => {
+        const handleConfirm = () => {
+          modal.classList.remove('active');
+          confirmBtn.removeEventListener('click', handleConfirm);
+          cancelBtn.removeEventListener('click', handleCancel);
+          resolve(true);
+        };
+
+        const handleCancel = () => {
+          modal.classList.remove('active');
+          confirmBtn.removeEventListener('click', handleConfirm);
+          cancelBtn.removeEventListener('click', handleCancel);
+          resolve(false);
+        };
+
+        confirmBtn.addEventListener('click', handleConfirm);
+        cancelBtn.addEventListener('click', handleCancel);
+      });
+    }
+
+
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('selectAll');
+      const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+      
+
+      if (!selectAll || itemCheckboxes.length === 0) {
+        return;
+      }
+      
+      itemCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+      });
+      
+      updateSelection();
+    }
+
+
+    function updateSelection() {
+      const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+      const selectAll = document.getElementById('selectAll');
+      const selectedCount = document.getElementById('selectedCount');
+      const summaryItemCount = document.getElementById('summaryItemCount');
+      const summarySubtotal = document.getElementById('summarySubtotal');
+      const summaryTotal = document.getElementById('summaryTotal');
+      const checkoutBtn = document.getElementById('checkoutBtn');
+      const selectionNotice = document.getElementById('selectionNotice');
+      
+
+      if (!selectAll || !selectedCount || !summaryItemCount || !summarySubtotal || !summaryTotal || !checkoutBtn) {
+        return;
+      }
+      
+      let selectedItems = 0;
+      let selectedTotal = 0;
+      
+      itemCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          selectedItems++;
+          const cartId = checkbox.getAttribute('data-cart-id');
+          const cartItem = document.querySelector(`.cart-item[data-cart-id="${cartId}"]`);
+          if (cartItem) {
+            const itemTotal = parseFloat(cartItem.getAttribute('data-item-total'));
+            if (!isNaN(itemTotal)) {
+              selectedTotal += itemTotal;
+            }
+          }
+        }
+      });
+      
+
+      selectAll.checked = selectedItems === totalItems;
+      selectAll.indeterminate = selectedItems > 0 && selectedItems < totalItems;
+      
+
+      selectedCount.textContent = `(${selectedItems} of ${totalItems} selected)`;
+      summaryItemCount.textContent = selectedItems;
+      summarySubtotal.textContent = '$' + selectedTotal.toFixed(2);
+      summaryTotal.textContent = '$' + selectedTotal.toFixed(2);
+      
+
+      if (selectionNotice) {
+        if (selectedItems === 0) {
+          selectionNotice.classList.add('show');
+        } else {
+          selectionNotice.classList.remove('show');
+        }
+      }
+      
+
+      if (selectedItems === 0) {
+        checkoutBtn.disabled = true;
+        checkoutBtn.innerHTML = '<i class="fas fa-ban"></i> No items selected';
+      } else {
+        checkoutBtn.disabled = false;
+        checkoutBtn.innerHTML = `<i class="fas fa-lock"></i> Proceed to Checkout (${selectedItems} ${selectedItems === 1 ? 'item' : 'items'})`;
+      }
+    }
+
+    async function updateQuantity(cartId, newQuantity) {
+      if (newQuantity < 1) {
+        return removeItem(cartId);
+      }
+
+      try {
+        const response = await fetch('/customer/cart/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ cartId, quantity: newQuantity })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          location.reload();
+        } else {
+          await showModal({
+            type: 'error',
+            title: 'Update Failed',
+            message: data.message || 'Error updating cart. Please try again.',
+            confirmText: 'OK'
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        await showModal({
+          type: 'error',
+          title: 'Error',
+          message: 'Error updating cart. Please try again.',
+          confirmText: 'OK'
+        });
+      }
+    }
+
+    async function removeItem(cartId) {
+      const proceed = await showModal({
+        type: 'confirm',
+        title: 'Remove Item',
+        message: 'Are you sure you want to remove this item from your cart?',
+        showCancel: true,
+        confirmText: 'Remove',
+        cancelText: 'Cancel'
+      });
+      
+      if (!proceed) return;
+
+      try {
+        const response = await fetch('/customer/cart/remove', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ cartId })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          location.reload();
+        } else {
+          await showModal({
+            type: 'error',
+            title: 'Remove Failed',
+            message: data.message || 'Error removing item. Please try again.',
+            confirmText: 'OK'
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        await showModal({
+          type: 'error',
+          title: 'Error',
+          message: 'Error removing item. Please try again.',
+          confirmText: 'OK'
+        });
+      }
+    }
+
+    async function proceedToCheckout() {
+      const itemCheckboxes = document.querySelectorAll('.item-checkbox:checked');
+      
+      if (!itemCheckboxes || itemCheckboxes.length === 0) {
+        await showModal({
+          type: 'warning',
+          title: 'No Items Selected',
+          message: 'Please select at least one item to checkout.',
+          confirmText: 'OK'
+        });
+        return;
+      }
+      
+
+      const selectedIds = Array.from(itemCheckboxes)
+        .map(cb => cb.getAttribute('data-cart-id'))
+        .filter(id => id); 
+      
+      if (selectedIds.length === 0) {
+        await showModal({
+          type: 'warning',
+          title: 'No Items Selected',
+          message: 'Please select at least one item to checkout.',
+          confirmText: 'OK'
+        });
+        return;
+      }
+      
+
+      sessionStorage.setItem('selectedCartItems', JSON.stringify(selectedIds));
+      
+
+      window.location.href = '/customer/checkout?selected=' + selectedIds.join(',');
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+      if (totalItems > 0) {
+        updateSelection();
+      }
+    });
+  </script>
+</body>
+</html>
+

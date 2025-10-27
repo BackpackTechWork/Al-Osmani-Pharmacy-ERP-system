@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .sale-items-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .sale-item-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 12px;
+      padding: 12px;
+      background: white;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+
+    .calculation-box {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 15px;
+    }
+
+    .calc-row.total {
+      border-top: 2px solid #333;
+      margin-top: 12px;
+      padding-top: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent-color);
+    }
+
+    .discount-type-cards {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .discount-card {
+      flex: 1;
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .discount-card:hover {
+      border-color: var(--accent-color, #4CAF50);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .discount-card.selected {
+      border-color: var(--accent-color, #4CAF50);
+      background: linear-gradient(135deg, var(--accent-color, #4CAF50), #45a049);
+      color: white;
+      box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+    }
+
+    .discount-card.selected .discount-icon {
+      color: white;
+    }
+
+    .discount-icon {
+      font-size: 24px;
+      color: var(--accent-color, #4CAF50);
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .discount-label {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .discount-sublabel {
+      font-size: 12px;
+      opacity: 0.8;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .sale-item-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      
+      .sale-item-row .form-group {
+        margin-bottom: 8px;
+      }
+      
+      .sale-item-row button {
+        margin-top: 0;
+        width: 100%;
+      }
+      
+      .main-form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+      
+      .sale-summary-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
+      
+      .calculation-box {
+        margin-top: 20px;
+      }
+      
+      .form-control {
+        font-size: 16px;
+      }
+      
+      .btn {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      .card-body {
+        padding: 16px !important;
+      }
+      
+      .container {
+        padding: 16px !important;
+      }
+      
+      /* Discount cards responsive */
+      .discount-type-cards {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .discount-card {
+        padding: 12px 8px;
+      }
+      
+      .discount-icon {
+        font-size: 20px;
+        margin-bottom: 6px;
+      }
+      
+      .discount-label {
+        font-size: 13px;
+      }
+      
+      .discount-sublabel {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/admin/sales' }) %>
+  
+  <div class="main-content">
+    <div style="min-height: 100vh; background-color: var(--bg-color); padding: 32px 20px;">
+    <div class="container" style="max-width: 1200px;">
+      <a href="/admin/sales" class="back-link" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent-color); text-decoration: none; font-weight: 600; margin-bottom: 24px;">
+        <i class="fas fa-arrow-left"></i>
+        Back to Sales
+      </a>
+      
+      <div class="card fade-in">
+        <div class="card-header">
+          <h1 class="card-title">
+            <i class="fas fa-edit"></i>
+            Edit Sale
+          </h1>
+        </div>
+        
+        <form action="/admin/sales/edit/<%= sale.id %>" method="POST" id="saleForm">
+          <input type="hidden" name="subtotal" id="subtotalInput">
+          <input type="hidden" name="tax" id="taxInput">
+          <input type="hidden" name="discount" id="discountInput">
+          <input type="hidden" name="discountType" id="discountTypeInput">
+          <input type="hidden" name="total" id="totalInput">
+          <input type="hidden" name="saleItems" id="saleItemsInput">
+
+          <!-- Basic Info -->
+          <div class="main-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="form-group">
+              <label class="form-label" for="branchId">Branch *</label>
+              <select name="branchId" id="branchId" class="form-control" required>
+                <% branches.forEach(branch => { %>
+                  <option value="<%= branch.id %>" <%= sale.branch_id === branch.id ? 'selected' : '' %>>
+                    <%= branch.name %>
+                  </option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="employeeId">Employee *</label>
+              <select name="employeeId" id="employeeId" class="form-control" required>
+                <% employees.forEach(employee => { %>
+                  <option value="<%= employee.id %>" <%= sale.employee_id === employee.id ? 'selected' : '' %>>
+                    <%= employee.name %>
+                  </option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="customerId">Customer *</label>
+              <select name="customerId" id="customerId" class="form-control" required>
+                <option value="walk-in" <%= sale.customer_id === 'walk-in' || !sale.customer_id ? 'selected' : '' %>>Walk-in Customer</option>
+                <% customers.forEach(customer => { %>
+                  <option value="<%= customer.id %>" <%= sale.customer_id === customer.id ? 'selected' : '' %>>
+                    <%= customer.first_name %> <%= customer.last_name %> - <%= customer.email %>
+                  </option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="paymentMethod">Payment Method *</label>
+              <select name="paymentMethod" id="paymentMethod" class="form-control" required>
+                <option value="cash" <%= sale.payment_method === 'cash' ? 'selected' : '' %>>Cash</option>
+                <option value="card" <%= sale.payment_method === 'card' ? 'selected' : '' %>>Card</option>
+                <option value="insurance" <%= sale.payment_method === 'insurance' ? 'selected' : '' %>>Insurance</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="paymentStatus">Payment Status *</label>
+              <select name="paymentStatus" id="paymentStatus" class="form-control" required>
+                <option value="paid" <%= sale.payment_status === 'paid' ? 'selected' : '' %>>Paid</option>
+                <option value="pending" <%= sale.payment_status === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="refunded" <%= sale.payment_status === 'refunded' ? 'selected' : '' %>>Refunded</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sale Items -->
+          <div class="sale-items-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="margin: 0;">Sale Items</h3>
+              <button type="button" class="btn btn-sm btn-primary" onclick="addSaleItem()">
+                <i class="fas fa-plus"></i> Add Item
+              </button>
+            </div>
+            <div id="saleItemsContainer">
+              <!-- Items will be added here dynamically -->
+            </div>
+          </div>
+
+          <!-- Sale Summary -->
+          <div class="sale-summary-grid" style="display: grid; grid-template-columns: 1fr 400px; gap: 20px;">
+            <div class="form-group">
+              <label class="form-label" for="notes">Notes</label>
+              <textarea 
+                id="notes" 
+                name="notes" 
+                class="form-control" 
+                rows="6"
+                placeholder="Add any special notes..."
+              ><%= sale.notes || '' %></textarea>
+            </div>
+
+            <div class="calculation-box">
+              <h3 style="margin-top: 0; margin-bottom: 16px;">Sale Summary</h3>
+              
+              <div class="calc-row">
+                <span>Subtotal:</span>
+                <strong id="subtotalDisplay">$0.00</strong>
+              </div>
+              
+              <div class="calc-row">
+                <span>Tax (8%):</span>
+                <strong id="taxDisplay">$0.00</strong>
+              </div>
+              
+              <!-- Discount Section -->
+              <div style="margin: 12px 0; padding: 12px 0; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                <div class="discount-type-cards">
+                  <div class="discount-card <%= !sale || sale.discount_type === 'fixed' ? 'selected' : '' %>" onclick="selectDiscountType('fixed')">
+                    <input type="radio" name="discountTypeRadio" value="fixed" <%= !sale || sale.discount_type === 'fixed' ? 'checked' : '' %> onchange="calculateTotals()" style="display: none;">
+                    <div class="discount-icon">
+                      <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="discount-label">Fixed Amount</div>
+                    <div class="discount-sublabel">($)</div>
+                  </div>
+                  <div class="discount-card <%= sale && sale.discount_type === 'percentage' ? 'selected' : '' %>" onclick="selectDiscountType('percentage')">
+                    <input type="radio" name="discountTypeRadio" value="percentage" <%= sale && sale.discount_type === 'percentage' ? 'checked' : '' %> onchange="calculateTotals()" style="display: none;">
+                    <div class="discount-icon">
+                      <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="discount-label">Percentage</div>
+                    <div class="discount-sublabel">(%)</div>
+                  </div>
+                </div>
+                <div class="calc-row">
+                  <span>Discount:</span>
+                  <input 
+                    type="number" 
+                    id="discountDisplay" 
+                    style="width: 100px; text-align: right; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px;"
+                    step="0.01"
+                    min="0"
+                    value="<%= sale.discount || 0 %>"
+                    onchange="calculateTotals()"
+                  >
+                </div>
+                <div class="calc-row" style="font-size: 13px; color: #666;">
+                  <span>Discount Amount:</span>
+                  <span id="discountAmountDisplay">-$0.00</span>
+                </div>
+              </div>
+              
+              <div class="calc-row total">
+                <span>Total:</span>
+                <span id="totalDisplay">$0.00</span>
+              </div>
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i>
+              Update Sale
+            </button>
+            <a href="/admin/sales" class="btn btn-secondary">
+              <i class="fas fa-times"></i>
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <script>
+    const products = <%- JSON.stringify(products) %>;
+    const saleItems = <%- JSON.stringify(sale.items || []) %>;
+
+    function addSaleItem() {
+      const container = document.getElementById('saleItemsContainer');
+      const index = container.children.length;
+      
+      const row = document.createElement('div');
+      row.className = 'sale-item-row';
+      row.innerHTML = `
+        <div class="form-group" style="margin: 0;">
+          <label style="font-size: 12px; margin-bottom: 4px;">Product</label>
+          <select class="form-control item-product" onchange="updateItemPrice(${index})">
+            <option value="">Select Product</option>
+            ${products.map(p => `<option value="${p.id}" data-price="${p.unit_price}">${p.name} (${p.sku}) - $${parseFloat(p.unit_price).toFixed(2)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label style="font-size: 12px; margin-bottom: 4px;">Quantity</label>
+          <input type="number" class="form-control item-quantity" min="1" value="1" onchange="calculateItemTotal(${index})">
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label style="font-size: 12px; margin-bottom: 4px;">Unit Price</label>
+          <input type="number" class="form-control item-price" step="0.01" min="0" value="0" readonly style="background: #f5f5f5; cursor: not-allowed;">
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label style="font-size: 12px; margin-bottom: 4px;">Subtotal</label>
+          <input type="text" class="form-control item-subtotal" readonly value="$0.00" style="background: #f5f5f5;">
+        </div>
+        <button type="button" class="btn btn-sm btn-danger" onclick="removeSaleItem(this)" style="margin-top: 20px;">
+          <i class="fas fa-trash"></i>
+        </button>
+      `;
+      container.appendChild(row);
+    }
+
+    function removeSaleItem(button) {
+      button.closest('.sale-item-row').remove();
+      calculateTotals();
+    }
+
+    function updateItemPrice(index) {
+      const row = document.querySelectorAll('.sale-item-row')[index];
+      const select = row.querySelector('.item-product');
+      const priceInput = row.querySelector('.item-price');
+      
+      const selectedOption = select.options[select.selectedIndex];
+      const price = selectedOption.getAttribute('data-price') || 0;
+      
+      priceInput.value = parseFloat(price).toFixed(2);
+      calculateItemTotal(index);
+    }
+
+    function calculateItemTotal(index) {
+      const row = document.querySelectorAll('.sale-item-row')[index];
+      const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+      const price = parseFloat(row.querySelector('.item-price').value) || 0;
+      const subtotal = quantity * price;
+      
+      row.querySelector('.item-subtotal').value = '$' + subtotal.toFixed(2);
+      calculateTotals();
+    }
+
+    function selectDiscountType(type) {
+
+      document.querySelectorAll('.discount-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+
+      const selectedCard = document.querySelector(`.discount-card[onclick="selectDiscountType('${type}')"]`);
+      if (selectedCard) {
+        selectedCard.classList.add('selected');
+      }
+      
+
+      const radioButton = document.querySelector(`input[name="discountTypeRadio"][value="${type}"]`);
+      if (radioButton) {
+        radioButton.checked = true;
+      }
+      
+
+      calculateTotals();
+    }
+
+    function calculateTotals() {
+      const rows = document.querySelectorAll('.sale-item-row');
+      let subtotal = 0;
+      
+      rows.forEach(row => {
+        const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+        const price = parseFloat(row.querySelector('.item-price').value) || 0;
+        subtotal += quantity * price;
+      });
+      
+      const tax = subtotal * 0.08; 
+      const discountValue = parseFloat(document.getElementById('discountDisplay').value) || 0;
+      const discountType = document.querySelector('input[name="discountTypeRadio"]:checked').value;
+      
+      let discountAmount = 0;
+      if (discountType === 'percentage') {
+        discountAmount = subtotal * (discountValue / 100);
+      } else {
+        discountAmount = discountValue;
+      }
+      
+      const total = subtotal + tax - discountAmount;
+      
+
+      document.getElementById('subtotalDisplay').textContent = '$' + subtotal.toFixed(2);
+      document.getElementById('taxDisplay').textContent = '$' + tax.toFixed(2);
+      document.getElementById('discountAmountDisplay').textContent = '-$' + discountAmount.toFixed(2);
+      document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
+      
+
+      document.getElementById('subtotalInput').value = subtotal.toFixed(2);
+      document.getElementById('taxInput').value = tax.toFixed(2);
+      document.getElementById('discountInput').value = discountValue.toFixed(2); 
+      document.getElementById('discountTypeInput').value = discountType;
+      document.getElementById('totalInput').value = total.toFixed(2);
+    }
+
+    document.getElementById('saleForm').addEventListener('submit', function(e) {
+      const rows = document.querySelectorAll('.sale-item-row');
+      const items = [];
+      
+      rows.forEach(row => {
+        const productId = row.querySelector('.item-product').value;
+        const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+        const unitPrice = parseFloat(row.querySelector('.item-price').value) || 0;
+        const subtotal = quantity * unitPrice;
+        
+        if (productId && quantity > 0) {
+          items.push({
+            productId: productId,
+            quantity: quantity,
+            unitPrice: unitPrice,
+            subtotal: subtotal
+          });
+        }
+      });
+      
+      if (items.length === 0) {
+        e.preventDefault();
+        alert('Please add at least one product to the sale.');
+        return false;
+      }
+      
+      document.getElementById('saleItemsInput').value = JSON.stringify(items);
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+      if (saleItems.length > 0) {
+
+        saleItems.forEach((item, index) => {
+          addSaleItem();
+          const row = document.querySelectorAll('.sale-item-row')[index];
+          row.querySelector('.item-product').value = item.product_id;
+          row.querySelector('.item-quantity').value = item.quantity;
+          row.querySelector('.item-price').value = item.unit_price;
+          calculateItemTotal(index);
+        });
+      } else {
+
+        addSaleItem();
+      }
+      
+      calculateTotals();
+    });
+
+    document.addEventListener('wheel', function (e) {
+      if (document.activeElement.type === 'number') {
+        document.activeElement.blur();
+      }
+    });
+  </script>
+</body>
+</html>
+

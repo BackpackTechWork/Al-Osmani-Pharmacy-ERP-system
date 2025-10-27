@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .order-items-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .order-item-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 12px;
+      padding: 12px;
+      background: white;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+
+    .delivery-section {
+      display: none;
+      padding: 20px;
+      background: #fff3cd;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #ffc107;
+    }
+
+    .delivery-section.active {
+      display: block;
+    }
+
+    .calculation-box {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 15px;
+    }
+
+    .calc-row.total {
+      border-top: 2px solid #333;
+      margin-top: 12px;
+      padding-top: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent-color);
+    }
+
+    .discount-type-cards {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .discount-card {
+      flex: 1;
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .discount-card:hover {
+      border-color: var(--accent-color, #4CAF50);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .discount-card.selected {
+      border-color: var(--accent-color, #4CAF50);
+      background: linear-gradient(135deg, var(--accent-color, #4CAF50), #45a049);
+      color: white;
+      box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+    }
+
+    .discount-card.selected .discount-icon {
+      color: white;
+    }
+
+    .discount-icon {
+      font-size: 24px;
+      color: var(--accent-color, #4CAF50);
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .discount-label {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .discount-sublabel {
+      font-size: 12px;
+      opacity: 0.8;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px 28px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      animation: slideIn 0.25s ease;
+      text-align: center;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .modal-header i {
+      font-size: 24px;
+      color: var(--accent-color, #4CAF50);
+    }
+
+    .modal-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-15px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .order-item-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      
+      .order-item-row .form-group {
+        margin-bottom: 8px;
+      }
+      
+      .order-item-row button {
+        margin-top: 0;
+        width: 100%;
+      }
+      
+      #addCustomerForm .card-body > div {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+      
+      #addCustomerForm .card-body > div:last-child {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      #addCustomerForm .card-body > div:last-child button {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      
+      /* Main form grid responsive */
+      .main-form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+      
+      /* Order summary responsive */
+      .order-summary-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
+      
+      /* Delivery section responsive */
+      .delivery-section > div {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+      
+      /* Calculation box responsive */
+      .calculation-box {
+        margin-top: 20px;
+      }
+      
+      /* Form controls responsive */
+      .form-control {
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      /* Button responsive */
+      .btn {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      /* Card responsive */
+      .card-body {
+        padding: 16px !important;
+      }
+      
+      /* Container responsive */
+      .container {
+        padding: 16px !important;
+      }
+      
+      /* Discount cards responsive */
+      .discount-type-cards {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .discount-card {
+        padding: 12px 8px;
+      }
+      
+      .discount-icon {
+        font-size: 20px;
+        margin-bottom: 6px;
+      }
+      
+      .discount-label {
+        font-size: 13px;
+      }
+      
+      .discount-sublabel {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/admin/inventory/orders' }) %>
+  
+  <div class="main-content">
+    <div style="min-height: 100vh; background-color: var(--bg-color); padding: 32px 20px;">
+    <div class="container" style="max-width: 1200px;">
+      <a href="/admin/inventory/orders?branch=<%= branchId %>" class="back-link" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent-color); text-decoration: none; font-weight: 600; margin-bottom: 24px;">
+        <i class="fas fa-arrow-left"></i>
+        Back to Orders
+      </a>
+      
+      <div class="card fade-in">
+        <div class="card-header">
+          <h1 class="card-title">
+            <i class="fas fa-<%= order ? 'edit' : 'plus-circle' %>"></i>
+            <%= order ? 'Edit Order' : 'Create New Order' %>
+          </h1>
+        </div>
+        
+        <form action="<%= order ? `/admin/inventory/orders/edit/${order.id}` : '/admin/inventory/orders/add' %>" method="POST" id="orderForm">
+          <input type="hidden" name="branchId" value="<%= branchId %>">
+          <input type="hidden" name="subtotal" id="subtotalInput">
+          <input type="hidden" name="tax" id="taxInput">
+          <input type="hidden" name="discount" id="discountInput">
+          <input type="hidden" name="discountType" id="discountTypeInput">
+          <input type="hidden" name="deliveryFee" id="deliveryFeeInput">
+          <input type="hidden" name="total" id="totalInput">
+          <input type="hidden" name="orderItems" id="orderItemsInput">
+
+          <!-- Customer & Order Type -->
+          <div class="main-form-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="form-group">
+              <label class="form-label" for="customerId">Customer *</label>
+              <select name="customerId" id="customerId" class="form-control" required>
+                <option value="">Select Customer</option>
+                <% customers.forEach(customer => { %>
+                  <option value="<%= customer.id %>" <%= order && order.customer_id === customer.id ? 'selected' : '' %>>
+                    <%= customer.first_name %> <%= customer.last_name %> - <%= customer.email %>
+                  </option>
+                <% }) %>
+              </select>
+              <button type="button" class="btn btn-outline" onclick="toggleAddCustomer()" style="margin-top: 8px; width: 100%;">
+                <i class="fas fa-user-plus"></i> Add User
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="orderType">Order Type *</label>
+              <select name="orderType" id="orderType" class="form-control" required onchange="toggleDeliverySection()">
+                <option value="pickup" <%= order && order.order_type === 'pickup' ? 'selected' : '' %>>Pick Up</option>
+                <option value="delivery" <%= order && order.order_type === 'delivery' ? 'selected' : '' %>>Delivery</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="status">Status *</label>
+              <select name="status" id="status" class="form-control" required>
+                <option value="pending" <%= order && order.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="processing" <%= order && order.status === 'processing' ? 'selected' : '' %>>Processing</option>
+                <option value="ready" <%= order && order.status === 'ready' ? 'selected' : '' %>>Ready</option>
+                <option value="completed" <%= order && order.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                <option value="cancelled" <%= order && order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="branchSelect">Branch *</label>
+              <select name="branchSelect" id="branchSelect" class="form-control" required onchange="updateBranch()">
+                <% branches.forEach(branch => { %>
+                  <option value="<%= branch.id %>" <%= branchId == branch.id ? 'selected' : '' %>>
+                    <%= branch.name %>
+                  </option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+
+          <!-- Add Customer Form -->
+          <div id="addCustomerForm" class="card" style="display: none; margin-bottom: 24px; background: #f8f9fa;">
+            <div class="card-header" style="background: var(--accent-color); color: white; padding: 16px 20px;">
+              <h3 style="margin: 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-user-plus"></i> Add New Customer
+              </h3>
+            </div>
+            <div class="card-body" style="padding: 20px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div class="form-group">
+                  <label class="form-label" for="newFirstName">First Name *</label>
+                  <input type="text" id="newFirstName" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="newLastName">Last Name *</label>
+                  <input type="text" id="newLastName" class="form-control">
+                </div>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div class="form-group">
+                  <label class="form-label" for="newEmail">Email *</label>
+                  <input type="email" id="newEmail" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="newPhone">Phone</label>
+                  <input type="tel" id="newPhone" class="form-control">
+                </div>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div class="form-group">
+                  <label class="form-label" for="newCity">City</label>
+                  <input type="text" id="newCity" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="newState">State</label>
+                  <input type="text" id="newState" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="newZipCode">ZIP Code</label>
+                  <input type="text" id="newZipCode" class="form-control">
+                </div>
+              </div>
+              
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label" for="newAddress">Address</label>
+                <textarea id="newAddress" class="form-control" rows="2"></textarea>
+              </div>
+              
+              <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" class="btn btn-outline" onclick="cancelAddCustomer()">
+                  <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="addNewCustomer()">
+                  <i class="fas fa-save"></i> Add Customer
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Items -->
+          <div class="order-items-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="margin: 0;">Order Items</h3>
+              <button type="button" class="btn btn-sm btn-primary" onclick="addOrderItem()">
+                <i class="fas fa-plus"></i> Add Item
+              </button>
+            </div>
+            <div id="orderItemsContainer">
+              <!-- Items will be added here dynamically -->
+            </div>
+          </div>
+
+          <!-- Delivery Details (conditional) -->
+          <div id="deliverySection" class="delivery-section <%= order && order.order_type === 'delivery' ? 'active' : '' %>">
+            <h3 style="margin-top: 0; margin-bottom: 16px;">
+              <i class="fas fa-truck"></i> Delivery Details
+            </h3>
+            <div class="form-group">
+              <label class="form-label" for="deliveryAddress">Address</label>
+              <input 
+                type="text" 
+                id="deliveryAddress" 
+                name="deliveryAddress" 
+                class="form-control" 
+                value="<%= order ? order.delivery_address || '' : '' %>"
+              >
+            </div>
+            <div class="delivery-section" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="deliveryCity">City</label>
+                <input 
+                  type="text" 
+                  id="deliveryCity" 
+                  name="deliveryCity" 
+                  class="form-control" 
+                  value="<%= order ? order.delivery_city || '' : '' %>"
+                >
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="deliveryState">State</label>
+                <input 
+                  type="text" 
+                  id="deliveryState" 
+                  name="deliveryState" 
+                  class="form-control" 
+                  value="<%= order ? order.delivery_state || '' : '' %>"
+                >
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="deliveryZip">ZIP Code</label>
+                <input 
+                  type="text" 
+                  id="deliveryZip" 
+                  name="deliveryZip" 
+                  class="form-control" 
+                  value="<%= order ? order.delivery_zip || '' : '' %>"
+                >
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="deliveryFeeDisplay">Delivery Fee ($)</label>
+              <input 
+                type="number" 
+                id="deliveryFeeDisplay" 
+                class="form-control" 
+                step="0.01"
+                min="0"
+                value="<%= order ? order.delivery_fee : '0' %>"
+                onchange="calculateTotals()"
+              >
+            </div>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="order-summary-grid" style="display: grid; grid-template-columns: 1fr 400px; gap: 20px;">
+            <div class="form-group">
+              <label class="form-label" for="notes">Notes</label>
+              <textarea 
+                id="notes" 
+                name="notes" 
+                class="form-control" 
+                rows="6"
+                placeholder="Add any special instructions or notes..."
+              ><%= order ? order.notes || '' : '' %></textarea>
+            </div>
+
+            <div class="calculation-box">
+              <h3 style="margin-top: 0; margin-bottom: 16px;">Order Summary</h3>
+              
+              <div class="calc-row">
+                <span>Subtotal:</span>
+                <strong id="subtotalDisplay">$0.00</strong>
+              </div>
+              
+              <div class="calc-row">
+                <span>Tax (8%):</span>
+                <strong id="taxDisplay">$0.00</strong>
+              </div>
+              
+              <!-- Discount Section -->
+              <div style="margin: 12px 0; padding: 12px 0; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                <div class="discount-type-cards">
+                  <div class="discount-card <%= !order || order.discount_type === 'fixed' ? 'selected' : '' %>" onclick="selectDiscountType('fixed')">
+                    <input type="radio" name="discountTypeRadio" value="fixed" <%= !order || order.discount_type === 'fixed' ? 'checked' : '' %> onchange="calculateTotals()" style="display: none;">
+                    <div class="discount-icon">
+                      <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="discount-label">Fixed Amount</div>
+                    <div class="discount-sublabel">($)</div>
+                  </div>
+                  <div class="discount-card <%= order && order.discount_type === 'percentage' ? 'selected' : '' %>" onclick="selectDiscountType('percentage')">
+                    <input type="radio" name="discountTypeRadio" value="percentage" <%= order && order.discount_type === 'percentage' ? 'checked' : '' %> onchange="calculateTotals()" style="display: none;">
+                    <div class="discount-icon">
+                      <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="discount-label">Percentage</div>
+                    <div class="discount-sublabel">(%)</div>
+                  </div>
+                </div>
+                <div class="calc-row">
+                  <span>Discount:</span>
+                  <input 
+                    type="number" 
+                    id="discountDisplay" 
+                    style="width: 100px; text-align: right; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px;"
+                    step="0.01"
+                    min="0"
+                    value="<%= order ? order.discount : '0' %>"
+                    onchange="calculateTotals()"
+                  >
+                </div>
+                <div class="calc-row" style="font-size: 13px; color: #666;">
+                  <span>Discount Amount:</span>
+                  <span id="discountAmountDisplay">-$0.00</span>
+                </div>
+              </div>
+              
+              <div class="calc-row" id="deliveryFeeRow" style="display: <%= order && order.order_type === 'delivery' ? 'flex' : 'none' %>;">
+                <span>Delivery Fee:</span>
+                <strong id="deliveryDisplay">$0.00</strong>
+              </div>
+              
+              <div class="calc-row total">
+                <span>Total:</span>
+                <span id="totalDisplay">$0.00</span>
+              </div>
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i>
+              <%= order ? 'Update Order' : 'Create Order' %>
+            </button>
+            <a href="/admin/inventory/orders?branch=<%= branchId %>" class="btn btn-secondary">
+              <i class="fas fa-times"></i>
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Custom Alert Modal -->
+  <div id="alertModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <i id="alertIcon" class="fas fa-info-circle"></i>
+        <h3 id="alertTitle">Notification</h3>
+      </div>
+      <p id="alertMessage" style="white-space: pre-wrap; text-align: left;"></p>
+      <div class="modal-actions">
+        <button id="alertCancelBtn" class="btn btn-outline" style="display: none;">Cancel</button>
+        <button id="alertOkBtn" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let products = <%- JSON.stringify(products) %>;
+    let orderItemsData = [];
+
+    <% if (order && order.items) { %>
+      orderItemsData = <%- JSON.stringify(order.items) %>;
+    <% } %>
+
+    function toggleDeliverySection() {
+      const orderType = document.getElementById('orderType').value;
+      const deliverySection = document.getElementById('deliverySection');
+      const deliveryFeeRow = document.getElementById('deliveryFeeRow');
+      
+      if (orderType === 'delivery') {
+        deliverySection.classList.add('active');
+        deliveryFeeRow.style.display = 'flex';
+      } else {
+        deliverySection.classList.remove('active');
+        deliveryFeeRow.style.display = 'none';
+        document.getElementById('deliveryFeeDisplay').value = 0;
+      }
+      calculateTotals();
+    }
+
+    function addOrderItem() {
+      const container = document.getElementById('orderItemsContainer');
+      const index = container.children.length;
+      
+      const row = document.createElement('div');
+      row.className = 'order-item-row';
+      row.innerHTML = `
+        <div class="form-group" style="margin: 0;">
+          <label style="font-size: 12px; margin-bottom: 4px;">Product</label>
+          <div class="custom-product-select" data-index="${index}" style="position: relative;">
+            <input type="hidden" class="item-product-id">
+            <div class="form-control" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleProductDropdown(${index})">
+              <span class="item-product-display" style="color:#999;">Select Product</span>
+              <i class="fas fa-chevron-down" style="color:#999;"></i>
+            </div>
+            <div class="product-dropdown" id="productDropdown-${index}" style="display:none; position:absolute; background:#fff; border:1px solid #ddd; border-radius:8px; margin-top:6px; z-index:1000; max-height:280px; overflow:auto; width: calc(100% - 2px); box-shadow:0 6px 20px rgba(0,0,0,0.12);">
+              <div style="position:sticky; top:0; background:#fff; padding:8px; border-bottom:1px solid #eee;">
+                <input type="text" class="product-search" placeholder="Search products..." oninput="filterProductDropdown(${index}, this.value)" style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:6px;">
+              </div>
+              <div class="product-options" id="productOptions-${index}">
+                ${products.map(p => {
+                  const status = p.stock_status || { label: 'In Stock', color: '#28a745', textColor: '#ffffff' };
+                  const unit = parseFloat(p.unit_price).toFixed(2);
+                  return `
+                    <div class="product-option" data-id="${p.id}" data-price="${unit}" onclick="selectProduct(${index}, ${p.id})" style="padding:10px 12px; display:flex; align-items:center; gap:10px; cursor:pointer; border-bottom:1px solid #f6f6f6;">
+                      <div style="flex:1; min-width:0;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                          <div style="font-weight:600; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.name} <span style="color:#999; font-weight:500;">(${p.sku})</span></div>
+                          <div style="font-weight:700; color:var(--accent-color);">$${unit}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+                          <span style="display:inline-block; padding:4px 8px; border-radius:14px; font-size:11px; font-weight:700; background:${status.color}; color:${status.textColor};">
+                            ${status.label}
+                          </span>
+                          <span style="font-size:12px; color:#666;">Remaining: <strong>${p.total_stock}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+                  `
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label style="font-size: 12px; margin-bottom: 4px;">Quantity</label>
+          <input type="number" class="form-control item-quantity" min="1" value="1" onchange="calculateItemTotal(${index})">
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label style="font-size: 12px; margin-bottom: 4px;">Unit Price</label>
+          <input type="number" class="form-control item-price" step="0.01" min="0" value="0" readonly style="background: #f5f5f5; cursor: not-allowed;">
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label style="font-size: 12px; margin-bottom: 4px;">Subtotal</label>
+          <input type="text" class="form-control item-subtotal" readonly value="$0.00" style="background: #f5f5f5;">
+        </div>
+        <button type="button" class="btn btn-sm btn-danger" onclick="removeOrderItem(this)" style="margin-top: 20px;">
+          <i class="fas fa-trash"></i>
+        </button>
+      `;
+      container.appendChild(row);
+    }
+
+    function removeOrderItem(button) {
+      button.closest('.order-item-row').remove();
+      calculateTotals();
+    }
+
+    function toggleProductDropdown(index) {
+      const dropdown = document.getElementById(`productDropdown-${index}`);
+      const all = document.querySelectorAll('.product-dropdown');
+      all.forEach(d => { if (d !== dropdown) d.style.display = 'none'; });
+      dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function filterProductDropdown(index, term) {
+      const container = document.getElementById(`productOptions-${index}`);
+      const t = (term || '').toLowerCase();
+      container.querySelectorAll('.product-option').forEach(opt => {
+        const text = opt.textContent.toLowerCase();
+        opt.style.display = text.includes(t) ? 'flex' : 'none';
+      });
+    }
+
+    function selectProduct(index, productId) {
+      const row = document.querySelectorAll('.order-item-row')[index];
+      const hiddenId = row.querySelector('.item-product-id');
+      const display = row.querySelector('.item-product-display');
+      const dropdown = document.getElementById(`productDropdown-${index}`);
+      const optionEl = dropdown.querySelector(`.product-option[data-id="${productId}"]`);
+      const price = optionEl ? optionEl.getAttribute('data-price') : 0;
+
+      hiddenId.value = productId;
+      const prod = products.find(p => String(p.id) === String(productId));
+      display.textContent = prod ? `${prod.name} (${prod.sku})` : 'Select Product';
+      display.style.color = '#333';
+
+      const priceInput = row.querySelector('.item-price');
+      priceInput.value = parseFloat(price).toFixed(2);
+      dropdown.style.display = 'none';
+      calculateItemTotal(index);
+    }
+
+    function calculateItemTotal(index) {
+      const row = document.querySelectorAll('.order-item-row')[index];
+      const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+      const price = parseFloat(row.querySelector('.item-price').value) || 0;
+      const subtotal = quantity * price;
+      
+      row.querySelector('.item-subtotal').value = '$' + subtotal.toFixed(2);
+      calculateTotals();
+    }
+
+    function selectDiscountType(type) {
+
+      document.querySelectorAll('.discount-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+
+      const selectedCard = document.querySelector(`.discount-card[onclick="selectDiscountType('${type}')"]`);
+      if (selectedCard) {
+        selectedCard.classList.add('selected');
+      }
+      
+
+      const radioButton = document.querySelector(`input[name="discountTypeRadio"][value="${type}"]`);
+      if (radioButton) {
+        radioButton.checked = true;
+      }
+      
+
+      calculateTotals();
+    }
+
+    function calculateTotals() {
+      const rows = document.querySelectorAll('.order-item-row');
+      let subtotal = 0;
+      
+      rows.forEach(row => {
+        const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+        const price = parseFloat(row.querySelector('.item-price').value) || 0;
+        subtotal += quantity * price;
+      });
+      
+      const tax = subtotal * 0.08; 
+      const discountValue = parseFloat(document.getElementById('discountDisplay').value) || 0;
+      const discountType = document.querySelector('input[name="discountTypeRadio"]:checked').value;
+      
+      let discountAmount = 0;
+      if (discountType === 'percentage') {
+        discountAmount = subtotal * (discountValue / 100);
+      } else {
+        discountAmount = discountValue;
+      }
+      
+      const orderType = document.getElementById('orderType').value;
+      const deliveryFee = orderType === 'delivery' ? (parseFloat(document.getElementById('deliveryFeeDisplay').value) || 0) : 0;
+      
+      const total = subtotal + tax - discountAmount + deliveryFee;
+      
+
+      document.getElementById('subtotalDisplay').textContent = '$' + subtotal.toFixed(2);
+      document.getElementById('taxDisplay').textContent = '$' + tax.toFixed(2);
+      document.getElementById('discountAmountDisplay').textContent = '-$' + discountAmount.toFixed(2);
+      document.getElementById('deliveryDisplay').textContent = '$' + deliveryFee.toFixed(2);
+      document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
+      
+
+      document.getElementById('subtotalInput').value = subtotal.toFixed(2);
+      document.getElementById('taxInput').value = tax.toFixed(2);
+      document.getElementById('discountInput').value = discountValue.toFixed(2);
+      document.getElementById('discountTypeInput').value = discountType;
+      document.getElementById('deliveryFeeInput').value = deliveryFee.toFixed(2);
+      document.getElementById('totalInput').value = total.toFixed(2);
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+      const rows = document.querySelectorAll('.order-item-row');
+      const items = [];
+      
+      rows.forEach(row => {
+        const productId = row.querySelector('.item-product-id').value;
+        const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+        const unitPrice = parseFloat(row.querySelector('.item-price').value) || 0;
+        const subtotal = quantity * unitPrice;
+        
+        if (productId && quantity > 0) {
+          items.push({
+            productId: productId,
+            quantity: quantity,
+            unitPrice: unitPrice,
+            subtotal: subtotal
+          });
+        }
+      });
+      
+      if (items.length === 0) {
+        e.preventDefault();
+        showAlert('Please add at least one product to the order.', 'warning', 'No Items');
+        return false;
+      }
+
+
+      const isEdit = Boolean(<%= order ? 'true' : 'false' %>);
+      if (!isEdit) {
+
+        const requestedByProduct = items.reduce((acc, it) => {
+          const pid = String(it.productId);
+          acc[pid] = (acc[pid] || 0) + it.quantity;
+          return acc;
+        }, {});
+
+        const violations = [];
+        Object.entries(requestedByProduct).forEach(([pid, qty]) => {
+          const prod = products.find(p => String(p.id) === String(pid));
+          const available = prod ? (Number(prod.total_stock) || 0) : 0;
+          if (qty > available) {
+            violations.push({ sku: prod ? prod.sku : pid, name: prod ? prod.name : pid, requested: qty, available });
+          }
+        });
+
+        if (violations.length > 0) {
+          e.preventDefault();
+          const lines = violations.slice(0, 5).map(v => `- ${v.name} (${v.sku}): requested ${v.requested}, available ${v.available}`);
+          showAlert('Some items exceed current stock and cannot be ordered:\n\n' + lines.join('\n') + (violations.length > 5 ? `\n...and ${violations.length - 5} more` : ''), 'error', 'Insufficient Stock');
+          return false;
+        }
+      }
+      
+      document.getElementById('orderItemsInput').value = JSON.stringify(items);
+    });
+
+    async function updateBranch() {
+      const branchId = document.getElementById('branchSelect').value;
+      document.querySelector('input[name="branchId"]').value = branchId;
+      showNotification('Branch changed to: ' + document.getElementById('branchSelect').selectedOptions[0].textContent, 'info');
+
+
+      try {
+        const res = await fetch(`/admin/inventory/branch-products?branch=${encodeURIComponent(branchId)}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Failed to load products');
+        products = data.products || [];
+
+
+        const rows = document.querySelectorAll('.order-item-row');
+        rows.forEach((row, index) => rebuildProductDropdown(index, row));
+
+
+        calculateTotals();
+      } catch (err) {
+        console.error('Failed to load branch products:', err);
+        showNotification('Failed to load products for selected branch', 'error');
+      }
+    }
+
+    function rebuildProductDropdown(index, row) {
+      const hiddenId = row.querySelector('.item-product-id');
+      const currentId = hiddenId ? hiddenId.value : '';
+      const optionsHtml = products.map(p => {
+        const status = p.stock_status || { label: 'In Stock', color: '#28a745', textColor: '#ffffff' };
+        const unit = parseFloat(p.unit_price).toFixed(2);
+        return `
+          <div class="product-option" data-id="${p.id}" data-price="${unit}" onclick="selectProduct(${index}, ${p.id})" style="padding:10px 12px; display:flex; align-items:center; gap:10px; cursor:pointer; border-bottom:1px solid #f6f6f6;">
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <div style="font-weight:600; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.name} <span style=\"color:#999; font-weight:500;\">(${p.sku})</span></div>
+                <div style="font-weight:700; color:var(--accent-color);">$${unit}</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+                <span style="display:inline-block; padding:4px 8px; border-radius:14px; font-size:11px; font-weight:700; background:${status.color}; color:${status.textColor};">
+                  ${status.label}
+                </span>
+                <span style="font-size:12px; color:#666;">Remaining: <strong>${p.total_stock}</strong></span>
+              </div>
+            </div>
+          </div>
+        `
+      }).join('');
+
+      const optionsContainer = row.querySelector(`#productOptions-${index}`);
+      if (optionsContainer) optionsContainer.innerHTML = optionsHtml;
+
+
+      const stillExists = products.some(p => String(p.id) === String(currentId));
+      const display = row.querySelector('.item-product-display');
+      const priceInput = row.querySelector('.item-price');
+      if (!stillExists) {
+        if (hiddenId) hiddenId.value = '';
+        if (display) { display.textContent = 'Select Product'; display.style.color = '#999'; }
+        if (priceInput) priceInput.value = '0.00';
+      } else {
+
+        const prod = products.find(p => String(p.id) === String(currentId));
+        if (prod && priceInput) priceInput.value = parseFloat(prod.unit_price).toFixed(2);
+        if (prod && display) { display.textContent = `${prod.name} (${prod.sku})`; display.style.color = '#333'; }
+      }
+    }
+
+    function toggleAddCustomer() {
+      const form = document.getElementById('addCustomerForm');
+      const isVisible = form.style.display !== 'none';
+      
+      if (isVisible) {
+        form.style.display = 'none';
+      } else {
+        form.style.display = 'block';
+
+        document.getElementById('newFirstName').value = '';
+        document.getElementById('newLastName').value = '';
+        document.getElementById('newEmail').value = '';
+        document.getElementById('newPhone').value = '';
+        document.getElementById('newAddress').value = '';
+        document.getElementById('newCity').value = '';
+        document.getElementById('newState').value = '';
+        document.getElementById('newZipCode').value = '';
+      }
+    }
+
+    function cancelAddCustomer() {
+      document.getElementById('addCustomerForm').style.display = 'none';
+    }
+
+    async function addNewCustomer() {
+      const firstName = document.getElementById('newFirstName').value.trim();
+      const lastName = document.getElementById('newLastName').value.trim();
+      const email = document.getElementById('newEmail').value.trim();
+      const phone = document.getElementById('newPhone').value.trim();
+      const address = document.getElementById('newAddress').value.trim();
+      const city = document.getElementById('newCity').value.trim();
+      const state = document.getElementById('newState').value.trim();
+      const zipCode = document.getElementById('newZipCode').value.trim();
+
+
+      if (!firstName || !lastName || !email) {
+        showAlert('Please fill in all required fields (First Name, Last Name, Email)', 'warning', 'Missing Fields');
+        return;
+      }
+
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showAlert('Please enter a valid email address', 'warning', 'Invalid Email');
+        return;
+      }
+
+      try {
+        const response = await fetch('/admin/inventory/orders/add-customer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            email,
+            phone,
+            address,
+            city,
+            state,
+            zipCode
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+
+          const customerSelect = document.getElementById('customerId');
+          const newOption = document.createElement('option');
+          newOption.value = result.customer.id;
+          newOption.textContent = `${result.customer.first_name} ${result.customer.last_name} - ${result.customer.email}`;
+          customerSelect.appendChild(newOption);
+          
+
+          customerSelect.value = result.customer.id;
+          
+
+          document.getElementById('addCustomerForm').style.display = 'none';
+          
+
+          showNotification('Customer added successfully!', 'success');
+        } else {
+          showAlert(result.message || 'Error adding customer', 'error', 'Error');
+        }
+      } catch (error) {
+        console.error('Error adding customer:', error);
+        showAlert('Error adding customer. Please try again.', 'error', 'Error');
+      }
+    }
+
+    function showNotification(message, type = 'info') {
+
+      const notification = document.createElement('div');
+      notification.className = `alert alert-${type === 'success' ? 'success' : 'error'}`;
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 400px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      `;
+      notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        ${message}
+      `;
+      
+      document.body.appendChild(notification);
+      
+
+      setTimeout(() => {
+        notification.style.transition = 'opacity 0.3s ease';
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+      <% if (order && order.items && order.items.length > 0) { %>
+
+        <% order.items.forEach((item, index) => { %>
+          {
+            addOrderItem();
+            const row = document.querySelectorAll('.order-item-row')[<%= index %>];
+
+            const prodId = '<%= item.product_id %>';
+            const productData = products.find(p => p.id == prodId);
+            row.querySelector('.item-product-id').value = prodId;
+            const display = row.querySelector('.item-product-display');
+            if (productData) {
+              display.textContent = `${productData.name} (${productData.sku})`;
+              display.style.color = '#333';
+              row.querySelector('.item-price').value = parseFloat(productData.unit_price).toFixed(2);
+            } else {
+              display.textContent = 'Select Product';
+              display.style.color = '#999';
+            }
+            row.querySelector('.item-quantity').value = '<%= item.quantity %>';
+            calculateItemTotal(<%= index %>);
+          }
+        <% }) %>
+      <% } else { %>
+
+        addOrderItem();
+      <% } %>
+
+      calculateTotals();
+    });
+
+
+    function showAlert(message, type = "info", title = "Notification", isConfirm = false, callback = null) {
+      const modal = document.getElementById("alertModal");
+      const icon = document.getElementById("alertIcon");
+      const titleElem = document.getElementById("alertTitle");
+      const msgElem = document.getElementById("alertMessage");
+      const okBtn = document.getElementById("alertOkBtn");
+      const cancelBtn = document.getElementById("alertCancelBtn");
+
+      const iconMap = {
+        success: "fa-check-circle",
+        error: "fa-exclamation-circle",
+        warning: "fa-exclamation-triangle",
+        info: "fa-info-circle"
+      };
+      const colorMap = {
+        success: "#4CAF50",
+        error: "#e53935",
+        warning: "#fbc02d",
+        info: "#2196f3"
+      };
+
+      icon.className = `fas ${iconMap[type] || iconMap.info}`;
+      icon.style.color = colorMap[type] || colorMap.info;
+      titleElem.textContent = title;
+      msgElem.textContent = message;
+
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+
+
+      if (isConfirm) {
+        cancelBtn.style.display = "inline-block";
+        okBtn.textContent = "Yes";
+        cancelBtn.onclick = () => {
+          modal.style.display = "none";
+          document.body.style.overflow = "auto";
+          if (callback) callback(false);
+        };
+        okBtn.onclick = () => {
+          modal.style.display = "none";
+          document.body.style.overflow = "auto";
+          if (callback) callback(true);
+        };
+      } else {
+        cancelBtn.style.display = "none";
+        okBtn.textContent = "OK";
+        okBtn.onclick = () => {
+          modal.style.display = "none";
+          document.body.style.overflow = "auto";
+          if (callback) callback(true);
+        };
+      }
+    }
+
+
+    document.getElementById("alertModal").addEventListener("click", (e) => {
+      if (e.target.id === "alertModal") {
+        e.target.style.display = "none";
+        document.body.style.overflow = "auto";
+      }
+    });
+
+    document.addEventListener('wheel', function (e) {
+      if (document.activeElement.type === 'number') {
+        document.activeElement.blur();
+      }
+    });
+  </script>
+</body>
+</html>

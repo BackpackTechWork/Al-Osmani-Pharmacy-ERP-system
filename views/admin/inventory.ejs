@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/admin/inventory/stock-management' }) %>
+  
+  <div class="main-content">
+    <div style="min-height: 100vh; background-color: var(--bg-color); padding: 32px 20px;">
+    <div class="container">
+      <div class="flex-between mb-3">
+        <div>
+          <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">
+            <i class="fas fa-warehouse"></i> Inventory Management
+          </h1>
+          <p style="color: #666;">Monitor and manage stock across all branches</p>
+          
+          <!-- Sub-tabs Navigation -->
+          <div style="display: flex; gap: 8px; margin-top: 20px; border-bottom: 2px solid #e5e7eb;">
+            <a href="/admin/inventory/stock-management<%= selectedBranch ? '?branch=' + selectedBranch : '' %>" 
+               class="tab-link <%= !currentTab || currentTab === 'stock-management' ? 'active' : '' %>"
+               style="padding: 12px 24px; text-decoration: none; color: <%= !currentTab || currentTab === 'stock-management' ? 'var(--accent-color)' : '#666' %>; border-bottom: 3px solid <%= !currentTab || currentTab === 'stock-management' ? 'var(--accent-color)' : 'transparent' %>; font-weight: <%= !currentTab || currentTab === 'stock-management' ? '600' : '500' %>; transition: all 0.2s;">
+              <i class="fas fa-box"></i> Stock Management
+            </a>
+            <a href="/admin/inventory/restock<%= selectedBranch ? '?branch=' + selectedBranch : '' %>" 
+               class="tab-link <%= currentTab === 'restock' ? 'active' : '' %>"
+               style="padding: 12px 24px; text-decoration: none; color: <%= currentTab === 'restock' ? 'var(--accent-color)' : '#666' %>; border-bottom: 3px solid <%= currentTab === 'restock' ? 'var(--accent-color)' : 'transparent' %>; font-weight: <%= currentTab === 'restock' ? '600' : '500' %>; transition: all 0.2s;">
+              <i class="fas fa-truck-loading"></i> Restock
+            </a>
+            <a href="/admin/inventory/orders<%= selectedBranch ? '?branch=' + selectedBranch : '' %>" 
+               class="tab-link <%= currentTab === 'orders' ? 'active' : '' %>"
+               style="padding: 12px 24px; text-decoration: none; color: <%= currentTab === 'orders' ? 'var(--accent-color)' : '#666' %>; border-bottom: 3px solid <%= currentTab === 'orders' ? 'var(--accent-color)' : 'transparent' %>; font-weight: <%= currentTab === 'orders' ? '600' : '500' %>; transition: all 0.2s;">
+              <i class="fas fa-clipboard-list"></i> Orders
+            </a>
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <% if (selectedBranch) { %>
+            <select class="form-control" style="width: 250px;" onchange="window.location.href='/admin/inventory?branch=' + this.value">
+              <% branches.forEach(branch => { %>
+                <option value="<%= branch.id %>" <%= selectedBranch === branch.id ? 'selected' : '' %>>
+                  <%= branch.name %>
+                </option>
+              <% }) %>
+            </select>
+            <a href="/admin/inventory/add" class="btn btn-primary">
+              <i class="fas fa-plus"></i>
+              Add Stock
+            </a>
+          <% } %>
+        </div>
+      </div>
+      
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle"></i>
+          <%= success %>
+        </div>
+      <% } %>
+      
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i>
+          <%= error %>
+        </div>
+      <% } %>
+      
+      <% if (selectedBranch) { %>
+        <div class="table-container fade-in">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Reorder Level</th>
+                <th>Batch</th>
+                <th>Expiry Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% inventory.forEach(item => { %>
+                <tr>
+                  <td><strong><%= item.product_name %></strong></td>
+                  <td><%= item.sku %></td>
+                  <td><%= item.category_name || 'N/A' %></td>
+                  <td>
+                    <strong style="<%= item.quantity <= item.reorder_level ? 'color: var(--error-color);' : '' %>">
+                      <%= item.quantity %>
+                    </strong>
+                  </td>
+                  <td><%= item.reorder_level %></td>
+                  <td><%= item.batch_number || 'N/A' %></td>
+                  <td>
+                    <% if (item.expiry_date) { %>
+                      <%= new Date(item.expiry_date).toLocaleDateString() %>
+                    <% } else { %>
+                      N/A
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (item.quantity === 0) { %>
+                      <span class="badge badge-danger">Out of Stock</span>
+                    <% } else if (item.quantity <= item.reorder_level) { %>
+                      <span class="badge badge-warning">Low Stock</span>
+                    <% } else { %>
+                      <span class="badge badge-success">In Stock</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <a href="/admin/inventory/edit/<%= item.id %>" class="btn btn-sm btn-outline">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="card text-center" style="padding: 60px;">
+          <i class="fas fa-building" style="font-size: 64px; color: var(--accent-color); margin-bottom: 24px;"></i>
+          <h2 style="font-size: 24px; margin-bottom: 16px;">No Branch Selected</h2>
+          <p style="color: #666;">Please select a branch to view inventory.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  </div>
+</body>
+</html>
+
+

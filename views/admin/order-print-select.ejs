@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .print-selection {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .order-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: white;
+    }
+    
+    .order-item input[type="checkbox"] {
+      margin-right: 12px;
+    }
+    
+    .order-details {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    
+    .order-id {
+      font-weight: bold;
+      color: var(--accent-color);
+    }
+    
+    .customer-name {
+      font-weight: 500;
+    }
+    
+    .order-type {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .order-type.pickup {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .order-type.delivery {
+      background: #e8f5e8;
+      color: #2e7d32;
+    }
+    
+    .order-total {
+      font-weight: bold;
+      color: var(--accent-color);
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+    
+    @media (max-width: 768px) {
+      .order-details {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      
+      .order-item {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .order-item input[type="checkbox"] {
+        margin-bottom: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/admin/inventory/orders' }) %>
+  
+  <div class="main-content">
+    <div style="min-height: 100vh; background-color: var(--bg-color); padding: 32px 20px;">
+      <div class="print-selection">
+        <div class="card">
+          <div class="card-header">
+            <h1 class="card-title">
+              <i class="fas fa-print"></i> Select Orders to Print
+            </h1>
+            <p style="margin: 8px 0 0 0; color: #666;">Choose which orders you want to print receipts for</p>
+          </div>
+          
+          <div class="card-body">
+            <form id="printForm">
+              <input type="hidden" name="branchId" value="<%= branchId %>">
+              
+              <div style="margin-bottom: 20px;">
+                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                  <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                  <strong>Select All Orders</strong>
+                </label>
+              </div>
+              
+              <div id="ordersList">
+                <% orders.forEach(order => { %>
+                  <div class="order-item">
+                    <input type="checkbox" name="orderIds" value="<%= order.id %>" class="order-checkbox">
+                    <div class="order-details">
+                      <div>
+                        <div class="order-id">Order #<%= order.id %></div>
+                        <div style="font-size: 12px; color: #666;"><%= new Date(order.created_at).toLocaleString() %></div>
+                      </div>
+                      <div>
+                        <div class="customer-name"><%= order.first_name %> <%= order.last_name %></div>
+                        <div style="font-size: 12px; color: #666;"><%= order.email %></div>
+                      </div>
+                      <div>
+                        <span class="order-type <%= order.order_type %>">
+                          <%= order.order_type === 'pickup' ? 'PICKUP' : 'DELIVERY' %>
+                        </span>
+                      </div>
+                      <div>
+                        <div class="order-total">$<%= parseFloat(order.total).toFixed(2) %></div>
+                        <div style="font-size: 12px; color: #666;">Status: <%= order.status.toUpperCase() %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+              
+              <div class="action-buttons">
+                <button type="button" class="btn btn-primary" onclick="printSelected()">
+                  <i class="fas fa-print"></i> Print Selected
+                </button>
+                <button type="button" class="btn btn-outline" onclick="window.history.back()">
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('selectAll');
+      const checkboxes = document.querySelectorAll('.order-checkbox');
+      
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+      });
+    }
+    
+    function printSelected() {
+      const selectedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
+      
+      if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one order to print.');
+        return;
+      }
+      
+      if (selectedCheckboxes.length === 1) {
+
+        window.location.href = `/admin/inventory/orders/print/${selectedCheckboxes[0].value}`;
+      } else {
+
+        selectedCheckboxes.forEach(checkbox => {
+          window.open(`/admin/inventory/orders/print/${checkbox.value}`, '_blank');
+        });
+      }
+    }
+    
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const checkboxes = document.querySelectorAll('.order-checkbox');
+      const selectAll = document.getElementById('selectAll');
+      
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
+          selectAll.checked = checkedCount === checkboxes.length;
+          selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

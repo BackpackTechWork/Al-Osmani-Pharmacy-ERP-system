@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .image-upload-container {
+      margin-bottom: 24px;
+    }
+    
+    .image-upload-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #eee;
+    }
+    
+    .image-upload-tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #666;
+      font-weight: 600;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+    
+    .image-upload-tab.active {
+      color: var(--accent-color);
+      border-bottom-color: var(--accent-color);
+    }
+    
+    .image-upload-tab:hover:not(.active) {
+      color: #333;
+    }
+    
+    .image-upload-panel {
+      display: none;
+    }
+    
+    .image-upload-panel.active {
+      display: block;
+    }
+    
+    .drop-zone {
+      border: 2px dashed #ddd;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+      background: #f9f9f9;
+    }
+    
+    .drop-zone:hover {
+      border-color: var(--accent-color);
+      background: #f0f8f0;
+    }
+    
+    .drop-zone.drag-over {
+      border-color: var(--accent-color);
+      background: #e8f5e8;
+      transform: scale(1.02);
+    }
+    
+    .drop-zone-icon {
+      font-size: 48px;
+      color: #ccc;
+      margin-bottom: 16px;
+    }
+    
+    .drop-zone-text {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    
+    .drop-zone-hint {
+      font-size: 14px;
+      color: #999;
+    }
+    
+    .image-preview-container {
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .image-preview-container.active {
+      display: block;
+    }
+    
+    .image-preview {
+      position: relative;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    .image-preview img {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .image-preview-remove {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #ff4444;
+      color: white;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .image-preview-remove:hover {
+      background: #cc0000;
+      transform: scale(1.1);
+    }
+    
+    .url-input-container {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    
+    .url-input-container .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    
+    .image-suggestion {
+      margin-top: 16px;
+      padding: 16px;
+      background: #e3f2fd;
+      border-radius: 8px;
+      border-left: 4px solid #2196f3;
+    }
+    
+    .image-suggestion-title {
+      font-weight: 600;
+      color: #1976d2;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .image-suggestion-text {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+    }
+    
+    .image-suggestion-link {
+      color: #1976d2;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .image-suggestion-link:hover {
+      text-decoration: underline;
+    }
+    
+    #fileInput {
+      display: none;
+    }
+    
+    .existing-image-container {
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    
+    .existing-image-container img {
+      max-width: 200px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .existing-image-label {
+      display: block;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/admin/products' }) %>
+  
+  <div class="main-content">
+    <div style="min-height: 100vh; background-color: var(--bg-color); padding: 32px 20px;">
+    <div class="container" style="max-width: 800px;">
+      <a href="/admin/products<%= returnUrl ? '?' + returnUrl : '' %>" class="back-link" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent-color); text-decoration: none; font-weight: 600; margin-bottom: 24px;">
+        <i class="fas fa-arrow-left"></i>
+        Back to Products
+      </a>
+      
+      <div class="card fade-in">
+        <div class="card-header">
+          <h1 class="card-title">
+            <i class="fas fa-pills"></i>
+            <%= product ? 'Edit Product' : 'Add New Product' %>
+          </h1>
+        </div>
+        
+        <form action="<%= product ? `/admin/products/edit/${product.id}` : '/admin/products/add' %>" method="POST" enctype="multipart/form-data" id="productForm">
+          <!-- Hidden field to preserve return URL parameters -->
+          <input type="hidden" name="returnUrl" value="<%= returnUrl || '' %>">
+          <div class="form-group">
+            <label class="form-label" for="name">Product Name *</label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              class="form-control" 
+              value="<%= product ? product.name : '' %>"
+              required
+            >
+          </div>
+          
+          <!-- Image Upload Section -->
+          <div class="image-upload-container">
+            <label class="form-label">Product Image</label>
+            
+            <% if (product && product.image_url) { %>
+              <div class="existing-image-container">
+                <span class="existing-image-label">Current Image:</span>
+                <img src="<%= product.image_url %>" alt="<%= product.name %>" id="existingImage">
+                <input type="hidden" name="keepExistingImage" id="keepExistingImage" value="true">
+              </div>
+            <% } %>
+            
+            <div class="image-upload-tabs">
+              <button type="button" class="image-upload-tab active" onclick="switchTab('upload')">
+                <i class="fas fa-upload"></i> Upload File
+              </button>
+              <button type="button" class="image-upload-tab" onclick="switchTab('url')">
+                <i class="fas fa-link"></i> Image URL
+              </button>
+            </div>
+            
+            <!-- Upload Tab -->
+            <div class="image-upload-panel active" id="uploadPanel">
+              <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="drop-zone-text">
+                  <strong>Drag & drop</strong> your image here or <strong>click to browse</strong>
+                </div>
+                <div class="drop-zone-hint">
+                  Supports: JPG, PNG, GIF, WebP (Max 5MB)
+                </div>
+                <input type="file" id="fileInput" name="productImage" accept="image/*">
+              </div>
+              
+              <% if (!product) { %>
+                <div class="image-suggestion">
+                  <div class="image-suggestion-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Tip: Find Professional Product Images
+                  </div>
+                  <div class="image-suggestion-text">
+                    For the best results, search for high-quality product images on 
+                    <span class="image-suggestion-link">Unsplash</span>, 
+                    <span class="image-suggestion-link">Pexels</span>, or 
+                    <span class="image-suggestion-link">Google</span>.
+                    You can also use the manufacturer's official product images for accuracy. However, these images won't be available offline as they are links.
+                  </div>                  
+                </div>
+              <% } %>
+            </div>
+            
+            <!-- URL Tab -->
+            <div class="image-upload-panel" id="urlPanel">
+              <div class="url-input-container">
+                <div class="form-group">
+                  <label class="form-label" for="imageUrl">Image URL</label>
+                  <input 
+                    type="url" 
+                    id="imageUrl" 
+                    name="imageUrl" 
+                    class="form-control" 
+                    placeholder="https://example.com/image.jpg"
+                    value="<%= product && product.image_url && !product.image_url.startsWith('/Product Images/') ? product.image_url : '' %>"
+                  >
+                </div>
+                <button type="button" class="btn btn-outline" onclick="previewUrl()">
+                  <i class="fas fa-eye"></i> Preview
+                </button>
+              </div>
+            </div>
+            
+            <!-- Image Preview -->
+            <div class="image-preview-container" id="imagePreview">
+              <div class="image-preview">
+                <img id="previewImg" src="" alt="Preview">
+                <button type="button" class="image-preview-remove" onclick="removeImage()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="description">Description</label>
+            <textarea 
+              id="description" 
+              name="description" 
+              class="form-control"
+              rows="3"
+            ><%= product ? product.description : '' %></textarea>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="categoryId">Category</label>
+              <select id="categoryId" name="categoryId" class="form-control">
+                <option value="">None</option>
+                <% categories.forEach(category => { %>
+                  <option value="<%= category.id %>" <%= product && product.category_id === category.id ? 'selected' : '' %>>
+                    <%= category.name %>
+                  </option>
+                <% }) %>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="manufacturer">Manufacturer</label>
+              <input 
+                type="text" 
+                id="manufacturer" 
+                name="manufacturer" 
+                class="form-control" 
+                value="<%= product ? (product.manufacturer || '') : '' %>"
+              >
+            </div>
+          </div>
+          
+          <% if (product) { %>
+          <div class="form-group">
+            <label class="form-label" for="sku">SKU</label>
+            <input 
+              type="text" 
+              id="sku" 
+              name="sku" 
+              class="form-control" 
+              value="<%= product.sku %>"
+              readonly
+              style="background-color: #f5f5f5; cursor: not-allowed;"
+            >
+            <small style="color: #666; margin-top: 4px; display: block;">SKU is auto-generated and cannot be changed</small>
+          </div>
+          <% } %>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="unitPrice">Unit Price *</label>
+              <input 
+                type="number" 
+                id="unitPrice" 
+                name="unitPrice" 
+                class="form-control" 
+                step="0.01"
+                min="0"
+                value="<%= product ? product.unit_price : '' %>"
+                required
+              >
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="costPrice">Cost Price *</label>
+              <input 
+                type="number" 
+                id="costPrice" 
+                name="costPrice" 
+                class="form-control" 
+                step="0.01"
+                min="0"
+                value="<%= product ? product.cost_price : '' %>"
+                required
+              >
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="floorLevel">
+              Floor Level (Minimum Stock Threshold) *
+              <span style="color: #666; font-weight: normal; font-size: 13px; margin-left: 8px;">
+                <i class="fas fa-info-circle"></i> Stock below this triggers reorder alerts
+              </span>
+            </label>
+            <input 
+              type="number" 
+              id="floorLevel" 
+              name="floorLevel" 
+              class="form-control" 
+              min="1"
+              value="<%= product ? product.floor_level : '50' %>"
+              required
+            >
+            <small style="color: #666; margin-top: 4px; display: block;">
+              • <strong>Critical:</strong> Stock and Floor Level differ by exactly 20<br>
+              • <strong>Reorder:</strong> Stock &lt; Floor Level<br>
+              • <strong>In Stock:</strong> Stock &gt; Floor Level
+            </small>            
+          </div>
+          
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input 
+                type="checkbox" 
+                name="requiresPrescription" 
+                <%= product && product.requires_prescription ? 'checked' : '' %>
+                style="width: 20px; height: 20px;"
+              >
+              <span class="form-label" style="margin: 0;">Requires Prescription</span>
+            </label>
+          </div>
+          
+          <% if (product) { %>
+            <div class="form-group">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input 
+                  type="checkbox" 
+                  name="isActive" 
+                  <%= product.is_active ? 'checked' : '' %>
+                  style="width: 20px; height: 20px;"
+                >
+                <span class="form-label" style="margin: 0;">Product is Active</span>
+              </label>
+            </div>
+          <% } %>
+          
+          <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i>
+              <%= product ? 'Update Product' : 'Add Product' %>
+            </button>
+            <a href="/admin/products<%= returnUrl ? '?' + returnUrl : '' %>" class="btn btn-secondary">
+              <i class="fas fa-times"></i>
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const imageUrlInput = document.getElementById('imageUrl');
+    const keepExistingImageInput = document.getElementById('keepExistingImage');
+    
+
+    function switchTab(tab) {
+      const tabs = document.querySelectorAll('.image-upload-tab');
+      const panels = document.querySelectorAll('.image-upload-panel');
+      
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      
+      if (tab === 'upload') {
+        tabs[0].classList.add('active');
+        panels[0].classList.add('active');
+      } else {
+        tabs[1].classList.add('active');
+        panels[1].classList.add('active');
+      }
+    }
+    
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+    
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag-over');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        fileInput.files = files;
+        handleFileSelect(files[0]);
+      }
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+    
+    function handleFileSelect(file) {
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        imagePreview.classList.add('active');
+        imageUrlInput.value = ''; 
+        if (keepExistingImageInput) {
+          keepExistingImageInput.value = 'false';
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    
+    function previewUrl() {
+      const url = imageUrlInput.value.trim();
+      if (!url) {
+        alert('Please enter an image URL');
+        return;
+      }
+      
+
+      const img = new Image();
+      img.onload = () => {
+        previewImg.src = url;
+        imagePreview.classList.add('active');
+        fileInput.value = ''; 
+        if (keepExistingImageInput) {
+          keepExistingImageInput.value = 'false';
+        }
+      };
+      img.onerror = () => {
+        alert('Failed to load image from URL. Please check the URL and try again.');
+      };
+      img.src = url;
+    }
+    
+    function removeImage() {
+      imagePreview.classList.remove('active');
+      previewImg.src = '';
+      fileInput.value = '';
+      imageUrlInput.value = '';
+      if (keepExistingImageInput) {
+        keepExistingImageInput.value = 'true';
+      }
+    }
+    
+
+    imageUrlInput.addEventListener('paste', (e) => {
+      setTimeout(() => {
+        const url = imageUrlInput.value.trim();
+        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+          previewUrl();
+        }
+      }, 100);
+    });
+    
+
+    imageUrlInput.addEventListener('input', debounce(() => {
+      const url = imageUrlInput.value.trim();
+      if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+        previewUrl();
+      }
+    }, 500));
+    
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    document.addEventListener('wheel', function (e) {
+      if (document.activeElement.type === 'number') {
+        document.activeElement.blur();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .restock-item-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+
+    .restock-item-card:hover {
+      border-color: var(--accent-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .product-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .product-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .product-sku {
+      font-size: 13px;
+      color: #666;
+      background: #f0f0f0;
+      padding: 4px 12px;
+      border-radius: 4px;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .summary-box {
+      background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+      color: white;
+      padding: 28px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 18px;
+      margin-top: 16px;
+    }
+
+    .summary-stat {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      text-align: center;
+      padding: 16px 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      transition: all 0.25s ease;
+    }
+
+    .summary-stat:hover {
+      transform: translateY(-4px) scale(1.03);
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+
+    .summary-stat i {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #c8e6c9;
+      animation: bounce 2.5s infinite ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .summary-stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .summary-stat-label {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/admin/inventory/restock' }) %>
+  
+  <div class="main-content">
+    <div style="min-height: 100vh; background-color: var(--bg-color); padding: 32px 20px;">
+    <div class="container" style="max-width: 1000px;">
+      <a href="/admin/inventory/stock-management?branch=<%= branchId %>" class="back-link" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent-color); text-decoration: none; font-weight: 600; margin-bottom: 24px;">
+        <i class="fas fa-arrow-left"></i>
+        Back to Stock Management
+      </a>
+      
+      <div class="card fade-in">
+        <div class="card-header">
+          <h1 class="card-title">
+            <i class="fas fa-dolly"></i>
+            Bulk Restock Entry
+          </h1>
+          <p style="color: #666; font-size: 14px; margin-top: 8px;">Fill in quantity and expiry date for each product</p>
+        </div>
+
+        <% if (addedProducts > 0 || existingProducts > 0) { %>
+          <div class="summary-box">
+            <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">
+              <i class="fas fa-leaf"></i> Products Summary
+            </h3>
+            <div class="summary-stats">
+              <% if (addedProducts > 0) { %>
+                <div class="summary-stat">
+                  <i class="fas fa-plus-circle"></i>
+                  <div class="summary-stat-value"><%= addedProducts %></div>
+                  <div class="summary-stat-label">New Products Added</div>
+                </div>
+              <% } %>
+              <% if (existingProducts > 0) { %>
+                <div class="summary-stat">
+                  <i class="fas fa-box-open"></i>
+                  <div class="summary-stat-value"><%= existingProducts %></div>
+                  <div class="summary-stat-label">Existing Products</div>
+                </div>
+              <% } %>
+              <div class="summary-stat">
+                <i class="fas fa-warehouse"></i>
+                <div class="summary-stat-value"><%= products.length %></div>
+                <div class="summary-stat-label">Total to Restock</div>
+              </div>
+            </div>
+          </div>
+        <% } %>        
+        
+        <form action="/admin/inventory/restock/bulk-add" method="POST" id="bulkRestockForm">
+          <input type="hidden" name="branchId" value="<%= branchId %>">
+          <input type="hidden" name="restockData" id="restockDataInput">
+          
+          <div class="form-group">
+            <label class="form-label" for="branchSelect">Branch *</label>
+            <select id="branchSelect" class="form-control" required disabled>
+              <% branches.forEach(branch => { %>
+                <option value="<%= branch.id %>" <%= branchId == branch.id ? 'selected' : '' %>>
+                  <%= branch.name %>
+                </option>
+              <% }) %>
+            </select>
+            <small style="color: #666; font-size: 12px;">
+              <i class="fas fa-info-circle" style="color: var(--accent-color);"></i>
+              All products will use the same batch number (auto-generated: <%= new Date().toLocaleDateString() %>)
+            </small>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <h3 style="font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-boxes"></i>
+              Products to Restock (<%= products.length %>)
+            </h3>
+          </div>
+
+          <div id="restockItemsContainer">
+            <% products.forEach((product, index) => { %>
+              <div class="restock-item-card" data-product-id="<%= product.id %>">
+                <div class="product-header">
+                  <div>
+                    <div class="product-title"><%= product.name %></div>
+                  </div>
+                  <div class="product-sku">SKU: <%= product.sku %></div>
+                </div>
+
+                <div class="input-grid">
+                  <div class="form-group" style="margin: 0;">
+                    <label class="form-label" for="quantity_<%= product.id %>">Quantity *</label>
+                    <input 
+                      type="number" 
+                      id="quantity_<%= product.id %>"
+                      class="form-control restock-quantity" 
+                      min="1"
+                      value="1"
+                      required
+                      data-product-id="<%= product.id %>"
+                    >
+                  </div>
+
+                  <div class="form-group" style="margin: 0;">
+                    <label class="form-label" for="expiryDate_<%= product.id %>">Expiry Date *</label>
+                    <input 
+                      type="date" 
+                      id="expiryDate_<%= product.id %>"
+                      class="form-control restock-expiry" 
+                      required
+                      data-product-id="<%= product.id %>"
+                      min="<%= new Date().toISOString().split('T')[0] %>"
+                    >
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+          
+          <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i>
+              Save All Restock Entries
+            </button>
+            <a href="/admin/inventory/stock-management?branch=<%= branchId %>" class="btn btn-secondary">
+              <i class="fas fa-times"></i>
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <script>
+    document.getElementById('bulkRestockForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const restockData = [];
+      const cards = document.querySelectorAll('.restock-item-card');
+
+      cards.forEach(card => {
+        const productId = card.dataset.productId;
+        const quantity = document.getElementById(`quantity_${productId}`).value;
+        const expiryDate = document.getElementById(`expiryDate_${productId}`).value;
+
+        if (quantity && expiryDate) {
+          restockData.push({
+            productId: parseInt(productId),
+            quantity: parseInt(quantity),
+            expiryDate: expiryDate
+          });
+        }
+      });
+
+      if (restockData.length === 0) {
+        alert('Please fill in quantity and expiry date for at least one product');
+        return false;
+      }
+
+      if (restockData.length < <%= products.length %>) {
+        if (!confirm(`Only ${restockData.length} out of <%= products.length %> products have complete data. Continue with these entries?`)) {
+          return false;
+        }
+      }
+
+      document.getElementById('restockDataInput').value = JSON.stringify(restockData);
+      this.submit();
+    });
+
+
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('.restock-expiry').forEach(input => {
+      input.min = today;
+    });
+
+    document.addEventListener('wheel', function (e) {
+      if (document.activeElement.type === 'number') {
+        document.activeElement.blur();
+      }
+    });
+  </script>
+</body>
+</html>
+

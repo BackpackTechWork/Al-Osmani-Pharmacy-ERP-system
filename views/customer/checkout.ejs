@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .checkout-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .checkout-header {
+      margin-bottom: 32px;
+    }
+
+    .checkout-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .checkout-content {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .checkout-form {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .form-section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .order-type-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .order-type-option {
+      padding: 24px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .order-type-option:hover {
+      border-color: var(--accent-color);
+      background: #f8fef8;
+    }
+
+    .order-type-option.active {
+      border-color: var(--accent-color);
+      background: #e8f5e9;
+    }
+
+    .order-type-option i {
+      font-size: 32px;
+      margin-bottom: 12px;
+      color: var(--accent-color);
+    }
+
+    .order-type-option h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .order-type-option p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .delivery-address {
+      display: none;
+    }
+
+    .delivery-address.active {
+      display: block;
+    }
+
+    .order-summary-sidebar {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 100px;
+    }
+
+    .summary-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .summary-items {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+
+    .summary-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+
+    .summary-item-image {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #f5f5f5;
+    }
+
+    .summary-item-details {
+      flex: 1;
+    }
+
+    .summary-item-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .summary-item-price {
+      color: #666;
+      font-size: 13px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+
+    .summary-row.total {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent-color);
+      padding-top: 16px;
+      border-top: 2px solid #eee;
+      margin-top: 16px;
+    }
+
+    .place-order-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.2s;
+    }
+
+    .place-order-btn:hover:not(:disabled) {
+      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .place-order-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    @media (max-width: 968px) {
+      .checkout-content {
+        grid-template-columns: 1fr;
+      }
+
+      .order-summary-sidebar {
+        position: static;
+        order: -1;
+      }
+
+      .order-type-selector {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Custom Modal Styles */
+    .custom-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .custom-modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 0;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      animation: slideUp 0.3s ease;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 24px;
+      border-bottom: 2px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-header.warning {
+      background: linear-gradient(135deg, #fff3cd, #ffe5a3);
+      border-bottom-color: #ffc107;
+    }
+
+    .modal-header.error {
+      background: linear-gradient(135deg, #f8d7da, #f5c2c7);
+      border-bottom-color: #dc3545;
+    }
+
+    .modal-header i {
+      font-size: 28px;
+    }
+
+    .modal-header.warning i {
+      color: #856404;
+    }
+
+    .modal-header.error i {
+      color: #721c24;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+      text-align: left;
+      flex: 1;
+    }
+    .modal-body {
+      padding: 24px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .modal-body p {
+      margin: 0 0 16px 0;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .modal-footer {
+      padding: 20px 24px;
+      background: #f8f9fa;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-btn-primary {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .modal-btn-primary:hover {
+      background: #45a049;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Skeleton Loading Styles */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .skeleton-header {
+      height: 80px;
+      margin-bottom: 32px;
+    }
+
+    .skeleton-form {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .skeleton-summary {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .skeleton-text {
+      height: 20px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .skeleton-text.small {
+      width: 40%;
+      height: 16px;
+    }
+
+    .skeleton-text.medium {
+      width: 60%;
+    }
+
+    .skeleton-text.large {
+      width: 80%;
+    }
+
+    .skeleton-text.xlarge {
+      width: 100%;
+      height: 50px;
+    }
+
+    .loading-state {
+      display: none;
+    }
+
+    body.loading .loading-state {
+      display: block;
+    }
+
+    body.loading .content-state {
+      display: none;
+    }
+  </style>
+</head>
+<body class="loading">
+  <%- include('../components/customer-navbar', { user }) %>
+
+  <!-- Custom Modal -->
+  <div id="customModal" class="custom-modal">
+    <div class="modal-content">
+      <div id="modalHeader" class="modal-header">
+        <i id="modalIcon" class="fas fa-info-circle"></i>
+        <h3 id="modalTitle">Information</h3>
+      </div>
+      <div id="modalBody" class="modal-body">
+        <p id="modalMessage"></p>
+      </div>
+      <div id="modalFooter" class="modal-footer">
+        <button id="modalConfirmBtn" class="modal-btn modal-btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="checkout-container">
+    <!-- Skeleton Loading State -->
+    <div class="loading-state">
+      <div class="skeleton skeleton-header"></div>
+      <div class="checkout-content">
+        <div class="skeleton-form">
+          <div class="skeleton-text large"></div>
+          <div style="height: 24px;"></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+            <div class="skeleton-text xlarge"></div>
+            <div class="skeleton-text xlarge"></div>
+          </div>
+          <div style="height: 24px;"></div>
+          <div class="skeleton-text large"></div>
+          <div class="skeleton-text medium"></div>
+          <div class="skeleton-text medium"></div>
+          <div class="skeleton-text medium"></div>
+          <div style="height: 24px;"></div>
+          <div class="skeleton-text xlarge"></div>
+        </div>
+        <div class="skeleton-summary">
+          <div class="skeleton-text large"></div>
+          <div style="height: 24px;"></div>
+          <div class="skeleton-text medium"></div>
+          <div class="skeleton-text medium"></div>
+          <div class="skeleton-text medium"></div>
+          <div style="height: 24px;"></div>
+          <div class="skeleton-text xlarge"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actual Content -->
+    <div class="content-state">
+    <div class="checkout-header">
+      <h1><i class="fas fa-check-circle"></i> Checkout</h1>
+      <p style="color: #666;">Complete your order</p>
+    </div>
+
+    <div class="checkout-content">
+      <div class="checkout-form">
+        <div class="form-section">
+          <h2 class="section-title">Order Type</h2>
+          
+          <div class="order-type-selector">
+            <div class="order-type-option active" data-type="pickup" onclick="selectOrderType('pickup')">
+              <i class="fas fa-shopping-bag"></i>
+              <h3>Pickup</h3>
+              <p>Pick up from pharmacy</p>
+            </div>
+            
+            <div class="order-type-option" data-type="delivery" onclick="selectOrderType('delivery')">
+              <i class="fas fa-truck"></i>
+              <h3>Delivery</h3>
+              <p>Delivery to your address</p>
+            </div>
+          </div>
+
+          <input type="hidden" id="orderType" value="pickup">
+        </div>
+
+        <div class="form-section delivery-address" id="deliveryAddress">
+          <h2 class="section-title">Delivery Address</h2>
+          
+          <div class="form-group">
+            <label for="deliveryAddressInput">Street Address *</label>
+            <input type="text" id="deliveryAddressInput" placeholder="123 Main St" value="<%= user.address || '' %>">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label for="deliveryCity">City *</label>
+              <input type="text" id="deliveryCity" placeholder="City" value="<%= user.city || '' %>">
+            </div>
+
+            <div class="form-group">
+              <label for="deliveryState">State *</label>
+              <input type="text" id="deliveryState" placeholder="State" value="<%= user.state || '' %>">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="deliveryZip">ZIP Code *</label>
+            <input type="text" id="deliveryZip" placeholder="12345" value="<%= user.zip_code || '' %>">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2 class="section-title">Additional Notes (Optional)</h2>
+          
+          <div class="form-group">
+            <textarea id="notes" placeholder="Any special instructions or notes..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-summary-sidebar">
+        <h2 class="summary-title">Order Summary</h2>
+        
+        <div class="summary-items">
+          <% cartItems.forEach(item => { %>
+            <div class="summary-item">
+              <img src="<%= item.image_url || '/images/placeholder.png' %>" alt="<%= item.name %>" class="summary-item-image">
+              <div class="summary-item-details">
+                <div class="summary-item-name"><%= item.name %></div>
+                <div class="summary-item-price">
+                  Qty: <%= item.quantity %> × $<%= parseFloat(item.unit_price).toFixed(2) %> = $<%= parseFloat(item.item_total).toFixed(2) %>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="subtotalAmount">$<%= parseFloat(subtotal).toFixed(2) %></span>
+        </div>
+
+        <div class="summary-row">
+          <span>Tax (8%)</span>
+          <span id="taxAmount">$<%= parseFloat(tax).toFixed(2) %></span>
+        </div>
+
+        <div class="summary-row total">
+          <span>Total</span>
+          <span id="totalAmount">$<%= parseFloat(total).toFixed(2) %></span>
+        </div>
+        
+        <p id="deliveryFeeNote" style="font-size: 13px; color: #666; margin-top: 12px; text-align: center; display: none;">
+          <i class="fas fa-info-circle"></i> Delivery fee (if applicable) will be determined by staff
+        </p>
+        
+        <button class="place-order-btn" onclick="placeOrder()" id="placeOrderBtn">
+          <i class="fas fa-check"></i> Place Order
+        </button>
+
+        <% 
+
+          const isBuyNow = typeof cartItems !== 'undefined' && cartItems.length === 1 && typeof cartItems[0].id === 'undefined';
+          const isOrderAgain = typeof cartItems !== 'undefined' && cartItems.every(item => typeof item.id === 'undefined');
+          let backLink, backText;
+          
+          if (isOrderAgain && !isBuyNow) {
+            backLink = '/customer/orders';
+            backText = 'Back to Orders';
+          } else if (isBuyNow) {
+            backLink = '/customer/shop';
+            backText = 'Back to Shop';
+          } else {
+            backLink = '/customer/cart';
+            backText = 'Back to Cart';
+          }
+        %>
+        <a href="<%= backLink %>" style="display: block; text-align: center; margin-top: 16px; color: var(--accent-color); text-decoration: none;">
+          <i class="fas fa-arrow-left"></i> <%= backText %>
+        </a>
+      </div>
+    </div>
+    </div><!-- End content-state -->
+  </div>
+
+  <script>
+
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.body.classList.remove('loading');
+      }, 300);
+    });
+
+    const subtotal = <%= subtotal %>;
+    const tax = <%= tax %>;
+    const total = <%= total %>;
+
+
+    function showModal(options) {
+      const modal = document.getElementById('customModal');
+      const header = document.getElementById('modalHeader');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const message = document.getElementById('modalMessage');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+
+
+      header.className = 'modal-header';
+      
+
+      if (options.type === 'warning') {
+        header.classList.add('warning');
+        icon.className = 'fas fa-exclamation-triangle';
+      } else if (options.type === 'error') {
+        header.classList.add('error');
+        icon.className = 'fas fa-times-circle';
+      } else {
+        icon.className = 'fas fa-info-circle';
+      }
+
+
+      title.textContent = options.title || 'Information';
+      message.textContent = options.message || '';
+      confirmBtn.textContent = options.confirmText || 'OK';
+
+
+      modal.classList.add('active');
+
+
+      return new Promise((resolve) => {
+        const handleConfirm = () => {
+          modal.classList.remove('active');
+          confirmBtn.removeEventListener('click', handleConfirm);
+          resolve(true);
+        };
+
+        confirmBtn.addEventListener('click', handleConfirm);
+      });
+    }
+
+    function selectOrderType(type) {
+
+      document.querySelectorAll('.order-type-option').forEach(opt => {
+        opt.classList.remove('active');
+      });
+      document.querySelector(`.order-type-option[data-type="${type}"]`).classList.add('active');
+      
+
+      document.getElementById('orderType').value = type;
+
+
+      const deliveryAddress = document.getElementById('deliveryAddress');
+      const deliveryFeeNote = document.getElementById('deliveryFeeNote');
+      
+      if (type === 'delivery') {
+        deliveryAddress.classList.add('active');
+        deliveryFeeNote.style.display = 'block';
+      } else {
+        deliveryAddress.classList.remove('active');
+        deliveryFeeNote.style.display = 'none';
+      }
+    }
+
+
+    window.addEventListener('DOMContentLoaded', () => {
+      selectOrderType(document.getElementById('orderType').value);
+    });
+
+
+    async function placeOrder() {
+      const orderType = document.getElementById('orderType').value;
+      const notes = document.getElementById('notes').value;
+      const btn = document.getElementById('placeOrderBtn');
+
+      let deliveryAddress = null;
+      let deliveryCity = null;
+      let deliveryState = null;
+      let deliveryZip = null;
+
+      if (orderType === 'delivery') {
+        deliveryAddress = document.getElementById('deliveryAddressInput').value.trim();
+        deliveryCity = document.getElementById('deliveryCity').value.trim();
+        deliveryState = document.getElementById('deliveryState').value.trim();
+        deliveryZip = document.getElementById('deliveryZip').value.trim();
+
+        if (!deliveryAddress || !deliveryCity || !deliveryState || !deliveryZip) {
+          await showModal({
+            type: 'warning',
+            title: 'Missing Information',
+            message: 'Please fill in all delivery address fields',
+            confirmText: 'OK'
+          });
+          return;
+        }
+      }
+
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+      try {
+        const response = await fetch('/customer/order/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            orderType,
+            deliveryAddress,
+            deliveryCity,
+            deliveryState,
+            deliveryZip,
+            notes
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = `/customer/order/confirmation/${data.orderId}`;
+        } else {
+          await showModal({
+            type: 'error',
+            title: 'Order Failed',
+            message: data.message || 'Error placing order. Please try again.',
+            confirmText: 'OK'
+          });
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-check"></i> Place Order';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        await showModal({
+          type: 'error',
+          title: 'Error',
+          message: 'Error placing order. Please try again.',
+          confirmText: 'OK'
+        });
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Place Order';
+      }
+    }
+  </script>
+</body>
+</html>
+

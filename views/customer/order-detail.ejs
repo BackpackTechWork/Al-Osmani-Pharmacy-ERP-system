@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .order-detail-container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent-color);
+      text-decoration: none;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .order-detail-card {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .order-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .order-date {
+      color: #666;
+      font-size: 15px;
+    }
+
+    .status-badge {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-processing {
+      background: #cce5ff;
+      color: #004085;
+    }
+
+    .status-ready {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-completed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-cancelled {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .order-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .info-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .info-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: #666;
+      font-weight: 500;
+    }
+
+    .info-value {
+      color: #333;
+      font-weight: 600;
+    }
+
+    .items-section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .order-items-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .order-items-table th {
+      background: #f8f9fa;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      font-size: 13px;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    .order-items-table td {
+      padding: 16px 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item-image {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #f5f5f5;
+    }
+
+    .item-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .item-sku {
+      color: #666;
+      font-size: 13px;
+    }
+
+    .summary-section {
+      background: #f8f9fa;
+      padding: 24px;
+      border-radius: 8px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      font-size: 15px;
+    }
+
+    .summary-row.total {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent-color);
+      padding-top: 16px;
+      border-top: 2px solid #dee2e6;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .order-detail-container {
+        padding: 0 12px;
+        margin: 20px auto;
+      }
+
+      .order-detail-card {
+        padding: 16px;
+      }
+
+      .order-header {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .order-title {
+        font-size: 22px;
+      }
+
+      .order-date {
+        font-size: 13px;
+      }
+
+      .status-badge {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+
+      .order-info-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .info-section {
+        padding: 16px;
+      }
+
+      .info-title {
+        font-size: 14px;
+      }
+
+      .info-item {
+        flex-direction: column;
+        gap: 4px;
+        padding: 10px 0;
+      }
+
+      .info-label {
+        font-size: 13px;
+      }
+
+      .info-value {
+        font-size: 14px;
+      }
+
+      /* Convert table to card layout on mobile */
+      .order-items-table {
+        display: block;
+      }
+
+      .order-items-table thead {
+        display: none;
+      }
+
+      .order-items-table tbody {
+        display: block;
+      }
+
+      .order-items-table tr {
+        display: block;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        padding: 12px;
+        border-bottom: none;
+      }
+
+      .order-items-table td {
+        display: block;
+        padding: 8px 0;
+        border-bottom: none;
+        text-align: left !important;
+      }
+
+      .order-items-table td:first-child {
+        text-align: center;
+        padding-bottom: 12px;
+      }
+
+      .item-image {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+      }
+
+      .order-items-table td:not(:first-child)::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .order-items-table td:nth-child(2) {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 12px;
+        margin-bottom: 8px;
+      }
+
+      .order-items-table td:nth-child(3),
+      .order-items-table td:nth-child(4),
+      .order-items-table td:nth-child(5) {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .order-items-table td:nth-child(5) {
+        font-size: 18px;
+        margin-top: 8px;
+        padding-top: 12px;
+        border-top: 1px solid #dee2e6;
+      }
+
+      .item-name {
+        font-size: 16px;
+      }
+
+      .item-sku {
+        font-size: 12px;
+      }
+
+      .summary-section {
+        padding: 16px;
+      }
+
+      .summary-row {
+        font-size: 14px;
+      }
+
+      .summary-row.total {
+        font-size: 20px;
+      }
+
+      .section-title {
+        font-size: 18px;
+      }
+    }
+
+    /* Skeleton Loading Styles */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .skeleton-back-link {
+      height: 24px;
+      width: 200px;
+      margin-bottom: 24px;
+    }
+
+    .skeleton-card {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+
+    .skeleton-text {
+      height: 20px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .skeleton-text.small {
+      width: 30%;
+      height: 16px;
+    }
+
+    .skeleton-text.medium {
+      width: 50%;
+    }
+
+    .skeleton-text.large {
+      width: 80%;
+      height: 28px;
+    }
+
+    .loading-state {
+      display: none;
+    }
+
+    body.loading .loading-state {
+      display: block;
+    }
+
+    body.loading .content-state {
+      display: none;
+    }
+  </style>
+</head>
+<body class="loading">
+  <%- include('../components/customer-navbar', { user }) %>
+
+  <div class="order-detail-container">
+    <!-- Skeleton Loading State -->
+    <div class="loading-state">
+      <div class="skeleton skeleton-back-link"></div>
+      <div class="skeleton-card">
+        <div class="skeleton-text large"></div>
+        <div class="skeleton-text small"></div>
+        <div style="height: 32px;"></div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 32px;">
+          <div>
+            <div class="skeleton-text medium"></div>
+            <div class="skeleton-text small"></div>
+            <div class="skeleton-text small"></div>
+          </div>
+          <div>
+            <div class="skeleton-text medium"></div>
+            <div class="skeleton-text small"></div>
+            <div class="skeleton-text small"></div>
+          </div>
+        </div>
+        <div style="height: 24px;"></div>
+        <div class="skeleton-text large"></div>
+        <div class="skeleton-text medium"></div>
+        <div class="skeleton-text medium"></div>
+        <div class="skeleton-text medium"></div>
+        <div style="height: 24px;"></div>
+        <div class="skeleton-text medium"></div>
+        <div class="skeleton-text medium"></div>
+        <div class="skeleton-text large"></div>
+      </div>
+    </div>
+
+    <!-- Actual Content -->
+    <div class="content-state">
+    <a href="/customer/orders" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Orders
+    </a>
+
+    <div class="order-detail-card">
+      <div class="order-header">
+        <div>
+          <h1 class="order-title">Order #<%= order.id %></h1>
+          <div class="order-date">
+            <i class="fas fa-calendar"></i> 
+            Placed on <%= new Date(order.created_at).toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            }) %>
+          </div>
+        </div>
+        <span class="status-badge status-<%= order.status %>">
+          <%= order.status %>
+        </span>
+      </div>
+
+      <div class="order-info-grid">
+        <div class="info-section">
+          <h3 class="info-title"><i class="fas fa-info-circle"></i> Order Information</h3>
+          
+          <div class="info-item">
+            <span class="info-label">Order Type</span>
+            <span class="info-value">
+              <% if (order.order_type === 'pickup') { %>
+                <i class="fas fa-shopping-bag"></i> Pickup
+              <% } else { %>
+                <i class="fas fa-truck"></i> Delivery
+              <% } %>
+            </span>
+          </div>
+
+          <% if (order.branch_name) { %>
+            <div class="info-item">
+              <span class="info-label">Branch</span>
+              <span class="info-value">
+                <i class="fas fa-map-marker-alt"></i> <%= order.branch_name %>
+              </span>
+            </div>
+
+            <% if (order.address) { %>
+              <div class="info-item">
+                <span class="info-label">Branch Address</span>
+                <span class="info-value">
+                  <%= order.address %><br>
+                  <%= order.city %>, <%= order.state %> <%= order.zip_code %>
+                </span>
+              </div>
+            <% } %>
+          <% } else { %>
+            <div class="info-item">
+              <span class="info-label">Branch</span>
+              <span class="info-value" style="color: #999;">
+                <i class="fas fa-clock"></i> To be assigned
+              </span>
+            </div>
+          <% } %>
+        </div>
+
+        <% if (order.order_type === 'delivery' && order.delivery_address) { %>
+          <div class="info-section">
+            <h3 class="info-title"><i class="fas fa-truck"></i> Delivery Address</h3>
+            
+            <div style="padding: 8px 0;">
+              <p style="margin: 0; color: #333; font-weight: 600;">
+                <%= order.delivery_address %><br>
+                <%= order.delivery_city %>, <%= order.delivery_state %> <%= order.delivery_zip %>
+              </p>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <% if (order.notes) { %>
+        <div style="background: #fff3cd; padding: 16px; border-radius: 8px; margin-bottom: 32px; border-left: 4px solid #ffc107;">
+          <div style="font-weight: 600; margin-bottom: 4px; color: #856404;">
+            <i class="fas fa-sticky-note"></i> Order Notes
+          </div>
+          <div style="color: #856404;">
+            <%= order.notes %>
+          </div>
+        </div>
+      <% } %>
+
+      <div class="items-section">
+        <h2 class="section-title">Order Items</h2>
+        
+        <table class="order-items-table">
+          <thead>
+            <tr>
+              <th style="width: 80px;"></th>
+              <th>Product</th>
+              <th style="text-align: center; width: 100px;">Quantity</th>
+              <th style="text-align: right; width: 120px;">Unit Price</th>
+              <th style="text-align: right; width: 120px;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% items.forEach(item => { %>
+              <tr>
+                <td>
+                  <img src="<%= item.image_url || '/images/placeholder.png' %>" alt="<%= item.product_name %>" class="item-image">
+                </td>
+                <td data-label="Product">
+                  <div class="item-name"><%= item.product_name %></div>
+                  <div class="item-sku">SKU: <%= item.sku %></div>
+                </td>
+                <td data-label="Quantity" style="text-align: center; font-weight: 600;">
+                  <span><%= item.quantity %></span>
+                </td>
+                <td data-label="Unit Price" style="text-align: right; font-weight: 600;">
+                  <span>$<%= parseFloat(item.unit_price).toFixed(2) %></span>
+                </td>
+                <td data-label="Subtotal" style="text-align: right; font-weight: 600; color: var(--accent-color);">
+                  <span>$<%= parseFloat(item.subtotal).toFixed(2) %></span>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>$<%= parseFloat(order.subtotal).toFixed(2) %></span>
+        </div>
+
+        <% if (order.tax > 0) { %>
+          <div class="summary-row">
+            <span>Tax</span>
+            <span>$<%= parseFloat(order.tax).toFixed(2) %></span>
+          </div>
+        <% } %>
+
+        <% if (order.delivery_fee > 0) { %>
+          <div class="summary-row">
+            <span>Delivery Fee</span>
+            <span>$<%= parseFloat(order.delivery_fee).toFixed(2) %></span>
+          </div>
+        <% } %>
+
+        <% if (order.discount > 0) { %>
+          <div class="summary-row" style="color: #ff9800;">
+            <span>Discount</span>
+            <span>
+              <% if (order.discount_type === 'percentage') { %>
+                -<%= order.discount %>%
+              <% } else { %>
+                -$<%= parseFloat(order.discount).toFixed(2) %>
+              <% } %>
+            </span>
+          </div>
+        <% } %>
+
+        <div class="summary-row total">
+          <span>Total</span>
+          <span>$<%= parseFloat(order.total).toFixed(2) %></span>
+        </div>
+      </div>
+    </div>
+    </div><!-- End content-state -->
+  </div>
+
+  <script>
+
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.body.classList.remove('loading');
+      }, 300);
+    });
+  </script>
+</body>
+</html>
+

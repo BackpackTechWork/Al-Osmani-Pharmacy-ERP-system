@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .confirmation-container {
+      max-width: 800px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+
+    .confirmation-card {
+      background: white;
+      border-radius: 12px;
+      padding: 48px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: #4CAF50;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      animation: scaleIn 0.5s ease;
+    }
+
+    .success-icon i {
+      font-size: 40px;
+      color: white;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .confirmation-card h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #333;
+    }
+
+    .confirmation-card p {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 32px;
+    }
+
+    .order-details {
+      background: #f8f9fa;
+      padding: 24px;
+      border-radius: 8px;
+      margin: 32px 0;
+      text-align: left;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #666;
+    }
+
+    .detail-value {
+      color: #333;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background: #ffc107;
+      color: #000;
+    }
+
+    .order-items {
+      margin: 32px 0;
+      text-align: left;
+    }
+
+    .items-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item-row:last-child {
+      border-bottom: none;
+    }
+
+    .item-name {
+      font-weight: 600;
+    }
+
+    .item-details {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 32px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--accent-color);
+      border: 2px solid var(--accent-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .confirmation-card {
+        padding: 32px 20px;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Skeleton Loading Styles */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .skeleton-card {
+      background: white;
+      border-radius: 12px;
+      padding: 48px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .skeleton-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+    }
+
+    .skeleton-text {
+      height: 20px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+      margin: 0 auto 16px;
+    }
+
+    .skeleton-text.small {
+      width: 40%;
+      height: 16px;
+    }
+
+    .skeleton-text.medium {
+      width: 60%;
+    }
+
+    .skeleton-text.large {
+      width: 80%;
+      height: 32px;
+    }
+
+    .skeleton-text.xlarge {
+      width: 50%;
+      height: 48px;
+    }
+
+    .loading-state {
+      display: none;
+    }
+
+    body.loading .loading-state {
+      display: block;
+    }
+
+    body.loading .content-state {
+      display: none;
+    }
+  </style>
+</head>
+<body class="loading">
+  <%- include('../components/customer-navbar', { user }) %>
+
+  <div class="confirmation-container">
+    <!-- Skeleton Loading State -->
+    <div class="loading-state">
+      <div class="skeleton-card">
+        <div class="skeleton-icon"></div>
+        <div class="skeleton-text xlarge"></div>
+        <div class="skeleton-text medium"></div>
+        <div style="height: 32px;"></div>
+        <div class="skeleton-text large"></div>
+        <div class="skeleton-text small"></div>
+        <div class="skeleton-text medium"></div>
+        <div style="height: 32px;"></div>
+        <div class="skeleton-text large"></div>
+        <div class="skeleton-text medium"></div>
+        <div class="skeleton-text medium"></div>
+        <div style="height: 32px;"></div>
+        <div style="display: flex; gap: 16px; justify-content: center;">
+          <div class="skeleton-text medium" style="height: 50px;"></div>
+          <div class="skeleton-text medium" style="height: 50px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actual Content -->
+    <div class="content-state">
+    <div class="confirmation-card">
+      <div class="success-icon">
+        <i class="fas fa-check"></i>
+      </div>
+
+      <h1>Order Placed Successfully!</h1>
+      <p>Thank you for your order. We'll process it shortly.</p>
+
+      <div class="order-details">
+        <div class="detail-row">
+          <span class="detail-label">Order ID</span>
+          <span class="detail-value"><strong>#<%= order.id %></strong></span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Order Type</span>
+          <span class="detail-value">
+            <% if (order.order_type === 'pickup') { %>
+              <i class="fas fa-shopping-bag"></i> Pickup
+            <% } else { %>
+              <i class="fas fa-truck"></i> Delivery
+            <% } %>
+          </span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="status-badge status-pending">Requested</span>
+          </span>
+        </div>
+
+        <% if (order.order_type === 'delivery' && order.delivery_address) { %>
+          <div class="detail-row">
+            <span class="detail-label">Delivery Address</span>
+            <span class="detail-value">
+              <%= order.delivery_address %><br>
+              <%= order.delivery_city %>, <%= order.delivery_state %> <%= order.delivery_zip %>
+            </span>
+          </div>
+        <% } %>
+
+        <div class="detail-row">
+          <span class="detail-label">Order Date</span>
+          <span class="detail-value"><%= new Date(order.created_at).toLocaleDateString() %></span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Total Amount</span>
+          <span class="detail-value"><strong style="color: var(--accent-color); font-size: 18px;">$<%= parseFloat(order.total).toFixed(2) %></strong></span>
+        </div>
+      </div>
+
+      <div class="order-items">
+        <h3 class="items-title">Order Items</h3>
+        <% items.forEach(item => { %>
+          <div class="item-row">
+            <div>
+              <div class="item-name"><%= item.product_name %></div>
+              <div class="item-details">SKU: <%= item.sku %> | Qty: <%= item.quantity %></div>
+            </div>
+            <div style="font-weight: 600;">
+              $<%= parseFloat(item.subtotal).toFixed(2) %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+
+      <div style="background: #e3f2fd; padding: 16px; border-radius: 8px; margin: 24px 0;">
+        <i class="fas fa-info-circle" style="color: #1976d2;"></i>
+        <strong style="color: #1976d2;">What's Next?</strong>
+        <p style="margin-top: 8px; color: #666;">
+          Our pharmacy staff will review and process your order.
+          <% if (order.order_type === 'pickup') { %>
+            Once it's ready, you can pick up your order at the pharmacy.
+          <% } else { %>
+            We'll notify you when it's out for delivery via your contact number or email.
+          <% } %>
+        </p>
+      </div>
+      
+
+      <div class="action-buttons">
+        <a href="/customer/orders" class="btn btn-primary">
+          <i class="fas fa-list"></i> View All Orders
+        </a>
+        <a href="/customer/shop" class="btn btn-secondary">
+          <i class="fas fa-shopping-bag"></i> Continue Shopping
+        </a>
+      </div>
+    </div>
+    </div><!-- End content-state -->
+  </div>
+
+  <script>
+
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.body.classList.remove('loading');
+      }, 300);
+    });
+  </script>
+</body>
+</html>
+

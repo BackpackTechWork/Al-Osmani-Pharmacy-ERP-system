@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/employee/inventory' }) %>
+  
+  <div class="main-content">
+    <div style="min-height: 100vh; background-color: var(--bg-color); padding: 32px 20px;">
+    <div class="container">
+      <div class="flex-between mb-3">
+        <div>
+          <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">
+            <i class="fas fa-boxes"></i> Inventory Management
+          </h1>
+          <p style="color: #666;">Monitor and manage stock levels</p>
+        </div>
+        
+        <% if (selectedBranch) { %>
+          <select class="form-control" style="width: 250px;" onchange="window.location.href='/employee/inventory?branch=' + this.value">
+            <% branches.forEach(branch => { %>
+              <option value="<%= branch.id %>" <%= selectedBranch === branch.id ? 'selected' : '' %>>
+                <%= branch.name %>
+              </option>
+            <% }) %>
+          </select>
+        <% } %>
+      </div>
+      
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle"></i>
+          <%= success %>
+        </div>
+      <% } %>
+      
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i>
+          <%= error %>
+        </div>
+      <% } %>
+      
+      <% if (selectedBranch) { %>
+        <div class="table-container fade-in">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Added</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (inventory.length === 0) { %>
+                <tr>
+                  <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+                    No inventory items found for this branch.
+                  </td>
+                </tr>
+              <% } else { %>
+                <% inventory.forEach(item => { %>
+                  <tr>
+                    <td><strong><%= item.product_name %></strong></td>
+                    <td><%= item.sku %></td>
+                    <td><%= item.category_name || 'N/A' %></td>
+                    <td>$<%= parseFloat(item.unit_price).toFixed(2) %></td>
+                    <td><%= new Date(item.created_at).toLocaleDateString() %></td>
+                    <td>
+                      <button class="btn btn-sm btn-primary" onclick="requestRestock(<%= item.product_id %>, '<%= item.product_name %>')">
+                        <i class="fas fa-plus"></i> Restock
+                      </button>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="card text-center" style="padding: 60px;">
+          <i class="fas fa-building" style="font-size: 64px; color: var(--accent-color); margin-bottom: 24px;"></i>
+          <h2 style="font-size: 24px; margin-bottom: 16px;">No Branch Selected</h2>
+          <p style="color: #666;">You don't have access to any branches yet. Please contact your administrator.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  </div>
+  
+  <div id="restockModal" class="modal-overlay" style="display: none;" onclick="closeRestockModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Request Restock</h2>
+        <button class="modal-close" onclick="closeRestockModal()">&times;</button>
+      </div>
+      <form action="/employee/inventory/restock" method="POST">
+        <input type="hidden" name="productId" id="restockProductId">
+        <input type="hidden" name="branchId" value="<%= selectedBranch %>">
+        
+        <div class="form-group">
+          <label class="form-label">Product</label>
+          <input type="text" id="restockProductName" class="form-control" disabled>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="quantity">Quantity *</label>
+          <input type="number" id="quantity" name="quantity" class="form-control" min="1" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="notes">Notes</label>
+          <textarea id="notes" name="notes" class="form-control" rows="3"></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 12px;">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i>
+            Submit Request
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="closeRestockModal()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    function requestRestock(productId, productName) {
+      document.getElementById('restockProductId').value = productId;
+      document.getElementById('restockProductName').value = productName;
+      document.getElementById('restockModal').style.display = 'flex';
+    }
+    
+    function closeRestockModal(event) {
+      if (!event || event.target.id === 'restockModal') {
+        document.getElementById('restockModal').style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
+
+

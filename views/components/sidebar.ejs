@@ -1,0 +1,569 @@
+<style>
+  :root {
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 0px;
+  }
+
+  /* Sidebar Styles */
+  .sidebar-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, #000000 0%, #1a1a1a 30%, #2d5229 70%, var(--color-green) 100%);
+    color: var(--color-white);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1000;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Sidebar Header */
+  .sidebar-header {
+    padding: 24px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--color-white);
+    transition: transform 0.2s ease;
+  }
+
+  .sidebar-logo:hover {
+    transform: translateX(4px);
+  }
+
+  .sidebar-logo img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--color-white);
+    padding: 4px;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-brand-name {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .sidebar-brand-subtitle {
+    font-size: 11px;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  /* Sidebar Menu */
+  .sidebar-menu {
+    padding: 16px 12px;
+  }
+
+  .sidebar-section {
+    margin-bottom: 24px;
+  }
+
+  .sidebar-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 0 12px 8px;
+    margin-bottom: 4px;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--color-white);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    margin-bottom: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sidebar-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--color-light-green);
+    transform: scaleY(0);
+    transition: transform 0.2s ease;
+  }
+
+  .sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+  }
+
+  .sidebar-link:hover::before {
+    transform: scaleY(1);
+  }
+
+  .sidebar-link.active {
+    background: rgba(124, 203, 112, 0.25);
+    color: var(--color-white);
+    font-weight: 600;
+  }
+
+  .sidebar-link.active::before {
+    transform: scaleY(1);
+  }
+
+  .sidebar-link i {
+    width: 20px;
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .sidebar-link span {
+    flex: 1;
+    font-size: 15px;
+  }
+
+  /* Sidebar Submenu */
+  .sidebar-submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding-left: 16px;
+  }
+
+  .sidebar-submenu.show {
+    max-height: 300px;
+  }
+
+  .sidebar-sublink {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    margin-bottom: 3px;
+    font-size: 14px;
+  }
+
+  .sidebar-sublink:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-white);
+    transform: translateX(4px);
+  }
+
+  .sidebar-sublink.active {
+    background: rgba(124, 203, 112, 0.2);
+    color: var(--color-white);
+    font-weight: 600;
+  }
+
+  .sidebar-sublink i {
+    width: 18px;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  /* Sidebar Footer */
+  .sidebar-footer {
+    padding: 16px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+  }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--color-white);
+  }
+
+  .sidebar-user:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .sidebar-avatar {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, var(--color-light-green) 0%, var(--color-green) 100%);
+    color: var(--color-white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-user-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sidebar-user-name {
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar-user-role {
+    font-size: 12px;
+    opacity: 0.7;
+    text-transform: capitalize;
+  }
+
+  /* Mobile Toggle Button */
+  .sidebar-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--color-green) 0%, var(--color-light-green) 100%);
+    color: var(--color-white);
+    border: none;
+    border-radius: 10px;
+    font-size: 22px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    box-shadow: 0 4px 16px rgba(85, 164, 78, 0.5);
+    transition: all 0.3s ease;
+  }
+
+  /* When sidebar is open on mobile, keep toggle to the right of it */
+  @media (max-width: 768px) {
+    .sidebar-toggle.shifted {
+      left: calc(var(--sidebar-width) + 20px);
+    }
+  }
+
+  .sidebar-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(85, 164, 78, 0.5);
+  }
+
+  .sidebar-toggle:active {
+    transform: scale(0.95);
+  }
+
+  /* Mobile Overlay */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar-link i.fa-chevron-down {
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-link.open i.fa-chevron-down {
+    transform: rotate(180deg);
+  }
+
+  /* Mobile Styles */
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+      transform: translateX(0);
+    }
+
+    .sidebar-toggle {
+      display: flex;
+    }
+
+    .main-content {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+
+  /* Tablet Styles */
+  @media (max-width: 1024px) {
+    :root {
+      --sidebar-width: 260px;
+    }
+  }
+</style>
+
+<div class="sidebar-layout">
+  <!-- Mobile Toggle Button -->
+  <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Mobile Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <% const currentUser = locals.user || user; %>
+      <a href="/<%= currentUser.role %>/dashboard" class="sidebar-logo">
+        <img src="/favicon.ico" alt="Al-Osmani Pharmacy">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-name">Al-Osmani</div>
+          <div class="sidebar-brand-subtitle">Pharmacy ERP</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <nav class="sidebar-menu">
+      <% if (currentUser.role === 'admin') { %>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Main</div>
+          <a href="/admin/dashboard" class="sidebar-link <%= currentPath === '/admin/dashboard' ? 'active' : '' %>">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Management</div>
+          <a href="/admin/branches" class="sidebar-link <%= currentPath.startsWith('/admin/branches') ? 'active' : '' %>">
+            <i class="fas fa-building"></i>
+            <span>Branches</span>
+          </a>
+          <a href="/admin/users" class="sidebar-link <%= currentPath.startsWith('/admin/users') ? 'active' : '' %>">
+            <i class="fas fa-users"></i>
+            <span>Users</span>
+          </a>
+          <a href="/admin/products" class="sidebar-link <%= currentPath.startsWith('/admin/products') ? 'active' : '' %>">
+            <i class="fas fa-pills"></i>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories" class="sidebar-link <%= currentPath.startsWith('/admin/categories') ? 'active' : '' %>">
+            <i class="fas fa-tags"></i>
+            <span>Categories</span>
+          </a>
+          <a href="javascript:void(0)" 
+              class="sidebar-link <%= currentPath.startsWith('/admin/inventory') ? 'active' : '' %>" 
+              onclick="toggleSubmenu(this)">
+            <i class="fas fa-boxes"></i>
+            <span>Inventory</span>
+            <i class="fas fa-chevron-down" style="font-size: 12px; margin-left: auto;"></i>
+          </a>
+          
+          <div class="sidebar-submenu <%= currentPath.startsWith('/admin/inventory') ? 'show' : '' %>">
+            <a href="/admin/inventory/stock-management" class="sidebar-sublink <%= currentPath === '/admin/inventory/stock-management' ? 'active' : '' %>">
+              <i class="fas fa-box"></i>
+              <span>Stock Management</span>
+            </a>
+            <a href="/admin/inventory/restock" class="sidebar-sublink <%= currentPath === '/admin/inventory/restock' ? 'active' : '' %>">
+              <i class="fas fa-truck-loading"></i>
+              <span>Restock</span>
+            </a>
+            <a href="/admin/inventory/orders" class="sidebar-sublink <%= currentPath === '/admin/inventory/orders' && !currentPath.includes('/incoming') ? 'active' : '' %>">
+              <i class="fas fa-clipboard-list"></i>
+              <span>Orders</span>
+            </a>
+            <a href="/admin/inventory/incoming-orders" class="sidebar-sublink <%= currentPath.includes('/incoming-orders') ? 'active' : '' %>">
+              <i class="fas fa-inbox"></i>
+              <span>Incoming Orders</span>
+            </a>
+          </div>       
+          <a href="/admin/sales" class="sidebar-link <%= currentPath.startsWith('/admin/sales') ? 'active' : '' %>">
+            <i class="fas fa-receipt"></i>
+            <span>Sales</span>
+          </a>
+        </div>
+      <% } else if (currentUser.role === 'employee') { %>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Main</div>
+          <a href="/employee/dashboard" class="sidebar-link <%= currentPath === '/employee/dashboard' ? 'active' : '' %>">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Operations</div>
+          <a href="/pos" class="sidebar-link <%= currentPath.startsWith('/pos') ? 'active' : '' %>">
+            <i class="fas fa-cash-register"></i>
+            <span>Point of Sale</span>
+          </a>
+          <a href="javascript:void(0)" 
+              class="sidebar-link <%= currentPath.startsWith('/employee/inventory') ? 'active' : '' %>" 
+              onclick="toggleSubmenu(this)">
+            <i class="fas fa-boxes"></i>
+            <span>Inventory</span>
+            <i class="fas fa-chevron-down" style="font-size: 12px; margin-left: auto;"></i>
+          </a>
+          
+          <div class="sidebar-submenu <%= currentPath.startsWith('/employee/inventory') ? 'show' : '' %>">
+            <a href="/employee/inventory/stock-management" class="sidebar-sublink <%= currentPath === '/employee/inventory/stock-management' ? 'active' : '' %>">
+              <i class="fas fa-box"></i>
+              <span>Stock Management</span>
+            </a>
+            <a href="/employee/inventory/orders" class="sidebar-sublink <%= currentPath === '/employee/inventory/orders' && !currentPath.includes('/incoming') ? 'active' : '' %>">
+              <i class="fas fa-clipboard-list"></i>
+              <span>Orders</span>
+            </a>
+            <a href="/employee/inventory/incoming-orders" class="sidebar-sublink <%= currentPath.includes('/incoming-orders') ? 'active' : '' %>">
+              <i class="fas fa-inbox"></i>
+              <span>Incoming Orders</span>
+            </a>
+          </div>
+          <a href="/employee/sales" class="sidebar-link <%= currentPath.startsWith('/employee/sales') ? 'active' : '' %>">
+            <i class="fas fa-receipt"></i>
+            <span>Sales</span>
+          </a>
+        </div>
+      <% } %>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <a href="/auth/profile" class="sidebar-user" title="View Profile">
+        <div class="sidebar-avatar">
+          <%= (currentUser.firstName || currentUser.first_name || 'U').charAt(0).toUpperCase() %><%= (currentUser.lastName || currentUser.last_name || 'U').charAt(0).toUpperCase() %>
+        </div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name"><%= currentUser.firstName || currentUser.first_name || 'User' %> <%= currentUser.lastName || currentUser.last_name || '' %></div>
+          <div class="sidebar-user-role"><%= currentUser.role || 'user' %></div>
+        </div>
+      </a>
+      <a href="/auth/logout" class="sidebar-link">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+    
+  </aside>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const toggleBtn = document.querySelector('.sidebar-toggle');
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+
+      if (window.innerWidth <= 768) {
+        toggleBtn.classList.toggle('shifted');
+      }
+    }
+
+    function closeSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const toggleBtn = document.querySelector('.sidebar-toggle');
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      if (window.innerWidth <= 768) {
+        toggleBtn.classList.remove('shifted');
+      }
+    }
+
+    function toggleSubmenu(element) {
+      const submenu = element.nextElementSibling;
+      submenu.classList.toggle('show');
+      element.classList.toggle('open'); 
+    }
+
+
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href');
+          const isSubmenuToggle = href === 'javascript:void(0)' || href === '#';
+
+          if (window.innerWidth <= 768 && !isSubmenuToggle) {
+            closeSidebar();
+          }
+        });
+      });
+
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSidebar();
+      }
+    });
+  </script>
+

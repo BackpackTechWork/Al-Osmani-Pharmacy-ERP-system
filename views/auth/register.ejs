@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Animated background elements */
+    .auth-container::before,
+    .auth-container::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      animation: float 20s infinite ease-in-out;
+      will-change: transform;
+    }
+    
+    .auth-container::before {
+      width: 300px;
+      height: 300px;
+      top: -150px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+    
+    .auth-container::after {
+      width: 400px;
+      height: 400px;
+      bottom: -200px;
+      left: -150px;
+      animation-delay: 5s;
+    }
+    
+    /* Additional floating elements */
+    .floating-shape {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+      will-change: transform;
+    }
+    
+    .floating-shape:nth-child(1) {
+      width: 80px;
+      height: 80px;
+      top: 15%;
+      left: 10%;
+      animation: float 15s infinite ease-in-out;
+      animation-delay: 2s;
+    }
+    
+    .floating-shape:nth-child(2) {
+      width: 120px;
+      height: 120px;
+      top: 60%;
+      right: 8%;
+      animation: float 18s infinite ease-in-out;
+      animation-delay: 4s;
+    }
+    
+    .floating-shape:nth-child(3) {
+      width: 60px;
+      height: 60px;
+      bottom: 20%;
+      left: 15%;
+      animation: float 12s infinite ease-in-out;
+      animation-delay: 1s;
+    }
+    
+    .floating-shape:nth-child(4) {
+      width: 90px;
+      height: 90px;
+      top: 40%;
+      left: 5%;
+      animation: float 16s infinite ease-in-out;
+      animation-delay: 6s;
+    }
+    
+    .floating-shape:nth-child(5) {
+      width: 70px;
+      height: 70px;
+      bottom: 35%;
+      right: 12%;
+      animation: float 14s infinite ease-in-out;
+      animation-delay: 3s;
+    }
+    
+    .floating-shape:nth-child(6) {
+      width: 100px;
+      height: 100px;
+      top: 25%;
+      right: 20%;
+      animation: float 17s infinite ease-in-out;
+      animation-delay: 7s;
+      opacity: 0.6;
+    }
+    
+    @keyframes float {
+      0%, 100% { 
+        transform: translate(0, 0) scale(1);
+        opacity: 0.6;
+      }
+      25% { 
+        transform: translate(20px, -25px) scale(1.1);
+        opacity: 0.8;
+      }
+      50% { 
+        transform: translate(-15px, -10px) scale(0.95);
+        opacity: 0.5;
+      }
+      75% { 
+        transform: translate(-25px, 20px) scale(1.05);
+        opacity: 0.7;
+      }
+    }
+    
+    .auth-card {
+      background-color: var(--color-white);
+      border-radius: 20px;
+      padding: 48px;
+      max-width: 550px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.5);
+      animation: slideUp 0.6s ease-out;
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(10px);
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    
+    .auth-logo img {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+      animation: pulse 2s infinite ease-in-out;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .auth-logo h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    
+    .auth-logo p {
+      color: #666;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 0;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+    
+    .form-label i {
+      margin-right: 6px;
+      color: var(--accent-color);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background-color: #f8f9fa;
+      font-family: inherit;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      background-color: white;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+      transform: translateY(-1px);
+    }
+    
+    .form-control::placeholder {
+      color: #999;
+    }
+    
+    .password-input-wrapper {
+      position: relative;
+    }
+    
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 4px;
+      font-size: 16px;
+      transition: color 0.2s ease;
+    }
+    
+    .password-toggle:hover {
+      color: var(--accent-color);
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+    
+    .btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .btn i {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .btn span {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      margin-top: 8px;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    .auth-link {
+      text-align: center;
+      margin-top: 24px;
+      color: #666;
+      font-size: 15px;
+    }
+    
+    .auth-link a {
+      color: var(--accent-color);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .auth-link a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent-color);
+      transition: width 0.3s ease;
+    }
+    
+    .auth-link a:hover::after {
+      width: 100%;
+    }
+    
+    .auth-link a:hover {
+      color: var(--accent-light);
+    }
+    
+    .alert {
+      padding: 14px 16px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      animation: slideDown 0.4s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .alert i {
+      font-size: 18px;
+    }
+    
+    .alert-error {
+      background-color: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+    }
+    
+    .password-strength {
+      margin-top: 8px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .strength-bar {
+      flex: 1;
+      height: 4px;
+      background-color: #e0e0e0;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    
+    .strength-bar-fill {
+      height: 100%;
+      width: 0%;
+      transition: all 0.3s ease;
+      border-radius: 2px;
+    }
+    
+    .strength-text {
+      font-weight: 600;
+      min-width: 60px;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 576px) {
+      .auth-container {
+        padding: 16px;
+      }
+      
+      .auth-card {
+        padding: 32px 24px;
+        border-radius: 16px;
+      }
+      
+      .auth-logo img {
+        width: 56px;
+        height: 56px;
+      }
+      
+      .auth-logo h1 {
+        font-size: 26px;
+      }
+      
+      .auth-logo p {
+        font-size: 14px;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      
+      .form-control {
+        padding: 12px 14px;
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      .btn {
+        padding: 12px 20px;
+        font-size: 15px;
+      }
+      
+      /* Enhanced mobile background animations */
+      .auth-container::before {
+        width: 180px;
+        height: 180px;
+        top: -90px;
+        right: -60px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+      
+      .auth-container::after {
+        width: 220px;
+        height: 220px;
+        bottom: -110px;
+        left: -70px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+      
+      .floating-shape:nth-child(1) {
+        width: 60px;
+        height: 60px;
+        top: 8%;
+        left: 8%;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      
+      .floating-shape:nth-child(2) {
+        width: 90px;
+        height: 90px;
+        top: 70%;
+        right: 5%;
+        background: rgba(255, 255, 255, 0.11);
+      }
+      
+      .floating-shape:nth-child(3) {
+        width: 50px;
+        height: 50px;
+        bottom: 15%;
+        left: 12%;
+        background: rgba(255, 255, 255, 0.09);
+      }
+      
+      .floating-shape:nth-child(4) {
+        width: 70px;
+        height: 70px;
+        top: 35%;
+        left: 3%;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      
+      .floating-shape:nth-child(5) {
+        width: 55px;
+        height: 55px;
+        bottom: 45%;
+        right: 8%;
+        background: rgba(255, 255, 255, 0.11);
+      }
+      
+      .floating-shape:nth-child(6) {
+        width: 75px;
+        height: 75px;
+        top: 18%;
+        right: 15%;
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+    
+    @media (max-width: 380px) {
+      .auth-card {
+        padding: 28px 20px;
+      }
+      
+      .auth-logo h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="auth-card">
+      <div class="auth-logo">
+        <img src="/favicon.ico" alt="Pharmacy Icon">
+        <h1>Al-Osmani Pharmacy</h1>
+        <p>Create your account</p>     
+      </div>
+      
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i>
+          <%= error %>
+        </div>
+      <% } %>
+      
+      <form action="/auth/register" method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="firstName">
+              <i class="fas fa-user"></i> First Name
+            </label>
+            <input 
+              type="text" 
+              id="firstName" 
+              name="firstName" 
+              class="form-control" 
+              placeholder="John"
+              required
+              autofocus
+            >
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="lastName">
+              Last Name
+            </label>
+            <input 
+              type="text" 
+              id="lastName" 
+              name="lastName" 
+              class="form-control" 
+              placeholder="Doe"
+              required
+            >
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="username">
+            <i class="fas fa-user-circle"></i> Username
+          </label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            class="form-control" 
+            placeholder="Choose a username"
+            required
+          >
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="email">
+            <i class="fas fa-envelope"></i> Email
+          </label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-control" 
+            placeholder="your@email.com"
+            required
+          >
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="phone">
+            <i class="fas fa-phone"></i> Phone
+          </label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone" 
+            class="form-control" 
+            placeholder="(555) 123-4567"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="password">
+            <i class="fas fa-lock"></i> Password
+          </label>
+          <div class="password-input-wrapper">
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-control" 
+              placeholder="Create a strong password"
+              required
+              minlength="6"
+              style="padding-right: 45px;"
+              oninput="checkPasswordStrength()"
+            >
+            <button type="button" class="password-toggle" onclick="togglePassword()">
+              <i class="fas fa-eye" id="toggleIcon"></i>
+            </button>
+          </div>
+          <div class="password-strength" id="passwordStrength" style="display: none;">
+            <div class="strength-bar">
+              <div class="strength-bar-fill" id="strengthBarFill"></div>
+            </div>
+            <span class="strength-text" id="strengthText"></span>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-user-plus"></i>
+          <span>Create Account</span>
+        </button>
+      </form>
+      
+      <div class="auth-link">
+        Already have an account? <a href="/auth/login">Sign in here</a>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+    
+    function checkPasswordStrength() {
+      const password = document.getElementById('password').value;
+      const strengthBar = document.getElementById('strengthBarFill');
+      const strengthText = document.getElementById('strengthText');
+      const strengthContainer = document.getElementById('passwordStrength');
+      
+      if (password.length === 0) {
+        strengthContainer.style.display = 'none';
+        return;
+      }
+      
+      strengthContainer.style.display = 'flex';
+      
+      let strength = 0;
+      let text = '';
+      let color = '';
+      
+
+      if (password.length >= 6) strength++;
+      if (password.length >= 10) strength++;
+      if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+      if (/\d/.test(password)) strength++;
+      if (/[^a-zA-Z\d]/.test(password)) strength++;
+      
+
+      if (strength <= 2) {
+        text = 'Weak';
+        color = '#ef4444';
+        strengthBar.style.width = '33%';
+      } else if (strength <= 3) {
+        text = 'Medium';
+        color = '#f59e0b';
+        strengthBar.style.width = '66%';
+      } else {
+        text = 'Strong';
+        color = '#10b981';
+        strengthBar.style.width = '100%';
+      }
+      
+      strengthBar.style.backgroundColor = color;
+      strengthText.style.color = color;
+      strengthText.textContent = text;
+    }
+  </script>
+</body>
+</html>
+
+

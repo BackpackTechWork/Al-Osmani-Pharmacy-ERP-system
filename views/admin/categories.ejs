@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+  <style>
+    .search-filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+    
+    .search-box input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+    
+    .search-box i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+    }
+    
+    .clear-search {
+      padding: 12px 20px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .clear-search:hover {
+      background: #e0e0e0;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #eee;
+    }
+    
+    .pagination a,
+    .pagination span {
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #666;
+      transition: all 0.2s;
+    }
+    
+    .pagination a {
+      background: white;
+      border: 1px solid #ddd;
+    }
+    
+    .pagination a:hover {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+    
+    .pagination .current {
+      background: var(--accent-color);
+      color: white;
+      font-weight: 600;
+      border: 1px solid var(--accent-color);
+    }
+    
+    .pagination .disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    
+    .pagination-info {
+      color: #666;
+      font-size: 14px;
+      margin-left: 16px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px 28px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      animation: slideIn 0.25s ease;
+      text-align: center;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .modal-header i {
+      font-size: 24px;
+      color: var(--accent-color, #4CAF50);
+    }
+
+    .modal-actions {
+      margin-top: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-15px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .skeleton-wrapper {
+      margin-top: 24px;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .skeleton-wrapper.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .skeleton-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      height: 160px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skeleton-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+      animation: shimmer 1.2s infinite;
+    }
+
+    .skeleton-line {
+      height: 16px;
+      border-radius: 4px;
+      background: #e2e2e2;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skeleton-line.title {
+      height: 20px;
+      width: 60%;
+      margin-bottom: 16px;
+    }
+
+    .skeleton-line.text {
+      width: 100%;
+    }
+
+    .skeleton-line.text:last-child {
+      width: 80%;
+    }
+
+    .skeleton-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .skeleton-button {
+      height: 32px;
+      width: 70px;
+      border-radius: 6px;
+      background: #e2e2e2;
+    }
+
+    @keyframes shimmer {
+      100% {
+        left: 100%;
+      }
+    }
+
+    .categories-grid {
+      display: none;
+    }
+
+    .categories-grid.active {
+      display: grid;
+    }
+
+    @media (max-width: 768px) {
+      .search-filter-bar {
+        flex-direction: column;
+      }
+      
+      .search-box {
+        width: 100%;
+        min-width: 100%;
+      }
+      
+      .pagination {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      
+      .pagination-info {
+        width: 100%;
+        text-align: center;
+        margin-left: 0;
+        margin-top: 8px;
+      }
+
+      .skeleton-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card-body form {
+      display: flex;
+      margin: 0;
+    }
+
+    .card-body .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 40px;
+      height: 32px;
+    }
+
+    .card-body > div {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Page Header Styles */
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .page-header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .page-title-section {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-color, #333);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      line-height: 1.2;
+    }
+
+    .page-title i {
+      color: var(--accent-color, #4CAF50);
+      font-size: 28px;
+    }
+
+    .page-subtitle {
+      color: #666;
+      font-size: 16px;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .page-actions {
+      flex-shrink: 0;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .add-category-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      min-height: 44px;
+    }
+
+    .add-category-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .add-category-btn i {
+      font-size: 16px;
+    }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .page-header-content {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      .page-title {
+        font-size: 28px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .page-title i {
+        font-size: 24px;
+      }
+
+      .page-subtitle {
+        font-size: 14px;
+        margin-top: 4px;
+      }
+
+      .page-actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .add-category-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+        font-size: 16px;
+        min-height: 48px;
+      }
+
+      .add-category-btn .btn-text {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .page-title {
+        font-size: 24px;
+      }
+
+      .page-title i {
+        font-size: 20px;
+      }
+
+      .page-subtitle {
+        font-size: 13px;
+      }
+
+      .add-category-btn {
+        padding: 12px 16px;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../components/sidebar', { currentPath: '/admin/categories' }) %>
+  
+  <div class="main-content">
+    <div style="min-height: 100vh; background-color: var(--bg-color); padding: 32px 20px;">
+    <div class="container" style="max-width: 1200px;">
+      <div class="page-header">
+        <div class="page-header-content">
+          <div class="page-title-section">
+            <h1 class="page-title">
+              <i class="fas fa-tags"></i> Category Management
+            </h1>
+            <p class="page-subtitle">Organize products into categories</p>
+          </div>
+          <div class="page-actions">
+            <a href="/admin/categories/add" class="btn btn-primary add-category-btn">
+              <i class="fas fa-plus"></i>
+              <span class="btn-text">Add Category</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle"></i>
+          <%= success %>
+        </div>
+      <% } %>
+      
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i>
+          <%= error %>
+        </div>
+      <% } %>
+      
+      <!-- Search Bar -->
+      <div class="search-filter-bar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search categories by name or description..." 
+            value="<%= search %>"
+          >
+        </div>
+        
+        <% if (search) { %>
+          <button class="clear-search" onclick="clearSearch()">
+            <i class="fas fa-times"></i>
+            Clear Search
+          </button>
+        <% } %>
+      </div>
+
+      <!-- Skeleton Loading -->
+      <div id="skeletonWrapper" class="skeleton-wrapper active">
+        <div class="skeleton-grid">
+          <% for (let i = 0; i < 6; i++) { %>
+            <div class="skeleton-card">
+              <div class="skeleton-line title"></div>
+              <div class="skeleton-line text"></div>
+              <div class="skeleton-line text"></div>
+              <div class="skeleton-buttons">
+                <div class="skeleton-button"></div>
+                <div class="skeleton-button"></div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <!-- Categories Grid -->
+      <div class="categories-grid grid grid-3 active fade-in">
+        <% if (categories.length === 0) { %>
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #999;">
+            <i class="fas fa-search" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+            <h3 style="font-size: 24px; font-weight: 600; color: #666; margin-bottom: 12px;">No Categories Found</h3>
+            <p style="font-size: 16px;">Try adjusting your search to find what you're looking for.</p>
+            <% if (search) { %>
+              <button onclick="clearSearch()" class="btn btn-primary" style="margin-top: 20px;">
+                <i class="fas fa-times"></i> Clear Search
+              </button>
+            <% } %>
+          </div>
+        <% } else { %>
+        <% categories.forEach(category => { %>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><%= category.name %></h3>
+              <span class="badge badge-info"><%= category.product_count %> products</span>
+            </div>
+            <div class="card-body">
+              <p style="color: #666; margin-bottom: 16px; min-height: 40px;">
+                <%= category.description || 'No description' %>
+              </p>
+              <div style="display: flex; gap: 8px;">
+                <a href="/admin/categories/add?edit=<%= category.id %>" class="btn btn-sm btn-outline">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+                <% if (category.product_count === 0) { %>
+                  <form 
+                    id="deleteForm-<%= category.id %>" 
+                    action="/admin/categories/delete/<%= category.id %>" 
+                    method="POST" 
+                    style="display: inline;"
+                  >
+                    <button 
+                      type="button" 
+                      class="btn btn-sm btn-danger delete-category-btn" 
+                      data-id="<%= category.id %>"
+                      data-name="<%= category.name %>"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+        <% } %>
+      </div>
+
+      <!-- Pagination -->
+      <% 
+
+        const buildPaginationUrl = (page) => {
+          const params = new URLSearchParams();
+          params.set('page', page);
+          if (search) params.set('search', search);
+          return '?' + params.toString();
+        };
+      %>
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <% if (currentPage > 1) { %>
+            <a href="<%= buildPaginationUrl(currentPage - 1) %>">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          <% } else { %>
+            <span class="disabled">
+              <i class="fas fa-chevron-left"></i>
+            </span>
+          <% } %>
+          
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === currentPage) { %>
+              <span class="current"><%= i %></span>
+            <% } else if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
+              <a href="<%= buildPaginationUrl(i) %>"><%= i %></a>
+            <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
+              <span>...</span>
+            <% } %>
+          <% } %>
+          
+          <% if (currentPage < totalPages) { %>
+            <a href="<%= buildPaginationUrl(currentPage + 1) %>">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          <% } else { %>
+            <span class="disabled">
+              <i class="fas fa-chevron-right"></i>
+            </span>
+          <% } %>
+          
+          <span class="pagination-info">
+            Showing <%= categories.length %> of <%= totalCategories %> categories
+          </span>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  </div>
+  
+
+
+  <div id="editModal" class="modal-overlay" style="display: none;" onclick="closeModal('editModal', event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Edit Category</h2>
+        <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
+      </div>
+      <form id="editForm" method="POST">
+        <div class="form-group">
+          <label class="form-label" for="editName">Category Name *</label>
+          <input type="text" id="editName" name="name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editDescription">Description</label>
+          <textarea id="editDescription" name="description" class="form-control" rows="3"></textarea>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Update Category
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Alert Modal -->
+  <div id="alertModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <i id="alertIcon" class="fas fa-info-circle"></i>
+        <h3 id="alertTitle">Notification</h3>
+      </div>
+      <p id="alertMessage"></p>
+      <div class="modal-actions">
+        <button id="alertCancelBtn" class="btn btn-outline" style="display: none;">Cancel</button>
+        <button id="alertOkBtn" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const alerts = document.querySelectorAll('.alert');
+      if (alerts.length > 0) {
+        setTimeout(() => {
+          alerts.forEach(alert => {
+            alert.style.transition = 'opacity 0.5s ease';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+          });
+        }, 3000);
+      }
+    });
+
+    function showSkeleton() {
+      const wrapper = document.getElementById('skeletonWrapper');
+      const grid = document.querySelector('.categories-grid');
+      
+      wrapper.classList.add('active');
+      grid.classList.remove('active');
+    }
+
+    function hideSkeleton() {
+      const wrapper = document.getElementById('skeletonWrapper');
+      const grid = document.querySelector('.categories-grid');
+      
+      setTimeout(() => {
+        wrapper.classList.remove('active');
+        grid.classList.add('active');
+      }, 150);
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      hideSkeleton();
+      
+
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.edit-category-btn')) {
+          const btn = e.target.closest('.edit-category-btn');
+          const id = btn.getAttribute('data-id');
+          const name = btn.getAttribute('data-name');
+          const description = btn.getAttribute('data-description');
+          showEditModal(id, name, description);
+        }
+        
+
+        if (e.target.closest('.delete-category-btn')) {
+          const btn = e.target.closest('.delete-category-btn');
+          const id = btn.getAttribute('data-id');
+          const name = btn.getAttribute('data-name');
+          confirmDeletion(id, name);
+        }
+      });
+    });
+
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+    
+    function applySearch() {
+      showSkeleton();
+      const searchValue = document.getElementById('searchInput').value;
+      
+      const params = new URLSearchParams();
+      params.set('page', '1');
+      if (searchValue) params.set('search', searchValue);
+
+      window.location.href = '/admin/categories?' + params.toString();
+    }
+    
+    function clearSearch() {
+      window.location.href = '/admin/categories';
+    }
+    
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('searchInput');
+      
+
+      const debouncedSearch = debounce(() => {
+        applySearch();
+      }, 500);
+      
+      searchInput.addEventListener('input', debouncedSearch);
+    });
+
+    
+    
+    function showEditModal(id, name, description) {
+      document.getElementById('editForm').action = '/admin/categories/edit/' + id;
+      document.getElementById('editName').value = name;
+      document.getElementById('editDescription').value = description;
+      document.getElementById('editModal').style.display = 'flex';
+    }
+    
+    function closeModal(modalId, event) {
+      if (!event || event.target.id === modalId) {
+        document.getElementById(modalId).style.display = 'none';
+      }
+    }
+
+    function confirmDeletion(categoryId, categoryName) {
+      showAlert(
+        `Are you sure you want to delete the category "${categoryName}"? This action cannot be undone.`,
+        "warning",
+        "Delete Category",
+        true, 
+        function(confirmed) {
+          if (confirmed) {
+            document.getElementById(`deleteForm-${categoryId}`).submit();
+          }
+        }
+      );
+    }
+
+    function showAlert(message, type = "info", title = "Notification", isConfirm = false, callback = null) {
+      const modal = document.getElementById("alertModal");
+      const icon = document.getElementById("alertIcon");
+      const titleElem = document.getElementById("alertTitle");
+      const msgElem = document.getElementById("alertMessage");
+      const okBtn = document.getElementById("alertOkBtn");
+      const cancelBtn = document.getElementById("alertCancelBtn");
+
+      const iconMap = {
+        success: "fa-check-circle",
+        error: "fa-exclamation-circle",
+        warning: "fa-exclamation-triangle",
+        info: "fa-info-circle"
+      };
+      const colorMap = {
+        success: "#4CAF50",
+        error: "#e53935",
+        warning: "#fbc02d",
+        info: "#2196f3"
+      };
+
+      icon.className = `fas ${iconMap[type] || iconMap.info}`;
+      icon.style.color = colorMap[type] || colorMap.info;
+      titleElem.textContent = title;
+      msgElem.textContent = message;
+
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+
+
+      if (isConfirm) {
+        cancelBtn.style.display = "inline-block";
+        okBtn.textContent = "Yes";
+        cancelBtn.onclick = () => {
+          modal.style.display = "none";
+          document.body.style.overflow = "auto";
+          if (callback) callback(false);
+        };
+        okBtn.onclick = () => {
+          modal.style.display = "none";
+          document.body.style.overflow = "auto";
+          if (callback) callback(true);
+        };
+      } else {
+        cancelBtn.style.display = "none";
+        okBtn.textContent = "OK";
+        okBtn.onclick = () => {
+          modal.style.display = "none";
+          document.body.style.overflow = "auto";
+          if (callback) callback(true);
+        };
+      }
+    }
+
+
+    document.getElementById("alertModal").addEventListener("click", (e) => {
+      if (e.target.id === "alertModal") {
+        e.target.style.display = "none";
+        document.body.style.overflow = "auto";
+      }
+    });
+
+  </script>
+</body>
+</html>
