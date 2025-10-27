@@ -106,6 +106,75 @@
       background-color: #ffc107;
       color: #000000;
     }
+    .alerts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    @media (max-width: 768px) {
+      .dashboard-content {
+        padding: 16px 12px;
+      }
+      .alerts-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .quick-actions {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+      .action-card {
+        padding: 20px;
+      }
+      .action-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+      }
+      .action-title {
+        font-size: 18px;
+      }
+      .action-desc {
+        font-size: 12px;
+      }
+      .productivity-card {
+        padding: 20px;
+      }
+      .productivity-card > div {
+        flex-direction: column !important;
+        gap: 16px !important;
+      }
+      .productivity-card > div > div:last-child {
+        text-align: left !important;
+      }
+    }
+    @media (max-width: 480px) {
+      .dashboard-content {
+        padding: 12px 8px;
+      }
+      h1 {
+        font-size: 24px !important;
+      }
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+      .card-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px;
+      }
+      .card-header .btn {
+        align-self: stretch;
+        text-align: center;
+      }
+      .alert-item, .order-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px;
+      }
+      .alert-item .badge, .order-item .badge {
+        align-self: flex-start;
+      }
+    }
   </style>
 </head>
 <body>
@@ -199,7 +268,7 @@
         });
       </script>
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px;">
+      <div class="alerts-grid">
         <div class="card fade-in">
           <div class="card-header">
             <h2 class="card-title">
@@ -210,7 +279,7 @@
           <div style="max-height: 400px; overflow-y: auto;">
             <% if (lowStock.length > 0) { %>
               <% lowStock.forEach(item => { %>
-                <div style="padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <div class="alert-item" style="padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                   <div>
                     <div style="font-weight: 600;"><%= item.product_name %></div>
                     <div style="font-size: 14px; color: #666;">
@@ -242,7 +311,7 @@
           <div style="max-height: 400px; overflow-y: auto;">
             <% if (incomingOrders.length > 0) { %>
               <% incomingOrders.forEach(order => { %>
-                <div style="padding: 12px; border-bottom: 1px solid var(--border-color);">
+                <div class="order-item" style="padding: 12px; border-bottom: 1px solid var(--border-color);">
                   <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
                     <div>
                       <div style="font-weight: 600;">Order #<%= order.id %></div>

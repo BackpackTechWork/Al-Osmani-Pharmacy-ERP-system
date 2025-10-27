@@ -2259,35 +2259,15 @@ if (searchInput) {
       event.preventDefault();
       event.stopPropagation();
 
-      const button = event.currentTarget;
-      const originalText = button.innerHTML;
-      
-
-      const quantityInput = document.getElementById(`quantity-${productId}`);
-      const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
-      
-
-      button.disabled = true;
-      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-
-      const resetTimeout = setTimeout(() => {
-        button.innerHTML = originalText;
-        button.disabled = false;
-      }, 5000); 
-
       try {
+        const quantityInput = document.getElementById(`quantity-${productId}`);
+        const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
 
         sessionStorage.setItem('buyNowInProgress', 'true');
-        
 
         window.location.href = `/customer/checkout?buyNow=true&productId=${productId}&quantity=${quantity}`;
       } catch (error) {
         console.error('Error:', error);
-        clearTimeout(resetTimeout);
-        button.innerHTML = originalText;
-        button.disabled = false;
-        
         showModal({
           type: 'error',
           title: 'Error',

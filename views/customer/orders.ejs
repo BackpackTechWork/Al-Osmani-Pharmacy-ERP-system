@@ -701,8 +701,17 @@
       .empty-orders h2 {
         font-size: 22px;
       }
-    }
 
+      .search-input {
+        font-size: 14px !important; /* Smaller font size for mobile */
+      }
+      
+      .search-input::placeholder {
+        font-size: 14px !important; /* Smaller placeholder text */
+      }
+
+    }
+    
     /* Custom Modal Styles */
     .custom-modal {
       display: none;
@@ -1149,7 +1158,7 @@
             autocomplete="off"
             value="<%= filters.search %>"
           >
-          <i class="fas fa-times-circle search-clear" id="searchClear" title="Clear search"></i>
+          <i id="searchClear" title="Clear search"></i>
         </div>
       </div>
 
@@ -1178,7 +1187,7 @@
 
         <div class="filter-item" style="display: flex; align-items: flex-end;">
           <button class="btn btn-secondary" onclick="clearAllFilters()" style="width: 100%; padding: 14px 18px; font-size: 15px;">
-            <i class="fas fa-times"></i> Clear All Filters
+            <i></i> Clear All Filters
           </button>
         </div>
       </div>
@@ -1511,7 +1520,7 @@
             <h2>${currentSearch || currentOrderType || currentStatus ? 'No Orders Found' : "It's Empty Here"}</h2>
             <p>${currentSearch || currentOrderType || currentStatus ? 'No orders match your search or filter criteria. Try adjusting your filters.' : "Looks like you haven't placed any orders yet. Start exploring our products and find something you love."}</p>
             ${currentSearch || currentOrderType || currentStatus ? 
-              '<button class="btn btn-secondary" onclick="clearAllFilters()"><i class="fas fa-times"></i> Clear Filters</button>' :
+              '<button class="btn btn-secondary" onclick="clearAllFilters()"><i></i> Clear Filters</button>' :
               '<a href="/customer/shop" class="btn btn-primary">Start Shopping</a>'
             }
           </div>

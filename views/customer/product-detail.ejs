@@ -1058,18 +1058,15 @@
       }
     }
 
-
     function buyNow(productId, productName) {
       const quantityInput = document.getElementById('productQuantity');
       const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
       
-      const button = event.target;
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       
-
-      button.disabled = true;
-      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-
       window.location.href = `/customer/checkout?buyNow=true&productId=${productId}&quantity=${quantity}`;
     }
   </script>
