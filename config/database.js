@@ -284,13 +284,12 @@ const initializeDatabase = async () => {
   } catch (err) {
     console.error("Database initialization error:", err);
     process.exit(1);
+  } finally {
+    if (connection) {
+      await connection.end();
+    }
   }
 };
-
-
-initializeDatabase().catch((err) => {
-  process.exit(1);
-});
 
 
 module.exports = pool;
