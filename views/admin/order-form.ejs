@@ -171,6 +171,10 @@
       to { transform: translateY(0); opacity: 1; }
     }
 
+    .password-toggle-btn:hover {
+      color: var(--accent-color) !important;
+    }
+
     @media (max-width: 768px) {
       .order-item-row {
         grid-template-columns: 1fr;
@@ -358,43 +362,39 @@
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div class="form-group">
                   <label class="form-label" for="newFirstName">First Name *</label>
-                  <input type="text" id="newFirstName" class="form-control">
+                  <input type="text" id="newFirstName" class="form-control" required>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="newLastName">Last Name *</label>
-                  <input type="text" id="newLastName" class="form-control">
+                  <input type="text" id="newLastName" class="form-control" required>
                 </div>
               </div>
               
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div class="form-group">
+                  <label class="form-label" for="newUsername">Username *</label>
+                  <input type="text" id="newUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
                   <label class="form-label" for="newEmail">Email *</label>
-                  <input type="email" id="newEmail" class="form-control">
+                  <input type="email" id="newEmail" class="form-control" required>
+                </div>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div class="form-group">
+                  <label class="form-label" for="newPassword">Password *</label>
+                  <div style="position: relative;">
+                    <input type="password" id="newPassword" class="form-control" required style="padding-right: 40px;">
+                    <button type="button" onclick="togglePasswordVisibility()" class="password-toggle-btn" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 8px; color: #666; transition: color 0.2s ease;">
+                      <i id="passwordToggleIcon" class="fas fa-eye"></i>
+                    </button>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="newPhone">Phone</label>
                   <input type="tel" id="newPhone" class="form-control">
                 </div>
-              </div>
-              
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                <div class="form-group">
-                  <label class="form-label" for="newCity">City</label>
-                  <input type="text" id="newCity" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="newState">State</label>
-                  <input type="text" id="newState" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="newZipCode">ZIP Code</label>
-                  <input type="text" id="newZipCode" class="form-control">
-                </div>
-              </div>
-              
-              <div class="form-group" style="margin-bottom: 16px;">
-                <label class="form-label" for="newAddress">Address</label>
-                <textarea id="newAddress" class="form-control" rows="2"></textarea>
               </div>
               
               <div style="display: flex; gap: 12px; justify-content: flex-end;">
@@ -913,6 +913,21 @@
       }
     }
 
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('newPassword');
+      const toggleIcon = document.getElementById('passwordToggleIcon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+
     function toggleAddCustomer() {
       const form = document.getElementById('addCustomerForm');
       const isVisible = form.style.display !== 'none';
@@ -924,12 +939,17 @@
 
         document.getElementById('newFirstName').value = '';
         document.getElementById('newLastName').value = '';
+        document.getElementById('newUsername').value = '';
         document.getElementById('newEmail').value = '';
+        document.getElementById('newPassword').value = '';
         document.getElementById('newPhone').value = '';
-        document.getElementById('newAddress').value = '';
-        document.getElementById('newCity').value = '';
-        document.getElementById('newState').value = '';
-        document.getElementById('newZipCode').value = '';
+        
+
+        const passwordInput = document.getElementById('newPassword');
+        const toggleIcon = document.getElementById('passwordToggleIcon');
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
       }
     }
 
@@ -940,16 +960,14 @@
     async function addNewCustomer() {
       const firstName = document.getElementById('newFirstName').value.trim();
       const lastName = document.getElementById('newLastName').value.trim();
+      const username = document.getElementById('newUsername').value.trim();
       const email = document.getElementById('newEmail').value.trim();
+      const password = document.getElementById('newPassword').value.trim();
       const phone = document.getElementById('newPhone').value.trim();
-      const address = document.getElementById('newAddress').value.trim();
-      const city = document.getElementById('newCity').value.trim();
-      const state = document.getElementById('newState').value.trim();
-      const zipCode = document.getElementById('newZipCode').value.trim();
 
 
-      if (!firstName || !lastName || !email) {
-        showAlert('Please fill in all required fields (First Name, Last Name, Email)', 'warning', 'Missing Fields');
+      if (!firstName || !lastName || !username || !email || !password) {
+        showAlert('Please fill in all required fields (First Name, Last Name, Username, Email, Password)', 'warning', 'Missing Fields');
         return;
       }
 
@@ -960,8 +978,16 @@
         return;
       }
 
+      if (password.length < 6) {
+        showAlert('Password must be at least 6 characters long', 'warning', 'Invalid Password');
+        return;
+      }
+
       try {
-        const response = await fetch('/admin/inventory/orders/add-customer', {
+        const isEmployee = <%= typeof isEmployee !== 'undefined' && isEmployee ? 'true' : 'false' %>;
+        const endpoint = isEmployee ? '/employee/inventory/orders/add-customer' : '/admin/inventory/orders/add-customer';
+        
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -969,12 +995,10 @@
           body: JSON.stringify({
             firstName,
             lastName,
+            username,
             email,
-            phone,
-            address,
-            city,
-            state,
-            zipCode
+            password,
+            phone
           })
         });
 

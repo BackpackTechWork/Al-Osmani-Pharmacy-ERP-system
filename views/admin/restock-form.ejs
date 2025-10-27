@@ -260,25 +260,6 @@
   </style>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-
-      <% if (restock && restock.product_id) { %>
-        <% const selectedProduct = products.find(p => p.id == restock.product_id) %>
-        <% if (selectedProduct) { %>
-          document.getElementById('productSearch').value =
-            '<%= selectedProduct.name %> (<%= selectedProduct.sku %>)';
-        <% } %>
-      <% } %>
-
-
-      <% if (branchId) { %>
-        <% const selectedBranch = branches.find(b => b.id == branchId) %>
-        <% if (selectedBranch) { %>
-          document.getElementById('branchSearch').value = '<%= selectedBranch.name %>';
-        <% } %>
-      <% } %>
-    });
-
     function toggleDropdown(type) {
       const select = document.querySelector(`#${type}Options`).parentElement;
       const isOpen = select.classList.contains('open');
@@ -327,6 +308,44 @@
       }
     });
   </script>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+
+    <% if (restock && restock.product_id) { %>
+      <% const selectedProduct = products.find(p => p.id == restock.product_id) %>
+      <% if (selectedProduct) { %>
+        document.getElementById('productSearch').value =
+          '<%= selectedProduct.name %> (<%= selectedProduct.sku %>)';
+        document.getElementById('productId').value = '<%= selectedProduct.id %>';
+      <% } %>
+    <% } %>
+
+    <% if (branchId) { %>
+      <% const selectedBranch = branches.find(b => b.id == branchId) %>
+      <% if (selectedBranch) { %>
+        document.getElementById('branchSearch').value = '<%= selectedBranch.name %>';
+        document.getElementById('branchId').value = '<%= selectedBranch.id %>';
+        const branchOption = document.querySelector(`#branchOptions .searchable-select-option[data-value='<%= selectedBranch.id %>']`);
+        if (branchOption) branchOption.classList.add('selected');
+      <% } %>
+    <% } %>
+
+    <% if (productId) { %>
+      <% const selectedProduct = products.find(p => p.id == productId) %>
+      <% if (selectedProduct) { %>
+        document.getElementById('productSearch').value =
+          '<%= selectedProduct.name %> (<%= selectedProduct.sku %>)';
+        document.getElementById('productId').value = '<%= selectedProduct.id %>';
+        const productOption = document.querySelector(`#productOptions .searchable-select-option[data-value='<%= selectedProduct.id %>']`);
+        if (productOption) productOption.classList.add('selected');
+      <% } %>
+    <% } %>
+
+  });
+</script>
+
 
 </body>
 </html>

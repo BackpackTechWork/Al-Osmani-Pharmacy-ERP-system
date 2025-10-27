@@ -1103,6 +1103,76 @@ router.post("/inventory/incoming-orders/assign", async (req, res) => {
   }
 })
 
+
+router.post("/inventory/orders/add-customer", async (req, res) => {
+  const bcrypt = require("bcryptjs")
+  
+  try {
+    const { firstName, lastName, username, email, password, phone } = req.body
+
+
+    if (!firstName || !lastName || !username || !email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "First name, last name, username, email, and password are required" 
+      })
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Password must be at least 6 characters long" 
+      })
+    }
+
+
+    const [existingEmail] = await db.query("SELECT id FROM users WHERE email = ?", [email])
+    if (existingEmail.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Customer with this email already exists" 
+      })
+    }
+
+    const [existingUsername] = await db.query("SELECT id FROM users WHERE username = ?", [username])
+    if (existingUsername.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Username already exists. Please choose a different username." 
+      })
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10)
+
+
+    const [result] = await db.query(
+      `INSERT INTO users (username, email, password_hash, first_name, last_name, phone, role, is_active, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, 'customer', TRUE, NOW())`,
+      [username, email, passwordHash, firstName, lastName, phone || null]
+    )
+
+    res.json({ 
+      success: true, 
+      message: "Customer added successfully",
+      customer: {
+        id: result.insertId,
+        first_name: firstName,
+        last_name: lastName,
+        username: username,
+        email: email,
+        phone: phone,
+        full_name: `${firstName} ${lastName}`
+      }
+    })
+  } catch (error) {
+    console.error("Add customer error:", error)
+    res.status(500).json({ 
+      success: false, 
+      message: "Error adding customer" 
+    })
+  }
+})
+
 module.exports = router
 
 

@@ -339,6 +339,29 @@ router.get("/dashboard", async (req, res) => {
       inventoryStatus = [];
     }
 
+    let incomingOrders = [];
+    try {
+      const [orders] = await db.query(`
+        SELECT o.*, 
+          CONCAT(cu.first_name, ' ', cu.last_name) as customer_name,
+          cu.email as customer_email,
+          cu.phone as customer_phone,
+          COUNT(oi.id) as product_count,
+          SUM(oi.quantity) as total_items
+        FROM orders o
+        JOIN users cu ON o.customer_id = cu.id
+        LEFT JOIN order_items oi ON oi.order_id = o.id
+        WHERE o.branch_id IS NULL
+        GROUP BY o.id
+        ORDER BY o.created_at DESC
+        LIMIT 10
+      `);
+      incomingOrders = orders;
+    } catch (err) {
+      console.log("Incoming orders data may not be available:", err.message);
+      incomingOrders = [];
+    }
+
     res.render("admin/dashboard", {
       title: "Admin Dashboard",
       stats: {
@@ -355,6 +378,7 @@ router.get("/dashboard", async (req, res) => {
       salesOverTime,
       topProducts,
       inventoryStatus,
+      incomingOrders,
       user: req.session.user,
     });
   } catch (error) {
@@ -2173,30 +2197,47 @@ router.post("/inventory/orders/delete/:id", async (req, res) => {
 
 router.post("/inventory/orders/add-customer", async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, address, city, state, zipCode } = req.body
+    const { firstName, lastName, username, email, password, phone } = req.body
 
 
-    if (!firstName || !lastName || !email) {
+    if (!firstName || !lastName || !username || !email || !password) {
       return res.status(400).json({ 
         success: false, 
-        message: "First name, last name, and email are required" 
+        message: "First name, last name, username, email, and password are required" 
+      })
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Password must be at least 6 characters long" 
       })
     }
 
 
-    const [existingUser] = await db.query("SELECT id FROM users WHERE email = ?", [email])
-    if (existingUser.length > 0) {
+    const [existingEmail] = await db.query("SELECT id FROM users WHERE email = ?", [email])
+    if (existingEmail.length > 0) {
       return res.status(400).json({ 
         success: false, 
         message: "Customer with this email already exists" 
       })
     }
 
+    const [existingUsername] = await db.query("SELECT id FROM users WHERE username = ?", [username])
+    if (existingUsername.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Username already exists. Please choose a different username." 
+      })
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10)
+
 
     const [result] = await db.query(
-      `INSERT INTO users (first_name, last_name, email, phone, address, city, state, zip_code, role, is_active, created_at) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'customer', TRUE, NOW())`,
-      [firstName, lastName, email, phone || null, address || null, city || null, state || null, zipCode || null]
+      `INSERT INTO users (username, email, password_hash, first_name, last_name, phone, role, is_active, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, 'customer', TRUE, NOW())`,
+      [username, email, passwordHash, firstName, lastName, phone || null]
     )
 
     res.json({ 
@@ -2206,6 +2247,7 @@ router.post("/inventory/orders/add-customer", async (req, res) => {
         id: result.insertId,
         first_name: firstName,
         last_name: lastName,
+        username: username,
         email: email,
         phone: phone,
         full_name: `${firstName} ${lastName}`
