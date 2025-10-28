@@ -55,6 +55,7 @@
       overflow: hidden;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       transition: all 0.3s;
+      position: relative;
     }
     
     .order-card:hover {
@@ -417,6 +418,45 @@
         align-items: stretch !important;
         gap: 16px;
       }
+
+      .flex-between > div:last-child {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .flex-between > div:last-child select,
+      .flex-between > div:last-child .btn {
+        width: 100%;
+      }
+
+      .bulk-actions-bar {
+        padding: 16px;
+      }
+
+      .bulk-actions-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+      }
+
+      .bulk-actions-content {
+        flex-direction: column;
+        align-items: stretch !important;
+      }
+
+      .bulk-actions-content label {
+        font-size: 14px;
+      }
+
+      .bulk-actions-content select {
+        width: 100%;
+        min-width: 100%;
+      }
+
+      .bulk-actions-content button {
+        width: 100%;
+      }
       
       .search-filter-bar {
         flex-direction: column;
@@ -669,7 +709,10 @@
           <% } else { %>
           <% orders.forEach(order => { %>
             <div class="order-card">
-              <div class="order-card-header">
+              <div style="position: absolute; top: 20px; left: 20px; z-index: 10;">
+                <input type="checkbox" class="order-checkbox-card" value="<%= order.id %>" onchange="updateBulkActions()" style="width: 20px; height: 20px; cursor: pointer;">
+              </div>
+              <div class="order-card-header" style="padding-left: 50px;">
                 <h3 class="order-card-title">Order #<%= order.id %></h3>
                 <div class="order-card-meta">
                   <span class="order-card-badge" style="background: rgba(255,255,255,0.2);">
@@ -894,7 +937,7 @@
 
 
     function toggleSelectAll(checkbox) {
-      const checkboxes = document.querySelectorAll('.order-checkbox');
+      const checkboxes = document.querySelectorAll('.order-checkbox, .order-checkbox-card');
       checkboxes.forEach(cb => {
         cb.checked = checkbox.checked;
       });
@@ -902,7 +945,14 @@
     }
 
     function updateBulkActions() {
-      const checkboxes = document.querySelectorAll('.order-checkbox:checked');
+      const currentView = localStorage.getItem('employeeOrdersView') || 'table';
+      let checkboxes;
+      if (currentView === 'card') {
+        checkboxes = document.querySelectorAll('.orders-grid.active .order-checkbox-card:checked');
+      } else {
+        checkboxes = document.querySelectorAll('.table-container.active .order-checkbox:checked');
+      }
+      
       const bulkActionsBar = document.getElementById('bulkActionsBar');
       const selectedCount = document.getElementById('selectedCount');
       const selectAll = document.getElementById('selectAll');
@@ -916,19 +966,27 @@
       }
       
 
-      const allCheckboxes = document.querySelectorAll('.order-checkbox');
+      const allCheckboxes = currentView === 'card' 
+        ? document.querySelectorAll('.orders-grid.active .order-checkbox-card')
+        : document.querySelectorAll('.table-container.active .order-checkbox');
       selectAll.checked = allCheckboxes.length > 0 && checkboxes.length === allCheckboxes.length;
     }
 
     function clearSelection() {
-      const checkboxes = document.querySelectorAll('.order-checkbox');
+      const checkboxes = document.querySelectorAll('.order-checkbox, .order-checkbox-card');
       checkboxes.forEach(cb => cb.checked = false);
       document.getElementById('selectAll').checked = false;
       updateBulkActions();
     }
 
     function getSelectedOrderIds() {
-      const checkboxes = document.querySelectorAll('.order-checkbox:checked');
+      const currentView = localStorage.getItem('employeeOrdersView') || 'table';
+      let checkboxes;
+      if (currentView === 'card') {
+        checkboxes = document.querySelectorAll('.orders-grid.active .order-checkbox-card:checked');
+      } else {
+        checkboxes = document.querySelectorAll('.table-container.active .order-checkbox:checked');
+      }
       return Array.from(checkboxes).map(cb => cb.value);
     }
 
