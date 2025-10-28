@@ -1,131 +1,307 @@
-# Pharmacy Inventory Management System
+<div align="center">
 
-A comprehensive multi-branch pharmacy inventory and POS system built with Node.js, Express, EJS, and MySQL.
+# Pharmacy ERP System
+
+### A comprehensive multi-branch pharmacy ERP system
+
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![EJS](https://img.shields.io/badge/EJS-B4CA65?style=for-the-badge&logo=ejs&logoColor=black)
+
+</div>
+
+---
+
+## Overview
+
+A full-featured pharmacy management system designed for multi-branch operations. Built with modern web technologies, this system provides comprehensive inventory tracking, point-of-sale functionality, and role-based access control for pharmacies of any size.
+
+---
 
 ## Features
 
-- **Multi-Branch Management**: Manage multiple pharmacy locations
-- **Role-Based Access Control**: Admin, Employee, and Customer roles
-- **Inventory Management**: Track stock levels, expiry dates, and restock requests
-- **POS System**: Point of sale for in-store transactions
-- **Customer Ordering**: Online ordering for pickup and delivery
-- **Product Management**: Comprehensive product catalog with categories
-- **Restock Management**: Automated restock requests and approvals
-- **Sales Reporting**: Track sales and inventory movements
+<table>
+<tr>
+<td width="50%">
+
+### Core Functionality
+- **Multi-Branch Management**  
+  Centralized control across multiple pharmacy locations
+  
+- **Role-Based Access Control**  
+  Secure access for Admin, Employee, and Customer roles
+  
+- **Inventory Management**  
+  Real-time stock tracking with expiry date monitoring
+  
+- **POS System**  
+  Fast and reliable point-of-sale transactions
+
+</td>
+<td width="50%">
+
+### Advanced Features
+- **Customer Ordering**  
+  Online ordering with pickup and delivery options
+  
+- **Product Management**  
+  Comprehensive catalog with category organization
+  
+- **Restock Management**  
+  Automated requests with approval workflows
+  
+- **Sales Reporting**  
+  Detailed analytics and inventory movement tracking
+
+</td>
+</tr>
+</table>
+
+---
 
 ## Tech Stack
 
-- **Backend**: Node.js, Express.js
-- **Database**: MySQL
-- **Template Engine**: EJS
-- **Authentication**: bcryptjs, express-session
-- **Icons**: Font Awesome 6
+| Category | Technology |
+|----------|-----------|
+| **Backend** | Node.js, Express.js |
+| **Database** | MySQL |
+| **Template Engine** | EJS |
+| **Authentication** | bcryptjs, express-session |
+| **UI Icons** | Font Awesome 6 |
+
+---
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (v14 or higher)
+- **MySQL** (v8.0 or higher)
+- **npm** or **yarn**
+
+---
 
 ## Installation
 
-1. Clone the repository
-2. Install dependencies:
-   \`\`\`bash
-   npm install
-   \`\`\`
+### Step 1: Clone the Repository
 
-3. Create a `.env` file based on `.env.example`:
-   \`\`\`bash
-   cp .env.example .env
-   \`\`\`
+```bash
+git clone <repository-url>
+cd pharmacy-inventory
+```
 
-4. Update the `.env` file with your database credentials
+### Step 2: Install Dependencies
 
-5. Create the database and run migrations:
-   \`\`\`bash
-   # Connect to MySQL and run the SQL scripts in order:
-   mysql -u root -p < scripts/01_create_database.sql
-   mysql -u root -p < scripts/02_seed_data.sql
-   \`\`\`
+```bash
+npm install
+```
 
-6. Start the server:
-   \`\`\`bash
-   npm run dev
-   \`\`\`
+### Step 3: Configure Environment
 
-7. Access the application at `http://localhost:3000`
+Create a `.env` file from the example:
+
+```bash
+cp .env.example .env
+```
+```bash
+Update the `.env` file with your configuration:
+
+```env
+DB_HOST=localhost
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_NAME=pharmacy_db
+SESSION_SECRET=your_secret_key
+PORT=3000
+```
+
+### Step 4: Database Setup
+
+Connect to MySQL and run the migration scripts in order:
+
+```bash
+# Create database and tables
+mysql -u root -p < scripts/01_create_database.sql
+
+# Seed initial data
+mysql -u root -p < scripts/02_seed_data.sql
+```
+
+### Step 5: Start the Server
+
+```bash
+# Development mode with auto-reload
+npm run dev
+
+# Production mode
+npm start
+```
+
+### Step 6: Access the Application
+
+Open your browser and navigate to:
+
+```
+http://localhost:3000
+```
+
+---
 
 ## Default Credentials
 
-After running the seed script, you can log in with:
-- **Username**: admin
-- **Password**: admin123
+After running the seed script, use these credentials to log in:
 
-**Important**: Change the default password immediately after first login!
+| Field | Value |
+|-------|-------|
+| **Username** | `admin` |
+| **Password** | `admin123` |
+
+> **Security Notice**: Change the default password immediately after your first login!
+
+---
 
 ## User Roles
 
 ### Admin
-- Full system access
-- Manage all branches
-- Manage employees and their branch access
-- View all reports and analytics
-- Approve restock requests
+
+Full system privileges including:
+
+- Complete access to all branches
+- Employee management and branch assignments
+- System-wide reports and analytics
+- Restock request approvals
+- Configuration and settings management
 
 ### Employee
+
+Branch-specific access including:
+
 - Access to assigned branches only
-- Process POS transactions
-- Manage inventory for assigned branches
-- Create restock requests
-- View branch-specific reports
+- POS transaction processing
+- Inventory management for assigned locations
+- Restock request creation
+- Branch-specific reporting
 
 ### Customer
-- Browse products
-- Place orders for pickup or delivery
-- View order history
-- Manage account information
+
+Self-service portal including:
+
+- Product browsing and search
+- Order placement (pickup/delivery)
+- Order history and tracking
+- Account management
+- Prescription uploads
+
+---
 
 ## Project Structure
 
-\`\`\`
+```
 pharmacy-inventory/
+│
 ├── config/
-│   └── database.js          # Database configuration
+│   └── database.js              # Database connection configuration
+│
 ├── middleware/
-│   └── auth.js              # Authentication middleware
+│   └── auth.js                  # Authentication & authorization middleware
+│
 ├── routes/
-│   ├── auth.js              # Authentication routes
-│   ├── admin.js             # Admin routes
-│   ├── employee.js          # Employee routes
-│   ├── customer.js          # Customer routes
-│   └── pos.js               # POS routes
+│   ├── auth.js                  # Login, logout, registration
+│   ├── admin.js                 # Admin dashboard & management
+│   ├── employee.js              # Employee operations
+│   ├── customer.js              # Customer portal
+│   └── pos.js                   # Point of sale system
+│
 ├── views/
-│   ├── auth/                # Authentication views
-│   ├── layout.ejs           # Main layout template
-│   └── error.ejs            # Error page
+│   ├── auth/                    # Authentication templates
+│   ├── layout.ejs               # Main layout wrapper
+│   └── error.ejs                # Error page template
+│
 ├── public/
 │   └── css/
-│       └── style.css        # Main stylesheet
+│       └── style.css            # Main stylesheet
+│
 ├── scripts/
-│   ├── 01_create_database.sql
-│   └── 02_seed_data.sql
-├── server.js                # Main application file
-├── package.json
-└── .env.example
-\`\`\`
+│   ├── 01_create_database.sql   # Database schema
+│   └── 02_seed_data.sql         # Initial data
+│
+├── server.js                    # Application entry point
+├── package.json                 # Dependencies & scripts
+└── .env.example                 # Environment template
+```
+---
 
 ## Color Scheme
 
-The system uses a green-themed color palette:
-- Primary Green: #55A44E
-- Light Green: #7CCB70
-- Background: #F3F7F4
-- Text: #1C1C1C
+The system uses a professional green-themed palette inspired by pharmacy branding:
+
+| Color Name | Hex Code | Usage |
+|------------|----------|-------|
+| **Primary Green** | `#55A44E` | Buttons, headers, primary actions |
+| **Light Green** | `#7CCB70` | Hover states, accents |
+| **Background** | `#F3F7F4` | Page backgrounds, cards |
+| **Text** | `#1C1C1C` | Primary text content |
+
+### CSS Variables
+
+```css
+/* Primary Colors */
+:root {
+  --primary: #55A44E;
+  --primary-light: #7CCB70;
+  --background: #F3F7F4;
+  --text: #1C1C1C;
+}
+```
+
+---
 
 ## Development
 
-Run in development mode with auto-reload:
-\`\`\`bash
+### Development Mode
+
+Run with auto-reload for development:
+
+```bash
 npm run dev
-\`\`\`
+```
+
+### Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start production server |
+| `npm run dev` | Start development server with nodemon |
+| `npm test` | Run test suite |
+
+### Environment Variables
+
+```bash
+# Database Configuration
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=pharmacy_db
+
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# Session Configuration
+SESSION_SECRET=your_secret_key_here
+```
+
+---
 
 ## License
 
-Unlicensed
+This project is unlicensed and available for use.
 
+---
 
+<div align="center">
+
+**Built for modern pharmacy management**
+
+</div>
