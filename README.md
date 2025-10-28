@@ -126,6 +126,6 @@ npm run dev
 
 ## License
 
-ISC
+Unlicensed
 
 
