@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const pool = require("../config/database");
 
 const seedData = async () => {
@@ -149,7 +149,7 @@ const seedData = async () => {
           defaultPassword,
           `Employee`,
           `${i}`,
-          `+249 91${i} 234 567${i}`,
+          `+24991${i}234567${i}`,
           branches[i - 1].id
         ]);
       }
@@ -164,7 +164,7 @@ const seedData = async () => {
           defaultPassword,
           `Customer`,
           `${i}`,
-          `+249 92${i} 345 678${i}`
+          `+24992${i}345678${i}`
         ]);
       }
       
